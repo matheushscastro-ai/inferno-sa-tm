@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#0d0a14">
-  <link rel="stylesheet" href="style.css?v=49">
+  <link rel="stylesheet" href="style.css?v=50">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
@@ -75,13 +75,21 @@
       </div>
     </header>
 
-    <!-- Barra Superior de Passivas: Ativos do Jogador à Esquerda | CLT / Passiva do Chefe à Direita -->
+    <!-- Barra Superior: Apenas Passivo e Habilidade do Chefe (Símbolos Clicáveis) -->
     <div id="top-passives-bar" class="top-passives-bar">
-      <div id="relics-bar" class="relics-bar"></div>
-      <div id="boss-passive-bar" class="boss-passive-bar">
-        <span class="boss-passives-label">CLT CHEFE:</span>
-        <div id="enemy-passive-badge" class="enemy-passive-badge" title="Toque para ouvir a explicação de Louis"></div>
+      <div class="boss-top-hud">
+        <span class="boss-top-label">CLT CHEFE:</span>
+        <div class="boss-symbols-row">
+          <div id="enemy-passive-badge" class="boss-symbol-circle boss-passive-circle" title="Passiva do Chefe (Toque para ouvir Louis)">
+            <!-- Ícone da Passiva preenchido via JS -->
+          </div>
+          <div id="enemy-ability-badge" class="boss-symbol-circle boss-ability-circle" title="Habilidade do Chefe (Toque para ouvir Louis)">
+            <!-- Ícone da Habilidade preenchido via JS -->
+          </div>
+        </div>
       </div>
+      <!-- Container oculto de relíquias para manter compatibilidade JS -->
+      <div id="relics-bar" class="relics-bar" style="display: none;"></div>
     </div>
 
     <!-- Balão de Fala do Louis Beznoir -->
@@ -563,6 +571,6 @@
 
   </div>
 
-  <script type="module" src="src/game.js?v=49"></script>
+  <script type="module" src="src/game.js?v=50"></script>
 </body>
 </html>

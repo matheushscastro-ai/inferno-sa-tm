@@ -3054,49 +3054,109 @@ body {
 .top-passives-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 8px;
-  padding: 2px 8px;
-  background: linear-gradient(90deg, rgba(16, 11, 26, 0.96) 0%, rgba(28, 18, 42, 0.94) 50%, rgba(16, 11, 26, 0.96) 100%);
-  border-bottom: 1px solid rgba(229, 185, 95, 0.35);
-  min-height: 26px;
-  max-height: 28px;
+  padding: 2px 10px;
+  background: linear-gradient(90deg, rgba(14, 10, 22, 0.98) 0%, rgba(26, 16, 38, 0.96) 50%, rgba(14, 10, 22, 0.98) 100%);
+  border-bottom: 1.5px solid rgba(229, 185, 95, 0.35);
+  min-height: 28px;
+  max-height: 30px;
   z-index: 35;
   flex-shrink: 0;
 }
 
-.relics-bar {
+.boss-top-hud {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 0;
-  background: transparent;
-  border-bottom: none;
-  min-height: auto;
-  overflow-x: auto;
-  scrollbar-width: none;
-  flex: 1;
+  justify-content: center;
+  gap: 8px;
 }
 
-.relics-bar::-webkit-scrollbar {
-  display: none;
-}
-
-.boss-passive-bar {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-}
-
-.boss-passives-label {
+.boss-top-label {
   font-family: var(--font-title);
-  font-size: 0.52rem;
+  font-size: 0.54rem;
   font-weight: 800;
   color: #ff9e9e;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
   white-space: nowrap;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+.boss-symbols-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.boss-symbol-circle {
+  width: 25px;
+  height: 25px;
+  padding: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  touch-action: manipulation;
+  user-select: none;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.boss-symbol-circle:hover,
+.boss-symbol-circle:active {
+  transform: scale(1.15);
+}
+
+.boss-passive-circle {
+  background: radial-gradient(circle, #3e1224 0%, #1c0812 100%);
+  border: 1.4px solid #ff6b81;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.85), 0 0 6px rgba(255, 107, 129, 0.4);
+}
+
+.boss-passive-circle.phase2-enrage {
+  background: radial-gradient(circle, #5e101b 0%, #28050c 100%);
+  border-color: #ffd700;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.9), 0 0 10px rgba(255, 215, 0, 0.7);
+  animation: pulseGoldGlow 1.5s infinite;
+}
+
+.boss-ability-circle {
+  background: radial-gradient(circle, #1a2744 0%, #0c1222 100%);
+  border: 1.4px solid #4da3ff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.85), 0 0 6px rgba(77, 163, 255, 0.4);
+}
+
+.boss-ability-circle.ability-used {
+  filter: grayscale(0.85) brightness(0.6);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: none;
+}
+
+.boss-symbol-icon {
+  width: 15px;
+  height: 15px;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 2px #000);
+}
+
+.boss-used-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  background: #ff4757;
+  color: #fff;
+  font-size: 0.44rem;
+  font-weight: 900;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #fff;
 }
 
 .relics-label {
@@ -4644,39 +4704,29 @@ body {
   display: none !important;
 }
 
-.enemy-passive-badge {
+#enemy-passive-badge,
+#enemy-ability-badge {
+  width: 25px !important;
+  height: 25px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
   display: inline-flex !important;
   align-items: center !important;
-  gap: 3px !important;
-  background: linear-gradient(180deg, rgba(42, 14, 28, 0.95) 0%, rgba(20, 8, 16, 0.95) 100%) !important;
-  border: 1px solid rgba(255, 120, 140, 0.75) !important;
-  border-radius: 999px !important;
-  padding: 1px 7px !important;
-  font-size: 0.50rem !important;
-  font-weight: 700 !important;
-  color: #fff2f2 !important;
-  margin: 0 !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.85) !important;
+  justify-content: center !important;
   cursor: pointer !important;
+  position: relative !important;
   touch-action: manipulation !important;
   user-select: none !important;
-  transition: transform 0.12s, box-shadow 0.12s !important;
-  white-space: nowrap !important;
-  max-width: 170px !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
+  transition: transform 0.12s ease, box-shadow 0.12s ease !important;
+  max-width: none !important;
+  margin: 0 !important;
 }
 
-.enemy-passive-badge:active {
-  transform: scale(0.96) !important;
-  box-shadow: 0 0 10px rgba(255, 107, 129, 0.8) !important;
-}
-
-.passive-info-hint {
-  font-size: 0.54rem !important;
-  font-weight: 900 !important;
-  color: #ffd700 !important;
-  margin-left: 2px !important;
+#enemy-passive-badge:hover,
+#enemy-passive-badge:active,
+#enemy-ability-badge:hover,
+#enemy-ability-badge:active {
+  transform: scale(1.15) !important;
 }
 
 /* 3. Tabuleiro Central (Mesa de Feltro de Cassino Real) */

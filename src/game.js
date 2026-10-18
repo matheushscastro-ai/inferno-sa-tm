@@ -693,7 +693,7 @@ const DUNGEON_ENEMIES = [
     maxHp: 3,
     hp: 3,
     passiveId: 'burocracia_histerica',
-    passiveIcon: 'assets/ui/icon_scroll.svg',
+    passiveIcon: 'assets/ui/icon_burst.svg',
     passiveText: 'Burocracia Feroz: Arredia e reativa a provocações',
     courage: 0.48,
     skillBias: 0.12,
@@ -723,7 +723,7 @@ const DUNGEON_ENEMIES = [
     maxHp: 3,
     hp: 3,
     passiveId: 'pele_granito',
-    passiveIcon: 'assets/ui/icon_gargoyle.svg',
+    passiveIcon: 'assets/ui/icon_shield.svg',
     passiveText: 'Postura Inabalável: Firme como rocha diante de bravatas',
     courage: 0.58,
     skillBias: 0.22,
@@ -761,7 +761,7 @@ const DUNGEON_ENEMIES = [
       id: 'decisao_monocratica',
       name: 'Decisão Monocrática',
       desc: 'Cassa o recurso da mesa e vence desempates monocraticamente!',
-      icon: 'assets/ui/icon_scales.svg'
+      icon: 'assets/ui/icon_sword.svg'
     },
     callouts: {
       attack: ['TRUCO DE OFÍCIO!', 'RECURSO INDEFERIDO!', 'SENTENÇA NA MESA!', 'DESACATO!'],
@@ -783,7 +783,7 @@ const DUNGEON_ENEMIES = [
     maxHp: 3,
     hp: 3,
     passiveId: 'monopolio_tartaro',
-    passiveIcon: 'assets/ui/icon_bident.svg',
+    passiveIcon: 'assets/ui/status_fogo.svg',
     passiveText: 'Comando Absoluto: Impetuoso e dominante nos momentos decisivos',
     courage: 0.74,
     skillBias: 0.38,
@@ -3472,17 +3472,78 @@ class GameState {
     this.renderRelicsBar();
   }
 
+  getBossPassiveName() {
+    if (!this.enemy) return 'Passiva Corporativa';
+    const names = {
+      corpo_mole: 'Adicional Noturno',
+      burocracia_histerica: 'Burocracia Feroz',
+      pele_granito: 'Postura Inabalável',
+      juros_mora: 'Rigor Processual',
+      veredito_minos: 'Jurisprudência do Tártaro',
+      monopolio_tartaro: 'Monopólio do Tártaro'
+    };
+    return names[this.enemy.passiveId] || 'Passiva Corporativa';
+  }
+
   getBossPassiveExplanation() {
     if (!this.enemy) return '';
     const explanations = {
-      corpo_mole: 'Adicional Noturno: se a 1ª vaza empatar (cangar), ele tenta faturar +1 Tento extra se vencer a mão disputada! Mas vacila se você trucar!',
-      burocracia_histerica: 'Falta de Carimbo: reativa e agressiva! Aplica carimbo para reduzir em -2 pontos a força da sua carta jogada na rodada!',
-      pele_granito: 'Bloqueio de Catraca: postura inabalável! Endurece a carta dele em +2 de força bruta e não corre fácil de truco!',
-      juros_mora: 'Rigor Processual: o Juiz Supremo ignora blefes e em caso de empate ele pune com severidade processual monocrática!',
+      corpo_mole: 'Se a 1ª vaza empatar (cangar), ele tenta faturar +1 Tento extra de Adicional Noturno se vencer a mão disputada! Mas vacila e corre facilmente sob Truco!',
+      burocracia_histerica: 'Reativa e agressiva a provocações! Se você pedir Truco, ela retruca com frequência para te pressionar no balcão!',
+      pele_granito: 'Muralha inabalável! Não corre fácil de truco e suas cartas de Espadas ganham peso decisivo no desempate!',
+      juros_mora: 'O Juiz Supremo ignora blefes e em caso de empate ele pune com severidade processual monocrática!',
       veredito_minos: 'Jurisprudência do Tártaro: o Juiz Supremo ignora blefes e suas decisões monocráticas prevalecem!',
-      monopolio_tartaro: 'Monopólio do Tártaro: o CEO do Submundo! Ao atingir 6 Tentos, entra em Fase 2 (Banca em Chamas) com fúria dobrada!'
+      monopolio_tartaro: 'O CEO do Submundo! Ao atingir 6 Tentos, entra em Fase 2 (Banca em Chamas) com fúria dobrada e manilhas extras!'
     };
     return explanations[this.enemy.passiveId] || this.enemy.bgDesc || 'Efeito burocrático do submundo.';
+  }
+
+  renderBossTopHUD() {
+    const passiveBtn = document.getElementById('enemy-passive-badge');
+    const abilityBtn = document.getElementById('enemy-ability-badge');
+    if (!this.enemy) return;
+
+    // 1. Passiva do Chefe (Símbolo Clicável)
+    if (passiveBtn) {
+      const pIcon = this.enemy.passiveIcon || 'assets/ui/icon_shield.svg';
+      const pName = this.getBossPassiveName();
+      const pDesc = this.getBossPassiveExplanation();
+      passiveBtn.innerHTML = `<img src="${pIcon}" class="boss-symbol-icon" alt="${pName}">`;
+      passiveBtn.title = `Passiva: ${pName} (Toque para ouvir Louis)`;
+      passiveBtn.classList.toggle('phase2-enrage', !!this.enemy.phase2Triggered);
+
+      this.bindSafeTap(passiveBtn, () => {
+        this.speakArrogant(pName, pDesc);
+        sfx.cardDraw();
+      });
+    }
+
+    // 2. Habilidade Especial do Chefe (Símbolo Clicável)
+    if (abilityBtn) {
+      const ability = this.enemy.specialAbility;
+      if (ability) {
+        const aIcon = ability.icon || 'assets/ui/icon_scroll.svg';
+        const isUsed = !!this.enemy.specialAbilityUsed;
+        abilityBtn.innerHTML = `
+          <img src="${aIcon}" class="boss-symbol-icon" alt="${ability.name}">
+          ${isUsed ? '<span class="boss-used-badge">✓</span>' : ''}
+        `;
+        abilityBtn.title = `Habilidade: ${ability.name}${isUsed ? ' (Já usada)' : ''} (Toque para ouvir Louis)`;
+        abilityBtn.classList.toggle('ability-used', isUsed);
+        abilityBtn.style.display = 'inline-flex';
+
+        this.bindSafeTap(abilityBtn, () => {
+          if (isUsed) {
+            this.speakArrogant(ability.name, 'O chefe já gastou esse golpe desonesto nesta mão! Ele não tem mais essa carta na manga!');
+          } else {
+            this.speakArrogant(ability.name, ability.desc);
+          }
+          sfx.cardDraw();
+        });
+      } else {
+        abilityBtn.style.display = 'none';
+      }
+    }
   }
 
   updateUI() {
@@ -3526,30 +3587,10 @@ class GameState {
     this.renderRelicsBar();
     this.renderTrucoHUD();
 
-
     document.getElementById('enemy-name').textContent = this.enemy.luizName;
     document.getElementById('enemy-subname').textContent = `(${this.enemy.realName})`;
 
-    const passiveBadge = document.getElementById('enemy-passive-badge');
-    if (passiveBadge) {
-      if (this.enemy.passiveText) {
-        const iconHtml = this.enemy.passiveIcon ? `<img src="${this.enemy.passiveIcon}" class="inline-ui-art" alt="">` : '';
-        passiveBadge.innerHTML = `${iconHtml} <span>${this.enemy.passiveText}</span> <span class="passive-info-hint">ⓘ</span>`;
-        passiveBadge.classList.toggle('phase2-enrage', !!this.enemy.phase2Triggered);
-        passiveBadge.classList.remove('hidden');
-
-        if (!passiveBadge.dataset.bound) {
-          passiveBadge.dataset.bound = 'true';
-          this.bindSafeTap(passiveBadge, () => {
-            const explanation = this.getBossPassiveExplanation();
-            this.speak(`"${this.enemy.luizName}: ${this.enemy.passiveText}? Como você não sabe o que é?! ${explanation}"`);
-            sfx.cardDraw();
-          });
-        }
-      } else {
-        passiveBadge.classList.add('hidden');
-      }
-    }
+    this.renderBossTopHUD();
 
     const enemyImg = document.getElementById('enemy-sprite-idle') || document.getElementById('enemy-avatar-img');
     const enemyAttackImg = document.getElementById('enemy-sprite-attack');
