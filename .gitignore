@@ -7,7 +7,8 @@ showcase_frames.html
 qrcode_mobile.png
 assets/**/test_*
 assets/**/preview_*
-assets/**/*_temp*
+assets/**/*_temp.*
+assets/**/*_temp_*
 assets/**/*_raw*
 assets/backgrounds/ground_horizon_composite.png
 assets/backgrounds/underworld_arena_option*

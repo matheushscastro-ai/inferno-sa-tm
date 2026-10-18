@@ -4492,8 +4492,11 @@ body {
   max-width: clamp(185px, 56vw, 255px) !important;
   object-fit: contain !important;
   margin: 0 auto !important;
-  display: block !important;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.95)) !important;
+}
+
+.enemy-battle-station-vertical .enemy-fullbody-sprite.hidden-sprite {
+  display: none !important;
 }
 
 .enemy-battle-station-vertical .pedestal-container {
