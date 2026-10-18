@@ -2466,10 +2466,10 @@ body {
 
 .boon-card-choice .card-art-container {
   position: absolute;
-  top: 18.5%;
-  left: 19%;
-  width: 62%;
-  height: 35%;
+  top: 17%;
+  left: 20%;
+  width: 60%;
+  height: 61%;
   overflow: hidden;
   z-index: 1;
 }
@@ -2491,22 +2491,36 @@ body {
 }
 
 .boon-card-choice .card-cost {
-  width: 20px;
-  height: 20px;
-  font-size: 0.78rem;
-  top: 13.5%;
-  left: 18%;
-  color: #fff9e6;
-  text-shadow: 0 1px 2px #000;
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  font-size: 0.82rem;
+  top: 7%;
+  left: 13.5%;
+  color: #fff;
+  text-shadow: 0 1px 3px #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  font-weight: 900;
 }
 
 .boon-card-choice .card-header {
+  position: absolute;
   font-size: 0.44rem;
-  top: 11%;
-  left: 28%;
-  width: 54%;
+  top: 10%;
+  left: 30%;
+  width: 50%;
   font-family: var(--font-title);
-  color: #fffaf0;
+  color: #2b1800;
+  font-weight: 900;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 5;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.4);
 }
 
 .boon-card-choice .card-desc {
@@ -2515,17 +2529,17 @@ body {
 
 .boon-card-choice .card-type-tag {
   position: absolute;
-  bottom: 8%;
-  left: 0;
-  right: 0;
-  font-size: 0.46rem;
+  bottom: 12.5%;
+  left: 24%;
+  width: 52%;
+  font-size: 0.42rem;
   font-family: var(--font-title);
-  font-weight: 800;
-  color: #ffd700;
+  font-weight: 900;
+  color: #2b1800;
   text-align: center;
   z-index: 5;
-  letter-spacing: 0.6px;
-  text-shadow: 0 1px 3px #000;
+  letter-spacing: 0.3px;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3);
 }
 
 .boon-card-choice.boon-card-focused {
@@ -3243,15 +3257,17 @@ body {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  width: 64px;
+  height: 64px;
 }
 
 .door-art-img {
-  width: 46px;
-  height: 46px;
+  width: 100%;
+  height: 100%;
   border-radius: 10px;
   object-fit: cover;
-  border: 1.5px solid #ffd700;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.85), inset 0 0 6px rgba(255, 215, 0, 0.35);
+  border: 1.8px solid #ffd700;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.9), inset 0 0 8px rgba(255, 215, 0, 0.4);
   background: #140c1f;
   pointer-events: none;
 }
@@ -4467,7 +4483,7 @@ body {
 .enemy-battle-station-vertical {
   width: 100% !important;
   max-width: 270px !important;
-  margin: 0 auto -58px auto !important; /* O frame do Boss sobrepõe as pernas como na referência */
+  margin: 0 auto -50px auto !important; /* O frame do Boss sobrepõe as pernas como na referência */
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
@@ -4481,7 +4497,7 @@ body {
 .enemy-battle-station-vertical .enemy-fullbody-wrapper {
   margin: 0 auto !important;
   position: relative !important;
-  height: clamp(170px, 26vh, 230px) !important;
+  height: clamp(150px, 22vh, 195px) !important;
   width: 100% !important;
   max-width: clamp(185px, 56vw, 255px) !important;
   display: flex !important;
@@ -4526,7 +4542,7 @@ body {
 }
 
 .hud-frame-wrap .ornate-hud-frame {
-  width: clamp(180px, 48vw, 215px) !important;
+  width: clamp(165px, 44vw, 195px) !important;
   aspect-ratio: 710 / 302 !important;
   margin: 0 auto !important;
   position: relative !important;
@@ -4600,31 +4616,47 @@ body {
 .enemy-passive-badge {
   display: inline-flex !important;
   align-items: center !important;
-  gap: 3px !important;
-  background: rgba(22, 10, 32, 0.88) !important;
-  border: 1px solid rgba(255, 215, 0, 0.4) !important;
+  gap: 4px !important;
+  background: linear-gradient(180deg, rgba(35, 18, 50, 0.95) 0%, rgba(18, 8, 28, 0.95) 100%) !important;
+  border: 1.2px solid #ffd700 !important;
   border-radius: 999px !important;
-  padding: 1px 7px !important;
-  font-size: 0.52rem !important;
+  padding: 2px 9px !important;
+  font-size: 0.54rem !important;
   font-weight: 700 !important;
-  color: #dfe4ea !important;
+  color: #fff9e6 !important;
   margin-top: 1px !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.85), 0 0 6px rgba(255, 215, 0, 0.35) !important;
+  cursor: pointer !important;
+  touch-action: manipulation !important;
+  user-select: none !important;
+  transition: transform 0.15s, box-shadow 0.15s !important;
+}
+
+.enemy-passive-badge:active {
+  transform: scale(0.96) !important;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.8) !important;
+}
+
+.passive-info-hint {
+  font-size: 0.58rem !important;
+  font-weight: 900 !important;
+  color: #ffd700 !important;
+  margin-left: 2px !important;
 }
 
 /* 3. Tabuleiro Central (Mesa de Feltro de Cassino Real) */
 .truco-table-hud-vertical {
   width: 100% !important;
   max-width: 360px !important;
-  margin: 2px auto !important;
-  padding: 4px 6px !important;
+  margin: 1px auto !important;
+  padding: 3px 5px !important;
   background: linear-gradient(180deg, #103322 0%, #081a11 100%) !important;
   border: 2px solid #ffd700 !important;
   border-radius: 12px !important;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.95), 0 0 14px rgba(255, 215, 0, 0.35) !important;
   display: flex !important;
   flex-direction: column !important;
-  gap: 3px !important;
+  gap: 2px !important;
   position: relative !important;
   z-index: 25 !important; /* Sempre acima do fundo */
   flex-shrink: 0 !important;
@@ -4638,8 +4670,8 @@ body {
   background: radial-gradient(circle at center, #185237 0%, #0b2419 100%) !important;
   border: 1.5px solid rgba(255, 215, 0, 0.45) !important;
   border-radius: 8px !important;
-  padding: 5px 8px !important;
-  min-height: 62px !important;
+  padding: 4px 6px !important;
+  min-height: 52px !important;
   box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.85) !important;
   position: relative !important;
   z-index: 26 !important;
@@ -4777,7 +4809,7 @@ body {
 }
 
 .player-visual-hand-row .player-bust-frame {
-  width: clamp(95px, 27vw, 125px) !important;
+  width: clamp(90px, 25vw, 115px) !important;
   flex-shrink: 0 !important;
   display: flex !important;
   align-items: flex-end !important;
@@ -4787,16 +4819,16 @@ body {
 }
 
 .player-visual-hand-row .player-bust-sprite {
-  height: clamp(125px, 18vh, 160px) !important;
-  max-width: clamp(95px, 27vw, 125px) !important;
+  height: clamp(105px, 15vh, 135px) !important;
+  max-width: clamp(90px, 25vw, 115px) !important;
   object-fit: contain !important;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.9)) !important;
 }
 
 .player-visual-hand-row .cards-hand-container {
   flex: 1 !important;
-  min-height: 84px !important;
-  max-height: 100px !important;
+  min-height: 70px !important;
+  max-height: 84px !important;
   display: flex !important;
   align-items: flex-end !important;
   justify-content: center !important;
@@ -4805,27 +4837,27 @@ body {
 }
 
 .cards-hand-container .playing-card-clean {
-  width: clamp(54px, 15vw, 66px) !important;
-  height: clamp(78px, 11vh, 94px) !important;
+  width: clamp(48px, 14vw, 60px) !important;
+  height: clamp(68px, 9.5vh, 80px) !important;
 }
 
 /* 6. Rodapé Alinhado (Sem corte na barra de navegação do celular) */
 .truco-subfooter-aligned {
   width: 100% !important;
   max-width: 380px !important;
-  margin: 1px auto 0 !important;
-  padding: 2px 6px max(6px, env(safe-area-inset-bottom, 6px)) !important;
+  margin: 0 auto !important;
+  padding: 1px 4px max(3px, env(safe-area-inset-bottom, 3px)) !important;
   position: relative !important;
   z-index: 20 !important;
   flex-shrink: 0 !important;
 }
 
 .btn-truco-call-centered {
-  min-width: 125px !important;
-  height: 36px !important;
+  min-width: 120px !important;
+  height: 33px !important;
 }
 
 .btn-fold-hand {
-  height: 32px !important;
+  height: 29px !important;
 }
 

@@ -1983,8 +1983,8 @@ class GameState {
         this.spawnFloatingText(playerEl, `+${pts} TENTO(S)! (${this.playerTentos}/12)`, '#2ecc71', 'assets/ui/icon_dracma.svg');
       }
     } else {
-      // Benefício do Estagiário: se a 1ª partida empatou, ganha +1 Tento de consolação
-      if (this.enemy && this.enemy.passiveId === 'corpo_mole' && this.vazaResults[0] === 'tie') {
+      // Benefício do Estagiário: se a 1ª partida empatou e ele venceu a mão disputada (sem o jogador ter corrido), ganha +1 Tento
+      if (!wasFold && this.enemy && this.enemy.passiveId === 'corpo_mole' && this.vazaResults[0] === 'tie') {
         pts += 1;
         this.spawnFloatingText(enemyEl, '+1 Tento (Adicional Noturno)', '#f39c12', 'assets/ui/icon_scroll.svg');
       }
@@ -2550,7 +2550,7 @@ class GameState {
         <div class="card-art-container">
           <img src="${relic.art}" class="card-art-img" alt="${relic.name}" onerror="this.src='assets/ui/icon_spark.svg'"/>
         </div>
-        <img class="card-frame-overlay" src="assets/ui/card_frame_action_cutout.png?v=3" alt="Frame" />
+        <img class="card-frame-overlay" src="assets/ui/card_frame_olympian_cutout.png?v=1" alt="Frame" />
         <div class="card-cost">★</div>
         <div class="card-header">${relic.name}</div>
         <div class="card-type-tag">ATIVO PASSIVO</div>
@@ -3472,6 +3472,18 @@ class GameState {
     this.renderRelicsBar();
   }
 
+  getBossPassiveExplanation() {
+    if (!this.enemy) return '';
+    const explanations = {
+      corpo_mole: 'Adicional Noturno: se a 1ª partida empatar (cangar), ele tenta faturar +1 Tento extra se vencer a mão disputada! Mas treme se você trucar!',
+      burocracia_histerica: 'Falta de Carimbo: reativa e agressiva! Usa carimbo para aplicar -2 de força na sua carta da rodada!',
+      pele_granito: 'Bloqueio de Catraca: muralha inabalável! Endurece a carta dele em +2 pontos e não corre fácil de truco!',
+      veredito_minos: 'Jurisprudência do Tártaro: o Juiz Supremo ignora blefes e suas cartas reais (K, Q, J) impõem multas severas!',
+      monopolio_tartaro: 'Monopólio do Tártaro: o CEO do Submundo! Ao atingir 6 Tentos, entra em Fase 2 (Banca em Chamas) com fúria dobrada!'
+    };
+    return explanations[this.enemy.passiveId] || this.enemy.bgDesc || 'Efeito burocrático do submundo.';
+  }
+
   updateUI() {
     document.getElementById('player-name').textContent = this.player.name;
     document.getElementById('player-gold').textContent = this.player.gold;
@@ -3513,6 +3525,7 @@ class GameState {
     this.renderRelicsBar();
     this.renderTrucoHUD();
 
+
     document.getElementById('enemy-name').textContent = this.enemy.luizName;
     document.getElementById('enemy-subname').textContent = `(${this.enemy.realName})`;
 
@@ -3520,9 +3533,18 @@ class GameState {
     if (passiveBadge) {
       if (this.enemy.passiveText) {
         const iconHtml = this.enemy.passiveIcon ? `<img src="${this.enemy.passiveIcon}" class="inline-ui-art" alt="">` : '';
-        passiveBadge.innerHTML = `${iconHtml} <span>${this.enemy.passiveText}</span>`;
+        passiveBadge.innerHTML = `${iconHtml} <span>${this.enemy.passiveText}</span> <span class="passive-info-hint">ⓘ</span>`;
         passiveBadge.classList.toggle('phase2-enrage', !!this.enemy.phase2Triggered);
         passiveBadge.classList.remove('hidden');
+
+        if (!passiveBadge.dataset.bound) {
+          passiveBadge.dataset.bound = 'true';
+          this.bindSafeTap(passiveBadge, () => {
+            const explanation = this.getBossPassiveExplanation();
+            this.speak(`"${this.enemy.luizName}: ${this.enemy.passiveText}? Como você não sabe o que é?! ${explanation}"`);
+            sfx.cardDraw();
+          });
+        }
       } else {
         passiveBadge.classList.add('hidden');
       }
