@@ -3475,10 +3475,11 @@ class GameState {
   getBossPassiveExplanation() {
     if (!this.enemy) return '';
     const explanations = {
-      corpo_mole: 'Adicional Noturno: se a 1ª partida empatar (cangar), ele tenta faturar +1 Tento extra se vencer a mão disputada! Mas treme se você trucar!',
-      burocracia_histerica: 'Falta de Carimbo: reativa e agressiva! Usa carimbo para aplicar -2 de força na sua carta da rodada!',
-      pele_granito: 'Bloqueio de Catraca: muralha inabalável! Endurece a carta dele em +2 pontos e não corre fácil de truco!',
-      veredito_minos: 'Jurisprudência do Tártaro: o Juiz Supremo ignora blefes e suas cartas reais (K, Q, J) impõem multas severas!',
+      corpo_mole: 'Adicional Noturno: se a 1ª vaza empatar (cangar), ele tenta faturar +1 Tento extra se vencer a mão disputada! Mas vacila se você trucar!',
+      burocracia_histerica: 'Falta de Carimbo: reativa e agressiva! Aplica carimbo para reduzir em -2 pontos a força da sua carta jogada na rodada!',
+      pele_granito: 'Bloqueio de Catraca: postura inabalável! Endurece a carta dele em +2 de força bruta e não corre fácil de truco!',
+      juros_mora: 'Rigor Processual: o Juiz Supremo ignora blefes e em caso de empate ele pune com severidade processual monocrática!',
+      veredito_minos: 'Jurisprudência do Tártaro: o Juiz Supremo ignora blefes e suas decisões monocráticas prevalecem!',
       monopolio_tartaro: 'Monopólio do Tártaro: o CEO do Submundo! Ao atingir 6 Tentos, entra em Fase 2 (Banca em Chamas) com fúria dobrada!'
     };
     return explanations[this.enemy.passiveId] || this.enemy.bgDesc || 'Efeito burocrático do submundo.';

@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#0d0a14">
-  <link rel="stylesheet" href="style.css?v=48">
+  <link rel="stylesheet" href="style.css?v=49">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
@@ -75,8 +75,14 @@
       </div>
     </header>
 
-    <!-- Barra de Ativos / Relíquias Passivas da Run -->
-    <div id="relics-bar" class="relics-bar"></div>
+    <!-- Barra Superior de Passivas: Ativos do Jogador à Esquerda | CLT / Passiva do Chefe à Direita -->
+    <div id="top-passives-bar" class="top-passives-bar">
+      <div id="relics-bar" class="relics-bar"></div>
+      <div id="boss-passive-bar" class="boss-passive-bar">
+        <span class="boss-passives-label">CLT CHEFE:</span>
+        <div id="enemy-passive-badge" class="enemy-passive-badge" title="Toque para ouvir a explicação de Louis"></div>
+      </div>
+    </div>
 
     <!-- Balão de Fala do Louis Beznoir -->
     <div id="luiz-dialogue-bubble" class="dialogue-bubble hidden">
@@ -142,8 +148,6 @@
             </div>
           </div>
         </div>
-        <!-- Benefício CLT / Passiva Corporativa do Boss -->
-        <div id="enemy-passive-badge" class="enemy-passive-badge"></div>
       </div>
 
       <!-- 3. Tabuleiro Central (Mesa de Baralho Clássica e Limpa) -->
@@ -559,6 +563,6 @@
 
   </div>
 
-  <script type="module" src="src/game.js?v=48"></script>
+  <script type="module" src="src/game.js?v=49"></script>
 </body>
 </html>
