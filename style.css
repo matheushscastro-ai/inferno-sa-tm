@@ -56,10 +56,14 @@ body {
 @media (max-width: 500px) {
   #mobile-viewport {
     max-width: 100vw;
+    width: 100vw;
     height: 100dvh;
     max-height: 100dvh;
     border: none;
     border-radius: 0;
+    overscroll-behavior: none;
+    padding-top: env(safe-area-inset-top, 0);
+    padding-bottom: env(safe-area-inset-bottom, 0);
   }
 }
 
@@ -219,7 +223,7 @@ body {
   background-position: center bottom;
   filter: brightness(0.82) contrast(1.1); /* Escurece sutilmente o fundo para destacar os combatentes */
   pointer-events: none;
-  z-index: 1;
+  z-index: 0;
 }
 
 /* ==========================================================================
@@ -1333,6 +1337,19 @@ body {
 
 .game-card.is-selected {
   filter: drop-shadow(0 24px 44px rgba(0, 0, 0, 0.98)) drop-shadow(0 0 26px rgba(0, 255, 204, 0.95)) !important;
+}
+
+.game-card.playing-card-clean:hover,
+.game-card.playing-card-clean.is-selected {
+  transform: translateY(-24px) scale(1.16) rotate(0deg) !important;
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 16px rgba(255, 215, 0, 0.9)) !important;
+  z-index: 100 !important;
+  border-color: #ffd700 !important;
+}
+
+.game-card.playing-card-clean.protagonist-special-card.is-selected {
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 20px rgba(192, 132, 252, 0.95)) !important;
+  border-color: #c084fc !important;
 }
 
 
@@ -3151,3 +3168,1507 @@ body {
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.95));
   pointer-events: none;
 }
+
+/* ==========================================================================
+   TRUCO DE WALL STREET (SUBMUNDO EDITION) — HUD DE VAZAS & ALAVANCAGEM
+   ========================================================================== */
+.truco-table-hud {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: linear-gradient(180deg, rgba(22, 13, 34, 0.94) 0%, rgba(12, 8, 20, 0.96) 100%);
+  border: 1.5px solid rgba(255, 215, 0, 0.55);
+  border-radius: 8px;
+  padding: 4px 7px;
+  margin-bottom: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.85), inset 0 0 8px rgba(255, 215, 0, 0.15);
+}
+
+.truco-table-hud.truco-escalated {
+  border-color: #ff4757;
+  box-shadow: 0 0 14px rgba(255, 71, 87, 0.65), inset 0 0 10px rgba(255, 215, 0, 0.25);
+}
+
+.truco-rounds-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.truco-vaza-dots {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.vaza-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  font-family: var(--font-title);
+  font-size: 0.56rem;
+  font-weight: 900;
+  color: #b2bec3;
+  background: rgba(35, 24, 52, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  transition: all 0.2s ease;
+}
+
+.vaza-dot.vaza-win {
+  background: linear-gradient(135deg, #ffd700, #e67e22);
+  color: #14081c;
+  border-color: #fff;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+}
+
+.vaza-dot.vaza-loss {
+  background: linear-gradient(135deg, #ff4757, #8b0000);
+  color: #fff;
+  border-color: #ffb8b8;
+  box-shadow: 0 0 8px rgba(255, 71, 87, 0.75);
+}
+
+.vaza-dot.vaza-tie {
+  background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+  color: #fff;
+  border-color: #dfe6e9;
+}
+
+.truco-pot-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(90, 14, 28, 0.9);
+  border: 1px solid #ffd700;
+  border-radius: 6px;
+  padding: 1px 7px;
+  font-family: var(--font-title);
+  font-size: 0.60rem;
+  font-weight: 900;
+  color: #ffd700;
+  letter-spacing: 0.5px;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.35);
+}
+
+.truco-pot-badge.pot-high-stakes {
+  background: linear-gradient(135deg, #c0392b, #8e44ad);
+  color: #fff9e6;
+  animation: pulseGoldGlow 1.1s infinite;
+}
+
+.truco-clash-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 18px;
+  font-size: 0.60rem;
+  font-weight: 700;
+  color: #ffeaa7;
+  background: rgba(8, 5, 14, 0.75);
+  border-radius: 5px;
+  padding: 2px 6px;
+  border: 1px solid rgba(255, 215, 0, 0.22);
+  line-height: 1.2;
+}
+
+/* Botão de Correr da Mão e Botão de Pedir Truco */
+.btn-fold-hand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 30px;
+  padding: 0 8px;
+  background: rgba(32, 22, 48, 0.92);
+  border: 1px solid rgba(255, 107, 129, 0.55);
+  border-radius: 6px;
+  color: #ffb8b8;
+  font-family: var(--font-title);
+  font-size: 0.58rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.btn-fold-hand:hover,
+.btn-fold-hand:active {
+  transform: scale(1.04);
+  filter: brightness(1.2);
+  border-color: #ff4757;
+}
+
+.btn-truco-call .btn-turn-text {
+  font-size: 0.68rem !important;
+  letter-spacing: 1px !important;
+  color: #ffd700 !important;
+}
+
+.btn-truco-call.truco-maxed {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Destaque de Manilha / ZAP nas Cartas */
+.game-card.manilha-card {
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.65));
+}
+
+.game-card .card-cost {
+  font-weight: 900;
+  text-shadow: 0 1px 3px #000, 0 0 5px rgba(255, 215, 0, 0.7);
+}
+
+/* Modal Instantâneo de Desafio de Truco do Chefe */
+.truco-challenge-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 260;
+  background: rgba(8, 4, 15, 0.82);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+}
+
+.truco-challenge-overlay.hidden {
+  display: none !important;
+}
+
+@keyframes modalPopIn {
+  0% { transform: scale(0.7) translateY(20px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.truco-challenge-box {
+  width: 100%;
+  max-width: 345px;
+  background: linear-gradient(180deg, #241338 0%, #12091e 100%);
+  border: 2px solid #ffd700;
+  border-radius: 14px;
+  padding: 16px 14px;
+  text-align: center;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.95), 0 0 24px rgba(255, 71, 87, 0.55);
+  animation: modalPopIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.truco-challenge-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 71, 87, 0.22);
+  border: 1px solid #ff4757;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-family: var(--font-title);
+  font-size: 0.62rem;
+  font-weight: 900;
+  color: #ff6b81;
+  margin-bottom: 6px;
+}
+
+.truco-challenge-box h3 {
+  font-family: var(--font-title);
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #ffd700;
+  margin: 4px 0 6px;
+  text-shadow: 0 2px 6px #000;
+}
+
+.truco-challenge-box p {
+  font-size: 0.74rem;
+  color: #f1f2f6;
+  font-style: italic;
+  margin: 0 0 10px;
+  line-height: 1.35;
+}
+
+.truco-challenge-stakes {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  color: #ffeaa7;
+  margin-bottom: 12px;
+}
+
+.truco-challenge-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.truco-resp-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-family: var(--font-title);
+  font-size: 0.76rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.truco-resp-btn:hover,
+.truco-resp-btn:active {
+  transform: scale(1.03);
+  filter: brightness(1.15);
+}
+
+.truco-resp-btn.accept-btn {
+  background: linear-gradient(180deg, #2ecc71 0%, #1b7943 100%);
+  border: 1.5px solid #a3f7bf;
+  color: #fff;
+}
+
+.truco-resp-btn.raise-btn {
+  background: linear-gradient(180deg, #f39c12 0%, #c0392b 100%);
+  border: 1.5px solid #ffd700;
+  color: #fff9e6;
+}
+
+.truco-resp-btn.fold-btn {
+  background: rgba(45, 32, 66, 0.95);
+  border: 1px solid rgba(255, 184, 184, 0.45);
+  color: #dfe6e9;
+}
+
+/* ==========================================================================
+   TRUCO PAULISTA V37: BARRAS EM 3 BLOCOS (1/3), PLACAR 12 TENTOS,
+   MESA AVANÇADA (BARALHO + VIRA + CARTAS JOGADAS) & BARALHO CLÁSSICO LIMPO
+   ========================================================================== */
+
+/* 1. Barra de HP convertida em 3 Blocos de Rodada (1/3, 2/3, 3/3) */
+.round-blocks-slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.round-blocks-grid {
+  position: absolute;
+  inset: 1px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  padding: 1px 2px;
+  z-index: 2;
+}
+
+.round-block-cell {
+  border-radius: 3px;
+  background: rgba(15, 8, 24, 0.72);
+  border: 1px solid rgba(255, 215, 0, 0.32);
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.round-block-cell.block-won-player {
+  background: linear-gradient(180deg, #2ecc71 0%, #16a085 100%);
+  border-color: #a3f7bf;
+  box-shadow: 0 0 8px rgba(46, 204, 113, 0.85);
+}
+
+.round-block-cell.block-won-enemy {
+  background: linear-gradient(180deg, #ff4757 0%, #990012 100%);
+  border-color: #ffb8b8;
+  box-shadow: 0 0 8px rgba(255, 71, 87, 0.85);
+}
+
+.round-block-cell.block-tie {
+  background: linear-gradient(180deg, #f39c12 0%, #d35400 100%);
+  border-color: #ffeaa7;
+}
+
+.round-blocks-slot .hp-text {
+  position: relative;
+  z-index: 4;
+  font-size: 0.62rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 3px #000, 0 0 6px #000 !important;
+}
+
+/* Placar de Tentos (0 / 12 PTS) */
+.tentos-score-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(90deg, rgba(22, 13, 36, 0.95), rgba(45, 22, 64, 0.92));
+  border: 1.5px solid #ffd700;
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-family: var(--font-title);
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: #fff3c4;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.75);
+  margin-top: 2px;
+}
+
+.tentos-score-pill strong {
+  color: #ffd700;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.enemy-tentos-pill {
+  border-color: #ff6b81;
+}
+
+.enemy-tentos-pill strong {
+  color: #ff6b81;
+}
+
+/* Despoluição de Interface */
+#enemy-intent,
+#truco-pot-badge {
+  display: none !important;
+}
+
+/* 2. Mesa Avançada de Baralho (Monte + Vira + Cartas Jogadas no Turno) */
+.truco-table-hud {
+  padding: 4px 6px !important;
+  gap: 3px !important;
+  background: linear-gradient(180deg, rgba(20, 42, 32, 0.94) 0%, rgba(12, 22, 18, 0.96) 100%) !important;
+  border: 1.5px solid rgba(245, 197, 66, 0.65) !important;
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.8), 0 4px 12px rgba(0, 0, 0, 0.7) !important;
+}
+
+.truco-manilha-pill {
+  background: rgba(245, 197, 66, 0.18);
+  border: 1px solid #ffd700;
+  border-radius: 999px;
+  padding: 1px 7px;
+  font-family: var(--font-title);
+  font-size: 0.56rem;
+  font-weight: 800;
+  color: #ffeaa7;
+}
+
+.truco-manilha-pill strong {
+  color: #ffd700;
+  font-size: 0.66rem;
+}
+
+.truco-felt-surface {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  background: radial-gradient(circle at center, rgba(28, 68, 48, 0.65) 0%, rgba(10, 26, 18, 0.85) 100%);
+  border: 1px solid rgba(255, 215, 0, 0.28);
+  border-radius: 8px;
+  padding: 4px 6px;
+  min-height: 64px;
+}
+
+/* Monte do Baralho + Carta VIRA à esquerda da mesa */
+.table-deck-vira-area {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  position: relative;
+  padding-right: 6px;
+  border-right: 1px dashed rgba(255, 215, 0, 0.3);
+}
+
+.deck-back-stack {
+  width: 34px;
+  height: 48px;
+  border-radius: 4px;
+  box-shadow: -2px 2px 0 #1e132d, -4px 4px 6px rgba(0, 0, 0, 0.85);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.deck-back-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.table-mini-card {
+  width: 38px;
+  height: 52px;
+  border-radius: 5px;
+  background: linear-gradient(160deg, #1f172b 0%, #100b18 100%);
+  border: 1.5px solid #ffd700;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.85);
+  flex-shrink: 0;
+}
+
+.vira-caption {
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffd700;
+  color: #14081c;
+  font-family: var(--font-title);
+  font-size: 0.44rem;
+  font-weight: 900;
+  padding: 0 4px;
+  border-radius: 3px;
+  z-index: 5;
+  letter-spacing: 0.5px;
+}
+
+/* Slots das Cartas Jogadas na Rodada (Ficam na mesa até o fim da rodada) */
+.table-played-cards-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 4px;
+}
+
+.table-played-slot-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.table-slot-owner {
+  font-family: var(--font-title);
+  font-size: 0.46rem;
+  font-weight: 800;
+  color: #dfe6e9;
+  letter-spacing: 0.5px;
+}
+
+.table-played-slot {
+  width: 44px;
+  height: 58px;
+  border-radius: 6px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.22s ease;
+}
+
+.table-played-slot.empty-slot {
+  background: rgba(10, 18, 14, 0.55);
+  border: 1px dashed rgba(255, 215, 0, 0.35);
+}
+
+.slot-placeholder {
+  font-family: var(--font-title);
+  font-size: 0.75rem;
+  color: rgba(255, 215, 0, 0.3);
+  font-weight: 900;
+}
+
+.table-played-slot.slot-winner {
+  transform: scale(1.08);
+  box-shadow: 0 0 12px #ffd700;
+  z-index: 4;
+}
+
+.table-vs-indicator {
+  font-family: var(--font-title);
+  font-size: 0.62rem;
+  font-weight: 900;
+  color: #ffd700;
+  text-shadow: 0 1px 4px #000;
+  padding: 0 2px;
+}
+
+/* Mini Carta Renderizada na Mesa (Vira ou Carta Jogada na Rodada) */
+.mini-playing-card {
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  background: linear-gradient(160deg, #241934 0%, #120c1c 100%);
+  border: 1.5px solid rgba(245, 197, 66, 0.85);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mini-playing-card.is-manilha {
+  border-color: #ffd700;
+  box-shadow: inset 0 0 8px rgba(255, 215, 0, 0.65), 0 0 8px rgba(255, 215, 0, 0.75);
+}
+
+.mini-playing-card .mini-card-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.85;
+}
+
+.mini-playing-card .mini-corner {
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+  background: rgba(12, 8, 20, 0.82);
+  padding: 1px 3px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 215, 0, 0.45);
+}
+
+.mini-playing-card .mini-rank {
+  font-family: var(--font-title);
+  font-size: 0.62rem;
+  font-weight: 900;
+  color: #fff;
+}
+
+.mini-playing-card.suit-red .mini-rank {
+  color: #ff6b81;
+}
+
+.mini-playing-card .mini-suit-img {
+  width: 9px;
+  height: 9px;
+}
+
+.mini-playing-card .mini-center-suit {
+  width: 20px;
+  height: 20px;
+  z-index: 2;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
+}
+
+/* 3. Barra de Cartas de Bênção (Trapaças Olímpicas acima da mão) */
+.truco-blessings-bar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  overflow-x: auto;
+  padding: 2px 2px;
+  min-height: 28px;
+  scrollbar-width: none;
+}
+
+.truco-blessings-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.blessing-chip-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #2c1648 0%, #150a26 100%);
+  border: 1px solid #c084fc;
+  border-radius: 6px;
+  padding: 3px 7px;
+  color: #f3e8ff;
+  font-size: 0.56rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.75);
+  transition: all 0.15s ease;
+}
+
+.blessing-chip-card:hover,
+.blessing-chip-card:active {
+  transform: translateY(-2px);
+  border-color: #ffd700;
+  box-shadow: 0 0 10px rgba(192, 132, 252, 0.75);
+}
+
+.blessing-chip-card.blessing-active-now {
+  background: linear-gradient(135deg, #8e44ad 0%, #d35400 100%);
+  border-color: #ffd700;
+  color: #fff;
+  box-shadow: 0 0 12px #ffd700;
+  animation: pulseGoldGlow 1s infinite;
+}
+
+.blessing-chip-card.blessing-used {
+  opacity: 0.38;
+  pointer-events: none;
+  filter: grayscale(0.8);
+}
+
+.blessing-chip-icon {
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+  object-fit: cover;
+}
+
+/* 4. Cartas de Baralho Clássico Limpas (Sem caixa de texto poluída!) */
+.game-card.playing-card-clean {
+  background: linear-gradient(165deg, #1e162b 0%, #0e0a16 100%);
+  border: 2px solid #d4af37;
+  border-radius: 9px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.85), inset 0 0 12px rgba(212, 175, 55, 0.18);
+}
+
+.game-card.playing-card-clean.manilha-card {
+  border-color: #ffd700;
+  box-shadow: 0 0 14px rgba(255, 215, 0, 0.85), inset 0 0 14px rgba(255, 215, 0, 0.35);
+}
+
+.game-card.playing-card-clean.protagonist-special-card {
+  border-color: #c084fc;
+  box-shadow: 0 0 15px rgba(192, 132, 252, 0.9), inset 0 0 14px rgba(245, 197, 66, 0.4);
+}
+
+/* Cantos Clássicos do Baralho (Superior Esquerdo e Inferior Direito) */
+.playing-card-corner {
+  position: absolute;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(12, 8, 20, 0.86);
+  border: 1px solid rgba(245, 197, 66, 0.55);
+  border-radius: 5px;
+  padding: 2px 4px;
+  line-height: 1;
+  min-width: 22px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.8);
+}
+
+.playing-card-corner.top-left {
+  top: 4px;
+  left: 4px;
+}
+
+.playing-card-corner.bottom-right {
+  bottom: 4px;
+  right: 4px;
+  transform: rotate(180deg);
+}
+
+.corner-rank {
+  font-family: var(--font-title);
+  font-size: 0.78rem;
+  font-weight: 900;
+  color: #f8fafc;
+  text-shadow: 0 1px 2px #000;
+}
+
+.playing-card-clean.suit-red .corner-rank {
+  color: #ff6b81;
+}
+
+.playing-card-clean.manilha-card .corner-rank {
+  color: #ffd700;
+}
+
+.corner-suit-svg {
+  width: 11px;
+  height: 11px;
+  margin-top: 1px;
+}
+
+/* Arte Central: Figuras (A, J, Q, K, ★) vs Pips Clássicos (2, 3, 4, 5, 6, 7) */
+.playing-card-clean .card-art-fullbleed {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.playing-card-pips-grid {
+  position: absolute;
+  inset: 14px 16px;
+  z-index: 2;
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  pointer-events: none;
+}
+
+.playing-card-pips-grid.pips-count-2,
+.playing-card-pips-grid.pips-count-3 {
+  grid-template-columns: 1fr;
+}
+
+.playing-card-pips-grid.pips-count-4,
+.playing-card-pips-grid.pips-count-5,
+.playing-card-pips-grid.pips-count-6,
+.playing-card-pips-grid.pips-count-7 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.pip-suit-item {
+  width: 18px;
+  height: 18px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
+}
+
+.pip-suit-item.pip-center-span {
+  grid-column: 1 / -1;
+}
+
+/* Selo sutil apenas quando for MANILHA ou Carta Especial do Louis */
+.clean-card-badge {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 7;
+  background: linear-gradient(90deg, #f39c12, #d35400);
+  border: 1px solid #fff;
+  color: #fff;
+  font-family: var(--font-title);
+  font-size: 0.46rem;
+  font-weight: 900;
+  padding: 1px 5px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
+.clean-card-badge.badge-special {
+  background: linear-gradient(90deg, #8e44ad, #c0392b);
+  border-color: #ffd700;
+  color: #ffd700;
+}
+
+/* ==========================================================================
+   TRUCO PAULISTA V38: CLEAN BOARD, CENTERED TRUCO CALL & 1X-PER-BOSS ABILITIES
+   ========================================================================== */
+
+/* Placar Unificado Clean no Topo da Mesa */
+.truco-unified-scoreboard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(90deg, rgba(30, 16, 44, 0.95) 0%, rgba(18, 10, 28, 0.98) 50%, rgba(30, 16, 44, 0.95) 100%);
+  border: 1.5px solid rgba(255, 215, 0, 0.65);
+  border-radius: 8px;
+  padding: 3px 8px;
+  margin-bottom: 4px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.9), inset 0 0 10px rgba(255, 215, 0, 0.15);
+}
+
+.scoreboard-party {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.scoreboard-party.enemy {
+  color: #ff6b81;
+}
+
+.scoreboard-party.player {
+  color: #2ecc71;
+}
+
+.scoreboard-label {
+  font-family: var(--font-title);
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
+.scoreboard-score-badge {
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(255, 215, 0, 0.5);
+  border-radius: 5px;
+  padding: 1px 7px;
+  font-family: var(--font-title);
+  font-size: 0.76rem;
+  font-weight: 900;
+  color: #ffd700;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+}
+
+.scoreboard-center-stake {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 215, 0, 0.15);
+  border: 1px solid #ffd700;
+  border-radius: 999px;
+  padding: 1px 9px;
+  font-family: var(--font-title);
+  font-size: 0.58rem;
+  font-weight: 900;
+  color: #fff9e6;
+  letter-spacing: 0.5px;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+}
+
+.scoreboard-center-stake.stake-escalated {
+  background: linear-gradient(135deg, #c0392b, #8e44ad);
+  color: #fff;
+  border-color: #ffd700;
+  animation: pulseGoldGlow 1s infinite;
+}
+
+/* Banner de Inspeção de Carta Selecionada (Suborno de Louis & Manilhas) */
+.card-inspector-banner {
+  background: linear-gradient(90deg, rgba(32, 18, 54, 0.95), rgba(18, 10, 28, 0.95));
+  border: 1px solid rgba(255, 215, 0, 0.45);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 0.58rem;
+  color: #ffeaa7;
+  text-align: center;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-bottom: 3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+  transition: all 0.2s ease;
+}
+
+.card-inspector-banner.special-selected {
+  border-color: #c084fc;
+  background: linear-gradient(90deg, rgba(88, 28, 135, 0.95), rgba(30, 10, 48, 0.95));
+  color: #f5d0fe;
+  box-shadow: 0 0 10px rgba(192, 132, 252, 0.6);
+}
+
+.card-inspector-banner.manilha-selected {
+  border-color: #ffd700;
+  background: linear-gradient(90deg, rgba(120, 53, 15, 0.95), rgba(35, 20, 10, 0.95));
+  color: #fef08a;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+}
+
+/* Barra de Habilidades 1x por Boss (Nerfadas e Balanceadas) */
+.archetype-abilities-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.archetype-ability-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #23153c 0%, #120920 100%);
+  border: 1.5px solid #d4af37;
+  border-radius: 7px;
+  padding: 3px 8px;
+  color: #f8fafc;
+  font-family: var(--font-title);
+  font-size: 0.56rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.85);
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.archetype-ability-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.2);
+  border-color: #ffd700;
+}
+
+.archetype-ability-btn.ability-used,
+.archetype-ability-btn:disabled {
+  opacity: 0.42;
+  border-color: rgba(255, 255, 255, 0.25);
+  background: #181124;
+  cursor: not-allowed;
+  transform: none !important;
+  filter: grayscale(0.85);
+}
+
+.archetype-ability-icon {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  object-fit: cover;
+}
+
+.archetype-passive-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(30, 20, 45, 0.8);
+  border: 1px dashed #a29bfe;
+  border-radius: 7px;
+  padding: 3px 7px;
+  color: #e2d9f3;
+  font-size: 0.54rem;
+  font-weight: 700;
+}
+
+/* Rodapé de Ações Centralizado (Botão TRUCO em Destaque no Meio) */
+.actions-subfooter {
+  display: grid !important;
+  grid-template-columns: 80px 1fr 80px !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-top: 4px !important;
+  width: 100% !important;
+}
+
+.footer-left-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.footer-center-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer-right-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+/* Botão Central de TRUCO / SEIS / NOVE / DOZE com Arte das Moedas */
+.btn-truco-call-centered {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  width: auto !important;
+  min-width: 154px !important;
+  height: 42px !important;
+  background: linear-gradient(180deg, #3d1222 0%, #1e0912 100%) !important;
+  border: 2px solid #ffd700 !important;
+  border-radius: 10px !important;
+  color: #ffd700 !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.95), 0 0 16px rgba(255, 71, 87, 0.5) !important;
+  cursor: pointer !important;
+  transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.15s !important;
+  padding: 0 14px !important;
+  user-select: none !important;
+}
+
+.btn-truco-call-centered:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.04) !important;
+  filter: brightness(1.2) drop-shadow(0 0 12px rgba(255, 215, 0, 0.8)) !important;
+  border-color: #fff !important;
+}
+
+.btn-truco-call-centered:active:not(:disabled) {
+  transform: scale(0.97) !important;
+}
+
+.btn-truco-call-centered.truco-waiting,
+.btn-truco-call-centered:disabled {
+  opacity: 0.55 !important;
+  background: #1a1218 !important;
+  border-color: #718093 !important;
+  color: #a4b0be !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+}
+
+.truco-btn-coin-art {
+  width: 28px !important;
+  height: 28px !important;
+  object-fit: contain !important;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.8)) !important;
+  flex-shrink: 0 !important;
+}
+
+.truco-btn-title-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  line-height: 1.1 !important;
+}
+
+.truco-btn-action-name {
+  font-family: var(--font-title) !important;
+  font-size: 0.78rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 1px !important;
+  color: #ffd700 !important;
+  text-shadow: 0 1px 3px #000 !important;
+}
+
+.truco-btn-sub-label {
+  font-size: 0.52rem !important;
+  font-weight: 700 !important;
+  color: #ffeaa7 !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* Modal de Descarte (Fundo Quant: 4 Cartas -> Escolha 1 para descartar) */
+.discard-modal-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 270;
+  background: rgba(8, 4, 15, 0.85);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+}
+
+.discard-modal-box {
+  width: 100%;
+  max-width: 360px;
+  background: linear-gradient(180deg, #241338 0%, #12091e 100%);
+  border: 2px solid #00f2fe;
+  border-radius: 14px;
+  padding: 16px 12px;
+  text-align: center;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.95), 0 0 25px rgba(0, 242, 254, 0.4);
+  animation: modalPopIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.discard-modal-title {
+  font-family: var(--font-title);
+  font-size: 0.92rem;
+  font-weight: 900;
+  color: #00f2fe;
+  margin-bottom: 4px;
+  text-shadow: 0 2px 6px #000;
+}
+
+.discard-modal-desc {
+  font-size: 0.68rem;
+  color: #e0f2fe;
+  margin-bottom: 12px;
+}
+
+.discard-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  justify-items: center;
+}
+
+.discard-card-item {
+  width: 68px;
+  height: 94px;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+  border-radius: 7px;
+  border: 1.5px solid #d4af37;
+  overflow: hidden;
+  position: relative;
+  background: #140d1f;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.85);
+}
+
+.discard-card-item:hover {
+  transform: translateY(-4px) scale(1.06);
+  border-color: #ff4757;
+  box-shadow: 0 0 14px rgba(255, 71, 87, 0.85);
+}
+
+.discard-card-item::after {
+  content: 'DESCARTAR';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff4757;
+  color: #fff;
+  font-size: 0.44rem;
+  font-weight: 900;
+  padding: 1px 4px;
+  border-radius: 3px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.discard-card-item:hover::after {
+  opacity: 1;
+}
+
+
+
+
+
+/* ==========================================================================
+   LAYOUT VERTICAL CENTRALIZADO — TRUCO PAULISTA INFERNO S/A (V41)
+   Fluxo: Boss Animation -> Boss Frame -> Mesa Truco -> Player Frame -> Protagonista & Mão -> Rodapé
+   ========================================================================== */
+
+#battle-arena {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  width: 100% !important;
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 2px 6px !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+/* 1. Animação do Boss Centralizada */
+.enemy-battle-station-vertical {
+  width: 100% !important;
+  max-width: 180px !important;
+  margin: 0 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  position: relative !important;
+  z-index: 10 !important;
+  flex-shrink: 0 !important;
+}
+
+.enemy-battle-station-vertical .enemy-fullbody-wrapper {
+  margin-left: 0 !important;
+  margin-bottom: -24px !important;
+}
+
+.enemy-battle-station-vertical .enemy-fullbody-sprite {
+  height: clamp(75px, 11vh, 90px) !important;
+  max-width: 95px !important;
+  object-fit: contain !important;
+}
+
+.enemy-battle-station-vertical .pedestal-container {
+  width: clamp(120px, 34vw, 145px) !important;
+}
+
+/* 2 e 4. Wrappers de Moldura Ornata (Boss e Jogador) */
+.hud-frame-wrap {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 1px auto !important;
+  position: relative !important;
+  z-index: 12 !important;
+  flex-shrink: 0 !important;
+}
+
+.hud-frame-wrap .ornate-hud-frame {
+  width: clamp(180px, 48vw, 215px) !important;
+  aspect-ratio: 710 / 302 !important;
+  margin: 0 auto !important;
+  position: relative !important;
+}
+
+/* Medidores Integrados dentro da Moldura (Pontos / Tentos e Rodadas) */
+.frame-meters-container {
+  position: absolute !important;
+  bottom: 14% !important;
+  left: 10% !important;
+  right: 10% !important;
+  height: 25% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 4px !important;
+  z-index: 4 !important;
+  pointer-events: none !important;
+}
+
+.frame-tentos-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+  background: rgba(10, 5, 18, 0.94) !important;
+  border: 1px solid rgba(255, 215, 0, 0.6) !important;
+  border-radius: 4px !important;
+  padding: 1px 4px !important;
+  font-family: var(--font-title) !important;
+  color: #ffd700 !important;
+  white-space: nowrap !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8) !important;
+}
+
+.frame-tentos-pill .tentos-label {
+  font-size: 0.44rem !important;
+  color: #dfe4ea !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.3px !important;
+}
+
+.frame-tentos-pill .tentos-badge {
+  font-size: 0.58rem !important;
+  font-weight: 900 !important;
+  color: #fff9e6 !important;
+}
+
+.frame-tentos-pill .tentos-badge strong {
+  color: #ffd700 !important;
+  font-size: 0.64rem !important;
+}
+
+.frame-meters-container .round-blocks-slot {
+  flex: 1 !important;
+  height: 100% !important;
+  position: relative !important;
+  top: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  margin: 0 !important;
+  border-radius: 3px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(255, 215, 0, 0.35) !important;
+}
+
+.enemy-passive-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+  background: rgba(22, 10, 32, 0.88) !important;
+  border: 1px solid rgba(255, 215, 0, 0.4) !important;
+  border-radius: 999px !important;
+  padding: 1px 7px !important;
+  font-size: 0.52rem !important;
+  font-weight: 700 !important;
+  color: #dfe4ea !important;
+  margin-top: 1px !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* 3. Tabuleiro Central (Mesa de Feltro de Cassino Real) */
+.truco-table-hud-vertical {
+  width: 100% !important;
+  max-width: 360px !important;
+  margin: 2px auto !important;
+  padding: 4px 6px !important;
+  background: linear-gradient(180deg, #103322 0%, #081a11 100%) !important;
+  border: 2px solid #ffd700 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.95), 0 0 14px rgba(255, 215, 0, 0.35) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+  position: relative !important;
+  z-index: 25 !important; /* Sempre acima do fundo */
+  flex-shrink: 0 !important;
+}
+
+.truco-table-hud-vertical .truco-felt-surface {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  background: radial-gradient(circle at center, #185237 0%, #0b2419 100%) !important;
+  border: 1.5px solid rgba(255, 215, 0, 0.45) !important;
+  border-radius: 8px !important;
+  padding: 5px 8px !important;
+  min-height: 62px !important;
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.85) !important;
+  position: relative !important;
+  z-index: 26 !important;
+}
+
+.table-deck-vira-area {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  position: relative !important;
+  z-index: 27 !important;
+  padding-right: 6px !important;
+  border-right: 1.5px dashed rgba(255, 215, 0, 0.4) !important;
+}
+
+.deck-back-stack {
+  width: 34px !important;
+  height: 48px !important;
+  border-radius: 4px !important;
+  border: 1.5px solid #ffd700 !important;
+  box-shadow: -2px 2px 0 #091a12, -4px 4px 6px rgba(0, 0, 0, 0.85) !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+  display: block !important;
+}
+
+.deck-back-img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+.table-mini-card {
+  width: 36px !important;
+  height: 50px !important;
+  border-radius: 5px !important;
+  border: 1.5px solid #ffd700 !important;
+  background: linear-gradient(160deg, #1f172b 0%, #100b18 100%) !important;
+  position: relative !important;
+  z-index: 28 !important;
+  overflow: hidden !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.85) !important;
+  flex-shrink: 0 !important;
+  display: block !important;
+}
+
+.vira-caption {
+  position: absolute !important;
+  bottom: -3px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  background: #ffd700 !important;
+  color: #14081c !important;
+  font-family: var(--font-title) !important;
+  font-size: 0.44rem !important;
+  font-weight: 900 !important;
+  padding: 0 4px !important;
+  border-radius: 3px !important;
+  z-index: 30 !important;
+  letter-spacing: 0.5px !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.8) !important;
+}
+
+.table-manilha-tag {
+  display: none !important; /* Manilha já fica evidente na Vira e na mão */
+}
+
+.table-played-cards-area {
+  flex: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-around !important;
+  position: relative !important;
+  z-index: 27 !important;
+}
+
+.table-slot-owner {
+  font-family: var(--font-title) !important;
+  font-size: 0.50rem !important;
+  font-weight: 900 !important;
+  color: #ffd700 !important;
+  letter-spacing: 0.4px !important;
+  text-shadow: 0 1px 3px #000 !important;
+}
+
+.table-played-slot {
+  width: 42px !important;
+  height: 56px !important;
+  border-radius: 6px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  z-index: 28 !important;
+  background: rgba(12, 28, 20, 0.85) !important;
+  border: 1.5px solid rgba(255, 215, 0, 0.35) !important;
+}
+
+.table-played-slot.empty-slot {
+  border-style: dashed !important;
+  border-color: rgba(255, 215, 0, 0.4) !important;
+}
+
+.table-vs-indicator {
+  font-family: var(--font-title) !important;
+  font-size: 0.68rem !important;
+  font-weight: 900 !important;
+  color: #ffd700 !important;
+  text-shadow: 0 1px 4px #000, 0 0 8px rgba(255, 215, 0, 0.6) !important;
+}
+
+.archetype-abilities-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  margin: 1px 0 0 !important;
+  position: relative !important;
+  z-index: 29 !important;
+}
+
+/* 5. Linha Inferior: Protagonista e Mão de Cartas */
+.player-visual-hand-row {
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  gap: 4px !important;
+  margin-top: auto !important;
+  padding: 0 2px !important;
+  position: relative !important;
+  z-index: 15 !important;
+  flex-shrink: 0 !important;
+}
+
+.player-visual-hand-row .player-bust-frame {
+  width: 76px !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: flex-start !important;
+  margin-left: -2px !important;
+  margin-bottom: -3px !important;
+}
+
+.player-visual-hand-row .player-bust-sprite {
+  height: clamp(80px, 12vh, 96px) !important;
+  max-width: 76px !important;
+  object-fit: contain !important;
+}
+
+.player-visual-hand-row .cards-hand-container {
+  flex: 1 !important;
+  min-height: 84px !important;
+  max-height: 98px !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  padding: 0 2px !important;
+  gap: 4px !important;
+}
+
+.cards-hand-container .playing-card-clean {
+  width: clamp(54px, 15vw, 64px) !important;
+  height: clamp(78px, 11vh, 92px) !important;
+}
+
+/* 6. Rodapé Alinhado */
+.truco-subfooter-aligned {
+  width: 100% !important;
+  max-width: 380px !important;
+  margin: 2px auto 0 !important;
+  padding-bottom: max(2px, env(safe-area-inset-bottom, 2px)) !important;
+  position: relative !important;
+  z-index: 20 !important;
+  flex-shrink: 0 !important;
+}
+
+.btn-truco-call-centered {
+  min-width: 130px !important;
+  height: 38px !important;
+}
+

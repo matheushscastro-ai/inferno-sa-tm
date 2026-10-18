@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <radialGradient id="coinGold6" cx="40%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#fff8cc"/>
+      <stop offset="45%" stop-color="#e5b83b"/>
+      <stop offset="85%" stop-color="#996a12"/>
+      <stop offset="100%" stop-color="#4a3003"/>
+    </radialGradient>
+    <radialGradient id="flameRuby6" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff6b6b"/>
+      <stop offset="100%" stop-color="#800a0a"/>
+    </radialGradient>
+    <filter id="shadow6" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+  <!-- Base coins stack -->
+  <g filter="url(#shadow6)">
+    <circle cx="18" cy="42" r="13" fill="url(#coinGold6)" stroke="#1a1205" stroke-width="1.6"/>
+    <circle cx="32" cy="44" r="13" fill="url(#coinGold6)" stroke="#1a1205" stroke-width="1.6"/>
+    <circle cx="46" cy="42" r="13" fill="url(#coinGold6)" stroke="#1a1205" stroke-width="1.6"/>
+    <!-- Middle stack -->
+    <circle cx="23" cy="30" r="14" fill="url(#coinGold6)" stroke="#1a1205" stroke-width="1.8"/>
+    <circle cx="41" cy="30" r="14" fill="url(#coinGold6)" stroke="#1a1205" stroke-width="1.8"/>
+    <!-- Top Crown Coin -->
+    <circle cx="32" cy="18" r="16" fill="url(#coinGold6)" stroke="#1a1205" stroke-width="2"/>
+    <circle cx="32" cy="18" r="12" fill="none" stroke="#fff4b0" stroke-width="1.2" stroke-dasharray="2 1.5"/>
+    <circle cx="32" cy="18" r="3" fill="url(#flameRuby6)"/>
+    <text x="32" y="23" font-size="14" font-weight="900" font-family="'Cinzel', serif" fill="#362201" text-anchor="middle">6</text>
+  </g>
+</svg>

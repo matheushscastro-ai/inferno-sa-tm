@@ -1,103 +1,162 @@
 // ============================================================================
-// INFERNO S/A: O Takeover de Louis Beznoir (Protótipo Mobile - Versão Calibrada)
+// INFERNO S/A: O Takeover de Louis Beznoir (Edição TRUCO DE WALL STREET)
 // ============================================================================
 import { sfx } from './audio.js';
 
-// 1. BANCO DE CARTAS (Ações Arcanas de Capa & Espada, Bênçãos e Matriz de Fusão)
+// 1. BANCO DE CARTAS (Hierarquia de Força do Truco 2 a 14 + Efeitos Táticos + Fusões ZAP)
 
 export const CARD_DATABASE = {
-  // AÇÕES ARCANAS DE LUIZ (BASE DE DUELO)
-  toque_aristocratico: {
-    id: 'toque_aristocratico',
-    name: 'Toque Nobre',
-    type: 'action',
-    cost: 1,
-    icon: 'assets/ui/icon_spark.svg',
-    image: 'assets/cards/card_toque_aristocratico.png',
-    desc: 'Causa 7 de dano arcano com um estalar de dedos pomposo.',
-    damage: 7,
-    shield: 0,
-    flavor: 'A nobreza não se curva perante as sombras.'
-  },
-  liminar_judicial: {
-    id: 'liminar_judicial',
-    name: 'Liminar Arcana',
-    type: 'action',
-    cost: 1,
-    icon: 'assets/ui/icon_scroll.svg',
-    image: 'assets/cards/card_liminar_arcana.png',
-    desc: 'Gera 8 de armadura invocando um pergaminho sagrado de proteção.',
-    damage: 0,
-    shield: 8,
-    flavor: 'Minha família tem imunidade em qualquer plano.'
-  },
+  // CARTAS DE BASE DE LOUIS (FORÇA 5 A 9)
   corte_custos: {
     id: 'corte_custos',
     name: 'Estocada Ágil',
     type: 'action',
-    cost: 0,
+    cost: 5,
+    trucoPower: 5,
     icon: 'assets/ui/icon_sword.svg',
     image: 'assets/cards/card_estocada_precisa.png',
-    desc: 'Custo 0! Golpe rápido de esgrima causando 4 de dano.',
+    desc: 'FORÇA 5 • Golpe rápido: causa +4 de Dano Direto imediato ao bater na mesa.',
     damage: 4,
     shield: 0,
-    flavor: 'Velocidade e pontaria sem desperdício de energia.'
+    flavor: 'Velocidade e pontaria na abertura da rodada.'
+  },
+  blefe_mercado: {
+    id: 'blefe_mercado',
+    name: 'Finta de Blefe',
+    type: 'action',
+    cost: 6,
+    trucoPower: 6,
+    icon: 'assets/ui/icon_shield.svg',
+    image: 'assets/cards/card_toque_aristocratico.png',
+    desc: 'FORÇA 6 • +8 Escudo e intimida o Chefe (+30% chance dele CORRER do seu Truco!).',
+    damage: 0,
+    shield: 8,
+    bluffBoost: true,
+    flavor: 'A arte clássica de blefar rindo da cara do adversário.'
   },
   discurso_impacto: {
     id: 'discurso_impacto',
     name: 'Retórica Nobre',
     type: 'action',
-    cost: 1,
+    cost: 7,
+    trucoPower: 7,
     icon: 'assets/ui/status_confusao.svg',
     image: 'assets/cards/card_retorica_duelo.png',
-    desc: 'Causa 4 de dano e aplica Confusão (+50% de dano sofrido).',
-    damage: 4,
+    desc: 'FORÇA 7 • Sabotagem: reduz a Força da carta do Chefe em -3 nesta rodada!',
+    damage: 3,
     shield: 0,
+    weakenEnemyCard: 3,
     applyStatus: { type: 'daze', duration: 2, icon: 'assets/ui/status_confusao.svg', name: 'Confusão' },
-    flavor: 'Uma oratória tão arrogante que desestabiliza o oponente.'
+    flavor: 'Uma oratória tão arrogante que desmonta a mão do oponente.'
   },
-  blefe_mercado: {
-    id: 'blefe_mercado',
-    name: 'Finta Nobre',
+  liminar_judicial: {
+    id: 'liminar_judicial',
+    name: 'Liminar Arcana',
     type: 'action',
-    cost: 1,
-    icon: 'assets/ui/icon_shield.svg',
-    image: 'assets/cards/card_toque_aristocratico.png',
-    desc: 'Gera 7 de armadura. Se o inimigo for atacar, compra 1 carta.',
+    cost: 7,
+    trucoPower: 7,
+    icon: 'assets/ui/icon_scroll.svg',
+    image: 'assets/cards/card_liminar_arcana.png',
+    desc: 'FORÇA 7 • Gera +10 de Escudo (protege seu HP se perder a mão ou correr).',
     damage: 0,
-    shield: 7,
-    conditionalDraw: true,
-    flavor: 'A arte clássica de esquivar rindo do adversário.'
+    shield: 10,
+    flavor: 'Minha família tem imunidade em qualquer jurisdição.'
+  },
+  toque_aristocratico: {
+    id: 'toque_aristocratico',
+    name: 'Toque Nobre',
+    type: 'action',
+    cost: 8,
+    trucoPower: 8,
+    icon: 'assets/ui/icon_spark.svg',
+    image: 'assets/cards/card_toque_aristocratico.png',
+    desc: 'FORÇA 8 • Carta firme de rodada! Causa +6 de Dano Direto imediato.',
+    damage: 6,
+    shield: 0,
+    flavor: 'A nobreza não perde rodada para amadores.'
   },
   acao_indenizatoria: {
     id: 'acao_indenizatoria',
     name: 'Contragolpe',
     type: 'action',
-    cost: 1,
+    cost: 9,
+    trucoPower: 9,
     icon: 'assets/ui/icon_scales.svg',
     image: 'assets/cards/card_estocada_precisa.png',
-    desc: 'Causa 6 de dano + o dobro do dano sofrido no último turno.',
-    damage: 6,
+    desc: 'FORÇA 9 (Três) • Vira FORÇA 13 (Manilha!) se o Chefe venceu uma rodada nesta mão!',
+    damage: 5,
     isRetaliation: true,
     shield: 0,
-    flavor: 'Uma ofensa contra um Beznol nunca fica sem resposta.'
+    flavor: 'Perdeu a primeira rodada? Crave a virada na segunda!'
   },
 
-  // BÊNÇÃOS DOS DEUSES DO OLIMPO
+  // BÊNÇÃOS DOS DEUSES & MANILHAS DO MERCADO (FORÇA 10 A 13)
+  blindagem_olimpica: {
+    id: 'blindagem_olimpica',
+    name: 'Hedge de Hefesto',
+    type: 'blessing',
+    element: 'fire',
+    vfxType: 'fire',
+    cost: 10,
+    trucoPower: 10,
+    icon: 'assets/ui/icon_shield.svg',
+    image: 'assets/cards/card_chamas_hefesto.png',
+    desc: 'FORÇA 10 (Ás) • Gera +12 de Escudo e aplica 3 de Queimadura no Chefe.',
+    damage: 0,
+    shield: 12,
+    applyStatus: { type: 'burn', stacks: 3, icon: 'assets/ui/status_fogo.svg', name: 'Queimadura' },
+    flavor: 'Proteção patrimonial forjada no fogo.'
+  },
+  bencao_velocidade: {
+    id: 'bencao_velocidade',
+    name: 'Asas de Hermes',
+    type: 'blessing',
+    element: 'speed',
+    cost: 11,
+    trucoPower: 11,
+    isManilha: true,
+    icon: 'assets/ui/icon_wing.svg',
+    image: 'assets/cards/card_bencao_velocidade.png',
+    desc: 'MANILHA 11 (Ouros) • Compra +1 Carta extra para sua mão e causa +4 Dano!',
+    damage: 4,
+    shield: 0,
+    drawCards: 1,
+    flavor: 'Manilha veloz que renova suas opções na mesa.'
+  },
   bencao_fogo: {
     id: 'bencao_fogo',
     name: 'Fogo de Hefesto',
     type: 'blessing',
     element: 'fire',
     vfxType: 'fire',
-    cost: 1,
+    cost: 11,
+    trucoPower: 11,
+    isManilha: true,
     icon: 'assets/ui/status_fogo.svg',
     image: 'assets/cards/card_chamas_hefesto.png',
-    desc: 'Hefesto: Aplica 4 de Queimadura no inimigo.',
-    damage: 3,
+    desc: 'MANILHA 11 (Ouros) • Causa +5 Dano e aplica 5 de Queimadura contínua.',
+    damage: 5,
     shield: 0,
-    applyStatus: { type: 'burn', stacks: 4, icon: 'assets/ui/status_fogo.svg', name: 'Queimadura' },
+    applyStatus: { type: 'burn', stacks: 5, icon: 'assets/ui/status_fogo.svg', name: 'Queimadura' },
     flavor: 'Fogo refinado das forjas divinas.'
+  },
+  alavancagem_divina: {
+    id: 'alavancagem_divina',
+    name: 'Dividendos de Zeus',
+    type: 'blessing',
+    element: 'lightning',
+    vfxType: 'lightning',
+    cost: 12,
+    trucoPower: 12,
+    isManilha: true,
+    icon: 'assets/ui/icon_dracma.svg',
+    image: 'assets/cards/card_bencao_raio.png?v=29',
+    desc: 'MANILHA 12 (Espadilha) • Causa +6 Dano e paga +15 Dracmas na hora!',
+    damage: 6,
+    shield: 0,
+    gainGold: 15,
+    applyStatus: { type: 'shock', stacks: 2, icon: 'assets/ui/status_raio.svg', name: 'Choque' },
+    flavor: 'Liquidez imediata com garantia olímpica.'
   },
   bencao_raio: {
     id: 'bencao_raio',
@@ -105,12 +164,15 @@ export const CARD_DATABASE = {
     type: 'blessing',
     element: 'lightning',
     vfxType: 'lightning',
-    cost: 1,
+    cost: 12,
+    trucoPower: 12,
+    isManilha: true,
     icon: 'assets/ui/status_raio.svg',
     image: 'assets/cards/card_bencao_raio.png?v=29',
-    desc: 'Zeus: Causa 6 de dano e aplica 2 Choques (detona dano extra).',
+    desc: 'MANILHA 12 (Espadilha) • Causa +6 Dano e sobe a Aposta da Mão em +8 Dano!',
     damage: 6,
     shield: 0,
+    potBoost: 8,
     applyStatus: { type: 'shock', stacks: 2, icon: 'assets/ui/status_raio.svg', name: 'Choque' },
     flavor: 'A aprovação reluzente do Olimpo.'
   },
@@ -120,71 +182,28 @@ export const CARD_DATABASE = {
     type: 'blessing',
     element: 'blood',
     vfxType: 'blood',
-    cost: 1,
+    cost: 13,
+    trucoPower: 13,
+    isManilha: true,
     icon: 'assets/ui/status_sangria.svg',
     image: 'assets/cards/card_bencao_guerra.png?v=29',
-    desc: 'Ares: Causa 6 de dano e aplica 4 de Sangramento.',
-    damage: 6,
-    shield: 0,
-    applyStatus: { type: 'bleed', stacks: 4, icon: 'assets/ui/status_sangria.svg', name: 'Sangramento' },
-    flavor: 'Agressividade pura para resolver qualquer disputa.'
-  },
-  bencao_velocidade: {
-    id: 'bencao_velocidade',
-    name: 'Asas de Hermes',
-    type: 'blessing',
-    element: 'speed',
-    cost: 0,
-    icon: 'assets/ui/icon_wing.svg',
-    image: 'assets/cards/card_bencao_velocidade.png',
-    desc: 'Hermes: Custo 0! Compra 2 cartas e concede 1 Ação.',
-    damage: 0,
-    shield: 0,
-    drawCards: 2,
-    bonusEnergy: 1,
-    flavor: 'Agilidade de quem não tem tempo a perder em filas.'
-  },
-  alavancagem_divina: {
-    id: 'alavancagem_divina',
-    name: 'Dividendos de Zeus',
-    type: 'blessing',
-    element: 'lightning',
-    vfxType: 'lightning',
-    cost: 1,
-    icon: 'assets/ui/icon_dracma.svg',
-    image: 'assets/cards/card_bencao_raio.png?v=29',
-    desc: 'Causa 8 de dano, aplica 2 Choques e rende +15 Dracmas!',
+    desc: 'MANILHA 13 (Copas) • Só perde pro ZAP! Causa +8 Dano e 4 Sangramento!',
     damage: 8,
     shield: 0,
-    gainGold: 15,
-    applyStatus: { type: 'shock', stacks: 2, icon: 'assets/ui/status_raio.svg', name: 'Choque' },
-    flavor: 'Liquidez imediata com garantia olímpica.'
-  },
-  blindagem_olimpica: {
-    id: 'blindagem_olimpica',
-    name: 'Hedge de Hefesto',
-    type: 'blessing',
-    element: 'fire',
-    vfxType: 'fire',
-    cost: 1,
-    icon: 'assets/ui/icon_shield.svg',
-    image: 'assets/cards/card_chamas_hefesto.png',
-    desc: 'Gera 11 de Escudo e aplica 3 de Queimadura no inimigo.',
-    damage: 0,
-    shield: 11,
-    applyStatus: { type: 'burn', stacks: 3, icon: 'assets/ui/status_fogo.svg', name: 'Queimadura' },
-    flavor: 'Proteção patrimonial forjada no fogo.'
+    applyStatus: { type: 'bleed', stacks: 4, icon: 'assets/ui/status_sangria.svg', name: 'Sangramento' },
+    flavor: 'Agressividade pura para esmagar qualquer mesa.'
   },
 
-  // CARTA DE BUROCRACIA / POLUIÇÃO DE DECK (INSERIDA PELOS CHEFES)
+  // CARTA DE BUROCRACIA / SUJEIRA DE MÃO (INSERIDA PELOS CHEFES)
   protocolo_pendente: {
     id: 'protocolo_pendente',
     name: 'Formulário 9.999',
     type: 'curse',
-    cost: 1,
+    cost: 2,
+    trucoPower: 2,
     icon: 'assets/ui/icon_scroll.svg',
     image: 'assets/cards/card_liminar_arcana.png',
-    desc: 'BUROCRACIA! Causa 4 de dano no fim do turno se continuar na mão. Jogue para incinerar.',
+    desc: 'FORÇA 2 (Sujeira!) • Perde rodada fácil! Jogue para incinerar ou vença no BLEFE gritando TRUCO!',
     damage: 0,
     shield: 0,
     exhaust: true,
@@ -192,96 +211,108 @@ export const CARD_DATABASE = {
   }
 };
 
-// RECEITAS DE FUSÃO DA MATRIZ YU-GI-OH COM ARTES DEDICADAS E SÍNTESE UNIVERSAL
+// RECEITAS DE FUSÃO M&A — TODA CARTA FUNDIDA É UM "ZAP" (FORÇA 14 IMBATÍVEL!)
 export const FUSION_RECIPES = {
   'toque_aristocratico+bencao_fogo': {
     id: 'combustao_gourmet',
-    name: 'Chama de Hefesto',
+    name: 'ZAP: Chama de Hefesto',
     type: 'fused',
     vfxType: 'fire',
-    cost: 1,
+    cost: 14,
+    trucoPower: 14,
+    isManilha: true,
     icon: 'assets/ui/status_fogo.svg',
     image: 'assets/cards/card_combustao_gourmet.png',
-    desc: 'Causa 14 de dano de fogo e aplica 5 de Queimadura.',
-    damage: 14,
+    desc: 'ZAP FORÇA 14 (Imbatível na Rodada!) • Causa +10 Dano de fogo e 5 Queimadura!',
+    damage: 10,
     shield: 0,
     applyStatus: { type: 'burn', stacks: 5, icon: 'assets/ui/status_fogo.svg', name: 'Queimadura' },
-    catchphrase: 'Flawless blend!'
+    catchphrase: 'ZAP NA TESTA! Flawless blend!'
   },
   'toque_aristocratico+bencao_raio': {
     id: 'estalo_trovejante',
-    name: 'Estalo de Zeus',
+    name: 'ZAP: Estalo de Zeus',
     type: 'fused',
     vfxType: 'lightning',
-    cost: 1,
+    cost: 14,
+    trucoPower: 14,
+    isManilha: true,
     icon: 'assets/ui/status_raio.svg',
     image: 'assets/cards/card_estalo_zeus.png',
-    desc: 'Causa 15 de dano e eletrifica com 3 Choques.',
-    damage: 15,
+    desc: 'ZAP FORÇA 14 (Imbatível na Rodada!) • Causa +10 Dano e sobe a Mão em +10!',
+    damage: 10,
     shield: 0,
+    potBoost: 10,
     applyStatus: { type: 'shock', stacks: 3, icon: 'assets/ui/status_raio.svg', name: 'Choque' },
-    catchphrase: 'Flawless!'
+    catchphrase: 'ZAP DE ZEUS NA MESA! Flawless!'
   },
   'toque_aristocratico+bencao_guerra': {
     id: 'bravata_imperial',
-    name: 'Golpe de Ares',
+    name: 'ZAP: Golpe de Ares',
     type: 'fused',
     vfxType: 'blood',
-    cost: 1,
+    cost: 14,
+    trucoPower: 14,
+    isManilha: true,
     icon: 'assets/ui/status_sangria.svg',
     image: 'assets/cards/card_bencao_guerra.png?v=29',
-    desc: 'Causa 16 de dano crítico e 5 Sangramento!',
-    damage: 16,
+    desc: 'ZAP FORÇA 14 (Imbatível na Rodada!) • Causa +12 Dano crítico e 5 Sangramento!',
+    damage: 12,
     shield: 0,
     applyStatus: { type: 'bleed', stacks: 5, icon: 'assets/ui/status_sangria.svg', name: 'Sangramento' },
-    catchphrase: 'Flawless!'
+    catchphrase: 'ZAP IMPERIAL! Engole essa, submundo!'
   },
   'liminar_judicial+bencao_raio': {
     id: 'clausula_eletrizante',
-    name: 'Égide de Zeus',
+    name: 'ZAP: Égide de Zeus',
     type: 'fused',
     vfxType: 'lightning',
-    cost: 1,
+    cost: 14,
+    trucoPower: 14,
+    isManilha: true,
     icon: 'assets/ui/status_raio.svg',
     image: 'assets/cards/card_estalo_zeus.png',
-    desc: 'Gera 14 de armadura, causa 8 de dano e 2 Choques.',
+    desc: 'ZAP FORÇA 14 (Imbatível!) • Gera +14 de Escudo e causa +8 Dano!',
     damage: 8,
     shield: 14,
     applyStatus: { type: 'shock', stacks: 2, icon: 'assets/ui/status_raio.svg', name: 'Choque' },
-    catchphrase: 'Flawless!'
+    catchphrase: 'ZAP BLINDADO! Flawless!'
   },
   'corte_custos+bencao_velocidade': {
     id: 'layoff_relampago',
-    name: 'Estocada Alada',
+    name: 'ZAP: Estocada Alada',
     type: 'fused',
-    cost: 0,
+    cost: 14,
+    trucoPower: 14,
+    isManilha: true,
     icon: 'assets/ui/icon_wing.svg',
     image: 'assets/cards/card_bencao_velocidade.png',
-    desc: 'Custo 0! Causa 10 de dano, compra 2 cartas e +1 Ação!',
-    damage: 10,
+    desc: 'ZAP FORÇA 14 (Imbatível!) • Causa +9 Dano e compra +1 Carta extra!',
+    damage: 9,
     shield: 0,
-    drawCards: 2,
-    bonusEnergy: 1,
-    catchphrase: 'Flawless!'
+    drawCards: 1,
+    catchphrase: 'ZAP HFT NA MESA!'
   },
   'acao_indenizatoria+bencao_guerra': {
     id: 'litigio_sangrento',
-    name: 'Vingança de Ares',
+    name: 'ZAP: Vingança de Ares',
     type: 'fused',
     vfxType: 'blood',
-    cost: 1,
+    cost: 14,
+    trucoPower: 14,
+    isManilha: true,
     icon: 'assets/ui/status_sangria.svg',
     image: 'assets/cards/card_bencao_guerra.png?v=29',
-    desc: 'Causa 14 de dano + dobro do dano sofrido + 5 de Sangramento!',
-    damage: 14,
+    desc: 'ZAP FORÇA 14 (Imbatível!) • Causa +12 Dano e aplica 5 de Sangramento!',
+    damage: 12,
     isRetaliation: true,
     shield: 0,
     applyStatus: { type: 'bleed', stacks: 5, icon: 'assets/ui/status_sangria.svg', name: 'Sangramento' },
-    catchphrase: 'Flawless!'
+    catchphrase: 'ZAP EXECUTIVO! Sem recurso!'
   }
 };
 
-// SINTETIZADOR UNIVERSAL DE FUSÃO (Permite fundir qualquer Ação + Bênção ou 2 Bênçãos!)
+// SINTETIZADOR UNIVERSAL DE FUSÃO (Qualquer Ação + Bênção vira um ZAP Força 14!)
 export function resolveCardDefinition(cardKey) {
   if (!cardKey) return null;
   if (CARD_DATABASE[cardKey]) return CARD_DATABASE[cardKey];
@@ -294,41 +325,36 @@ export function resolveCardDefinition(cardKey) {
 
     const c1 = CARD_DATABASE[k1];
     const c2 = CARD_DATABASE[k2];
-    if (c1 && c2 && c1.type !== 'curse' && c2.type !== 'curse' && (c1.type === 'blessing' || c2.type === 'blessing')) {
+    if (c1 && c2 && c1.type !== 'curse' && c2.type !== 'curse') {
       const blessing = c1.type === 'blessing' ? c1 : c2;
       const other = c1.type === 'blessing' ? c2 : c1;
-      const dmg = (c1.damage || 0) + (c2.damage || 0) + 4;
-      const shd = (c1.shield || 0) + (c2.shield || 0) + (c1.shield || c2.shield ? 3 : 0);
+      const dmg = Math.max(8, (c1.damage || 0) + (c2.damage || 0) + 3);
+      const shd = (c1.shield || 0) + (c2.shield || 0);
       const draw = (c1.drawCards || 0) + (c2.drawCards || 0);
-      const energy = (c1.bonusEnergy || 0) + (c2.bonusEnergy || 0);
-      const status = blessing.applyStatus ? {
-        ...blessing.applyStatus,
-        stacks: blessing.applyStatus.stacks ? blessing.applyStatus.stacks + 2 : undefined,
-        duration: blessing.applyStatus.duration ? blessing.applyStatus.duration + 1 : undefined
-      } : other.applyStatus;
+      const status = blessing.applyStatus || other.applyStatus;
 
-      const parts = [];
-      if (dmg > 0) parts.push(`${dmg} Dano`);
+      const parts = ['ZAP FORÇA 14 (Imbatível!)'];
+      if (dmg > 0) parts.push(`+${dmg} Dano`);
       if (shd > 0) parts.push(`+${shd} Escudo`);
       if (status) parts.push(`+${status.stacks || status.duration} ${status.name}`);
-      if (draw > 0) parts.push(`Compra ${draw}`);
 
       const dynamicRecipe = {
         id: cardKey,
-        name: `${other.name.split(' ')[0]} Divino`,
+        name: `ZAP: ${other.name.split(' ')[0]} Supremo`,
         type: 'fused',
         vfxType: blessing.vfxType || other.vfxType || 'lightning',
-        cost: Math.min(1, Math.max(c1.cost, c2.cost)),
+        cost: 14,
+        trucoPower: 14,
+        isManilha: true,
         icon: blessing.icon || other.icon,
         image: blessing.image || other.image,
-        desc: `Sinergia M&A: ${parts.join(', ')}.`,
+        desc: parts.join(' • '),
         damage: dmg,
         shield: shd,
         drawCards: draw,
-        bonusEnergy: energy,
         isRetaliation: c1.isRetaliation || c2.isRetaliation,
         applyStatus: status,
-        catchphrase: 'Sinergia de Portfólio Impecável!'
+        catchphrase: 'ZAP M&A NA MESA! Imbatível!'
       };
       FUSION_RECIPES[cardKey] = dynamicRecipe;
       return dynamicRecipe;
@@ -337,192 +363,293 @@ export function resolveCardDefinition(cardKey) {
   return null;
 }
 
-// BANCO DE RELÍQUIAS / ATIVOS DO MERCADO FINANCEIRO (JOKERS / PASSIVAS ROGUELIKE)
+// BANCO DE RELÍQUIAS / ATIVOS DO MERCADO FINANCEIRO (PASSIVAS DE TRUCO)
 export const RELIC_DATABASE = {
   algoritmo_hermes: {
     id: 'algoritmo_hermes',
     name: 'Algoritmo HFT',
     art: 'assets/ui/archetype_quant.png',
-    desc: 'Tese Quant: No Turno 1 de cada câmara, ganha +1 Ação e compra +1 Carta.'
+    desc: 'Tese Quant: 1x por boss compre 4 cartas (descarta 1 no início); 1x por boss carta ímpar vence!'
   },
   alavancagem_ares: {
     id: 'alavancagem_ares',
     name: 'Alavancagem Hostil',
     art: 'assets/ui/archetype_pe.png',
-    desc: 'Private Equity: +3 de Dano em inimigos com status e +4 Dano se Louis tiver ≤50% HP.'
+    desc: 'Private Equity: 1x por boss sua carta ganha +2 de poder; 1x por boss carta do chefe perde 2!'
   },
   blindagem_patrimonial: {
     id: 'blindagem_patrimonial',
     name: 'Holding Blindada',
     art: 'assets/ui/archetype_hedge.png',
-    desc: 'Hedge Fund: Retém 50% do Escudo entre turnos e cartas de Escudo geram +3 de Escudo.'
+    desc: 'Hedge Fund: Passiva: você vence todos os empates (cangas); 1x por boss carta par vence!'
   },
   patek_olimpico: {
     id: 'patek_olimpico',
-    name: 'Patek Olímpico',
+    name: 'Patek dos Deuses',
     art: 'assets/ui/relic_patek.png',
-    cost: 75,
-    desc: 'O primeiro ataque de cada turno causa +4 de Dano e concede +3 de Escudo.'
+    cost: 70,
+    desc: 'Sinal de Status: Na 1ª rodada de toda mão, sua carta ganha +1 nível de força na mesa!'
   },
   cartao_centurion: {
     id: 'cartao_centurion',
     name: 'Amex Obsidiana',
     art: 'assets/ui/relic_centurion.png',
-    cost: 75,
-    desc: 'Juros Compostos: Seus ataques causam +1 de Dano extra para cada 35 Dracmas que você possui.'
+    cost: 65,
+    desc: 'Rei do Blefe: Ganha +25 Dracmas sempre que o Chefe correr do seu Truco!'
+  },
+  insider_trading: {
+    id: 'insider_trading',
+    name: 'Insider Trading',
+    art: 'assets/ui/icon_wing.svg',
+    cost: 80,
+    desc: 'Espionagem Executiva: Na 2ª partida de cada rodada, a carta do Chefe é jogada aberta na mesa!'
   },
   trituradora_vip: {
     id: 'trituradora_vip',
     name: 'Compliance VIP',
     art: 'assets/ui/relic_compliance.png',
-    cost: 65,
-    desc: 'Imune ao dano de Formulário 9.999. Despachar Formulários custa 0 e compra 1 carta!'
+    cost: 75,
+    desc: 'Blindagem Jurídica: Bloqueia 1 habilidade especial do Chefe no duelo e intimida-o a correr do Truco!'
   },
   safra_1800: {
     id: 'safra_1800',
     name: 'Bordeaux 1800',
     art: 'assets/ui/relic_bordeaux.png',
-    cost: 65,
-    desc: 'Ao vencer uma Câmara, recupera +10 HP automaticamente e inicia lutas com +8 de Escudo.'
+    cost: 70,
+    desc: 'Reserva Exclusiva: Começa cada duelo contra Chefe já com +2 Tentos de vantagem no placar!'
   },
   fusao_perpetua: {
     id: 'fusao_perpetua',
     name: 'Contrato M&A',
     art: 'assets/ui/relic_contract.png',
     cost: 90,
-    desc: 'Cartas Fundidas NÃO se desfazem ao ir para o descarte nesta luta e causam +4 Dano!'
+    desc: 'Pacto Perpétuo: Garante que a Carta Especial de Louis (★ Beznoir) venha na sua mão em TODAS as rodadas iniciais!'
+  },
+  fundo_soberano: {
+    id: 'fundo_soberano',
+    name: 'Fundo Soberano',
+    art: 'assets/ui/icon_scales.svg',
+    cost: 60,
+    desc: 'Liquidez Superior: Ao vencer a rodada sem perder partidas (2x0), fatura +20 Dracmas imediatos!'
   }
 };
 
-// ARQUÉTIPOS INICIAIS (TESES DE INVESTIMENTO)
+// BANCO DE CARTAS DE BÊNÇÃO (TRAPAÇAS OLÍMPICAS QUE INTERFEREM NAS REGRAS DA RODADA)
+export const OLYMPIC_BLESSINGS_DB = {
+  troca_manilha: {
+    id: 'troca_manilha',
+    name: 'Trocar Manilha',
+    god: 'Hermes',
+    icon: 'assets/ui/icon_wing.svg',
+    image: 'assets/cards/card_bencao_velocidade.png',
+    shortLabel: 'Trocar Manilha',
+    desc: 'Vira uma nova carta no baralho da mesa imediatamente, mudando a MANILHA da rodada!'
+  },
+  menor_vence: {
+    id: 'menor_vence',
+    name: 'Menor Carta Vence',
+    god: 'Dionísio',
+    icon: 'assets/ui/icon_dice.svg',
+    image: 'assets/cards/card_retorica_duelo.png',
+    shortLabel: 'Menor Vence',
+    desc: 'Inverte a regra nesta rodada: ganha a rodada quem jogar a carta MAIS FRACA (menor valor)!'
+  },
+  inimigo_impar: {
+    id: 'inimigo_impar',
+    name: 'Inimigo Ímpar Perde',
+    god: 'Zeus',
+    icon: 'assets/ui/status_raio.svg',
+    image: 'assets/cards/card_estalo_zeus.png',
+    shortLabel: 'Mata Ímpar',
+    desc: 'Ganha a rodada automaticamente se a carta do inimigo for ÍMPAR (3, 5, 7, A, J, K)!'
+  },
+  aumento_poder: {
+    id: 'aumento_poder',
+    name: '+4 Poder na Carta',
+    god: 'Hefesto',
+    icon: 'assets/ui/status_fogo.svg',
+    image: 'assets/cards/card_combustao_gourmet.png',
+    shortLabel: '+4 Poder',
+    desc: 'Aumenta o poder da sua carta em +4 posições na hierarquia do Truco nesta rodada!'
+  },
+  diminuicao_inimigo: {
+    id: 'diminuicao_inimigo',
+    name: '-4 Poder Inimigo',
+    god: 'Ares',
+    icon: 'assets/ui/status_sangria.svg',
+    image: 'assets/cards/card_bencao_guerra.png?v=29',
+    shortLabel: '-4 Inimigo',
+    desc: 'Diminui o poder da carta do inimigo em -4 posições na hierarquia nesta rodada!'
+  },
+  inimigo_par: {
+    id: 'inimigo_par',
+    name: 'Inimigo Par Perde',
+    god: 'Atena',
+    icon: 'assets/ui/icon_shield.svg',
+    image: 'assets/cards/card_liminar_arcana.png',
+    shortLabel: 'Mata Par',
+    desc: 'Ganha a rodada automaticamente se a carta do inimigo for PAR (2, 4, 6, Q)!'
+  },
+  anular_manilha: {
+    id: 'anular_manilha',
+    name: 'Anular Manilha Inimiga',
+    god: 'Poseidon',
+    icon: 'assets/ui/icon_scales.svg',
+    image: 'assets/cards/card_estocada_precisa.png',
+    shortLabel: 'Anula Manilha',
+    desc: 'Se o Chefe jogar uma Manilha nesta rodada, ela perde o efeito de Manilha e vira carta comum!'
+  },
+  roubar_empate: {
+    id: 'roubar_empate',
+    name: 'Empate +1 Tento',
+    god: 'Afrodite',
+    icon: 'assets/ui/status_charme.svg',
+    image: 'assets/cards/card_toque_aristocratico.png',
+    shortLabel: '+1 Tento',
+    desc: 'Vence qualquer empate nesta rodada e adiciona +1 Tento extra ao valor da Mão!'
+  }
+};
+
+// ARQUÉTIPOS INICIAIS (TESES DE INVESTIMENTO NO TRUCO PAULISTA)
 export const ARCHETYPES = {
   quant: {
     id: 'quant',
     name: 'Fundo Quantitativo (HFT)',
     art: 'assets/ui/archetype_quant.png',
-    subtitle: 'Velocidade & Choques em Cadeia (Hermes / Zeus)',
+    subtitle: '1x por Boss: Compra 4 e Descarta 1 • 1x por Boss: Carta Ímpar Vence',
     relic: 'algoritmo_hermes',
-    deck: [
-      'toque_aristocratico',
-      'toque_aristocratico',
-      'corte_custos',
-      'corte_custos',
-      'liminar_judicial',
-      'liminar_judicial',
-      'blefe_mercado',
-      'bencao_raio'
-    ]
+    blessings: ['troca_manilha', 'inimigo_impar'],
+    deck: ['troca_manilha', 'inimigo_impar']
   },
   private_equity: {
     id: 'private_equity',
     name: 'Private Equity Hostil',
     art: 'assets/ui/archetype_pe.png',
-    subtitle: 'Dano Agressivo, Sangria & Queimadura (Ares / Hefesto)',
+    subtitle: '1x por Boss: Sua Carta +2 Poder • 1x por Boss: Carta do Boss -2',
     relic: 'alavancagem_ares',
-    deck: [
-      'toque_aristocratico',
-      'toque_aristocratico',
-      'acao_indenizatoria',
-      'discurso_impacto',
-      'liminar_judicial',
-      'liminar_judicial',
-      'corte_custos',
-      'bencao_fogo'
-    ]
+    blessings: ['aumento_poder', 'diminuicao_inimigo'],
+    deck: ['aumento_poder', 'diminuicao_inimigo']
   },
   hedge_fund: {
     id: 'hedge_fund',
     name: 'Holding Blindada (Hedge)',
     art: 'assets/ui/archetype_hedge.png',
-    subtitle: 'Retenção de Escudo & Contragolpe (Atena / Ares)',
+    subtitle: 'Passiva: Vence Todos os Empates • 1x por Boss: Carta Par Vence',
     relic: 'blindagem_patrimonial',
-    deck: [
-      'liminar_judicial',
-      'liminar_judicial',
-      'liminar_judicial',
-      'blefe_mercado',
-      'acao_indenizatoria',
-      'toque_aristocratico',
-      'discurso_impacto',
-      'bencao_guerra'
-    ]
+    blessings: ['menor_vence', 'inimigo_par'],
+    deck: ['menor_vence', 'inimigo_par']
   }
 };
 
-// 2. DIÁLOGOS DE LUIZ BEZNOL (Calibrados conforme solicitação)
+// BARALHO CLÁSSICO TEMÁTICO DE TRUCO PAULISTA (Do 4 ao 3 + Figuras Ilustradas A, J, Q, K)
+export const TRUCO_RANKS = ['4', '5', '6', '7', 'Q', 'J', 'K', 'A', '2', '3'];
+
+export const TRUCO_SUITS = [
+  { id: 'ouros', name: 'Ouros', svg: 'assets/ui/suit_ouros.svg', isRed: true, suitOrder: 1, manilhaTitle: 'PICA-FUMO' },
+  { id: 'espadas', name: 'Espadas', svg: 'assets/ui/suit_espadas.svg', isRed: false, suitOrder: 2, manilhaTitle: 'ESPADILHA' },
+  { id: 'copas', name: 'Copas', svg: 'assets/ui/suit_copas.svg', isRed: true, suitOrder: 3, manilhaTitle: 'COPETA' },
+  { id: 'paus', name: 'Paus', svg: 'assets/ui/suit_paus.svg', isRed: false, suitOrder: 4, manilhaTitle: 'ZAP' }
+];
+
+export const COURT_CARD_ART = {
+  'A': 'assets/cards/truco_card_a.png',
+  'J': 'assets/cards/truco_card_j.png',
+  'Q': 'assets/cards/truco_card_q.png',
+  'K': 'assets/cards/truco_card_k.png',
+  '★': 'assets/cards/truco_card_louis.png'
+};
+
+export function getNextTrucoRank(rank) {
+  const idx = TRUCO_RANKS.indexOf(String(rank));
+  if (idx === -1) return 'Q';
+  return TRUCO_RANKS[(idx + 1) % TRUCO_RANKS.length];
+}
+
+export function isRankOdd(rank) {
+  const r = String(rank);
+  return ['3', '5', '7', 'A', 'J', 'K', '★'].includes(r);
+}
+
+export function isRankEven(rank) {
+  const r = String(rank);
+  return ['2', '4', '6', 'Q'].includes(r);
+}
+
+// 2. DIÁLOGOS DE LUIZ BEZNOL (Truco Paulista de Wall Street)
 const LUIZ_QUOTES = {
   start: [
-    'Outstanding! Onde está seu manager? Quero uma audiência marcada com o próprio Hades.',
-    'Minha certidão de óbito é um erro crasso. Onde fica o tribunal de Minos?',
-    'Esse mármore do primeiro círculo definitivamente não é de Carrara...',
-    'Preciso resolver esse mal-entendido com Hades antes do jantar.'
+    'Embaralha isso direito! Na Faria Lima eu só jogo Truco Paulista valendo 12 tentos.',
+    'Olha a Vira na mesa! Três rodadas e sem choro no compliance. Quem dá as cartas?',
+    'Pode vir! Se você correr do meu Truco, já vou anotando os tentos!',
+    'Preciso fechar esse takeover em 12 tentos antes que meu Bordeaux esquente.'
   ],
   playAction: [
-    'Flawless! Apenas contemple a perfeição.',
-    'Totalmente abaixo da minha classe ter que duelar com você.',
-    'Isso deve doer... fisicamente e no seu orgulho.',
-    'Aceita débito? Porque isso vai custar caro!',
-    'Toque de Midas com juros compostos!'
+    'Bate essa carta na mesa se tiver patrimônio!',
+    'Rodada limpa! Olha o naipe dessa carta!',
+    'Você chama essa merda de carta?!',
+    'Engole essa posição na mesa!',
+    'Corta essa se tiver Manilha!'
+  ],
+  trucoCall: [
+    'TRUCO, Burocrata! Vale 3 Tentos agora!',
+    'SEIS NA SUA CARA! Vai encarar 6 Tentos ou vai correr pro RH?!',
+    'NOVE! Bota 9 Tentos na roda agora!',
+    'DOZE! PARTIDO INTEIRO! Quero a cadeira da presidência nessa mão!'
   ],
   fuse: [
-    'Flawless! Essa fusão tem o selo de qualidade Beznoir.'
+    'Trapaça Olímpica ativada na mesa!'
   ],
   fuseFail: [
-    'Os Deuses não trabalhariam com fórmulas tão desordenadas.',
-    'Nem Minos aceitaria esse pacto mal redigido.',
-    'Essa conjuração não tem a mínima elegância.'
+    'Jogue uma carta na mesa para resolver a rodada!'
   ],
   hurt: [
-    'MEU LINHO EGÍPCIO! Você tem ideia de quanto custa isso?!',
-    'VOCÊ SABE QUEM É MEU PAI?! Processo em três instâncias!',
-    'Isso é agressão ao patrimônio! Onde está a ouvidoria deste lugar?',
-    'Derramou meu vinho de 1800! Que selvageria inominável!',
-    'Se essa capa de seda rasgar, Caronte vai ouvir poucas e boas!'
+    'MEU LINHO EGÍPCIO! Ele tinha Manilha escondida?!',
+    'ISSO É INSIDER TRADING! Quero recontagem das cartas!',
+    'Roubaram no embaralhamento! Vou acionar a CVM do Tártaro!',
+    'Derramou meu vinho de 1800 na mesa de feltro!'
   ],
   win: [
-    'Flawless victory! Onde está a próxima porta? Esse lugar cheira a mofo.',
-    'Outstanding! Até Hades vai aplaudir a minha descida.'
+    'Flawless victory! 12 tentos no placar e mais um chefe liquidado!',
+    'Outstanding! Mais uma mesa varrida pela Holding Beznoir.'
   ]
 };
 
-// BALÕES DE GRITO CÔMICO INSTANTÂNEO (Pop-ups de Reação Cartoon — Sem Emojis)
+// BALÕES DE GRITO CÔMICO INSTANTÂNEO
 const COMIC_CALLOUTS = {
   attack: [
-    'TOQUE DE MIDAS!',
-    'ACEITA DÉBITO?!',
-    'FLAWLESS!',
-    'CHIQUE DEMAIS!',
-    'COM JUROS!'
+    'TOMA NA RODADA!',
+    'CORTA ESSA!',
+    'ZAP NA TESTA!',
+    'TRUCO, LADRÃO!',
+    'DESCE A CARTA!'
   ],
   hurt: [
+    'TINHA MANILHA?!',
+    'BARALHO MARCADO!',
     'MEU LINHO EGÍPCIO!',
-    'PROCESSO EM 3 INSTÂNCIAS!',
-    'VOCÊ SABE QUEM É MEU PAI?!',
-    'CUSTOU 50 MIL DRACMAS!',
-    'QUE SELVAGERIA!',
-    'AGRESSÃO AO PATRIMÔNIO!'
+    'CHAMA A AUDITORIA!',
+    'BLEFE MALDITO!'
   ]
 };
 
-// BALÕES CÔMICOS DE REAÇÃO DO INIMIGO (Estagiário Preguiçoso — Sem Emojis)
 const ENEMY_COMIC_CALLOUTS = {
   attack: [
-    'HORA EXTRA NÃO!',
-    'SEM ADICIONAL NOTURNO?!',
-    'PROTOCOLO REJEITADO!',
-    'CAFÉ TÓXICO FERVENDO!',
-    'CADÊ O REAJUSTE?!'
+    'MINHA RODADA!',
+    'ENGOLIU O BLEFE!',
+    'MANILHA DO SINDICATO!',
+    'CORTA ESSA, PLAYBOY!',
+    'TRUCO DE CARIMBO!'
   ],
   hurt: [
-    'MEUS FORMULÁRIOS!',
-    'CARÊNCIA DO PLANO!',
-    'CADÊ O SINDICATO?!',
-    'BURNOUT TOTAL!',
-    'ATÉ AMANHÃ ÀS 8H!'
+    'ERA ZAP?!',
+    'ARREGUEI NESSA!',
+    'QUE MÃO APELONA!',
+    'PERDI OS TENTOS!',
+    'CADÊ MEU TRÊS?!'
   ]
 };
 
-// 3. INIMIGOS MITOLÓGICOS DO SUBMUNDO COM MECÂNICAS ÚNICAS (BOSS GIMMICKS)
+// 3. CHEFES DO SUBMUNDO
 const DUNGEON_ENEMIES = [
   {
     luizName: 'O Estagiário Preguiçoso',
@@ -532,21 +659,26 @@ const DUNGEON_ENEMIES = [
     image: 'assets/characters/estagiario_fullbody.png',
     background: 'assets/backgrounds/ground_horizon_planted.png',
     bgTitle: 'CÂMARA I: MARGENS DO AQUERONTE',
-    bgDesc: 'Onde as almas recém-chegadas aguardam atendimento perpétuo...',
-    maxHp: 46,
-    hp: 46,
+    bgDesc: 'O primeiro escalão do submundo. Ele tenta parecer focado, mas a ansiedade corporativa é palpável.',
+    maxHp: 3,
+    hp: 3,
     passiveId: 'corpo_mole',
     passiveIcon: 'assets/ui/icon_shield.svg',
-    passiveText: 'Corpo Mole: Ganha +3 de Escudo ao sofrer ataque direto',
+    passiveText: 'Pressão Corporativa: Vacilante sob risco elevado',
+    courage: 0.34,
+    skillBias: 0.0,
+    specialAbility: {
+      id: 'atestado_medico',
+      name: 'Atestado Médico',
+      desc: 'Bate um atestado na mesa e força a partida atual a empatar (cangar)!',
+      icon: 'assets/ui/icon_scroll.svg'
+    },
     callouts: {
-      attack: ['HORA EXTRA NÃO!', 'SEM ADICIONAL NOTURNO?!', 'CAFÉ TÓXICO FERVENDO!', 'TOMA PAPELADA!'],
-      hurt: ['MEUS FORMULÁRIOS!', 'CARÊNCIA DO PLANO!', 'CADÊ O SINDICATO?!', 'BURNOUT TOTAL!']
+      attack: ['RODADA DO ESTAGIÁRIO!', 'HORA EXTRA NÃO!', 'OLHA A MANILHA!', 'PASSEI SEU BLEFE!'],
+      hurt: ['CORRI DESSA MÃO!', 'ERA ZAP?!', 'SALÁRIO MÍNIMO NÃO COBRE ISSO!', 'BURNOUT TOTAL!']
     },
     intents: [
-      { type: 'attack', value: 9, icon: 'assets/ui/icon_sword.svg', desc: '9 Dano (Café Tóxico)' },
-      { type: 'curse_attack', value: 7, curses: 1, icon: 'assets/ui/icon_scroll.svg', desc: '7 Dano + 1 Formulário 9.999' },
-      { type: 'shield', value: 10, icon: 'assets/ui/icon_shield.svg', desc: '+10 Escudo do Desânimo' },
-      { type: 'attack', value: 13, icon: 'assets/ui/icon_burst.svg', desc: '13 Dano (Colapso de Burnout)' }
+      { type: 'attack', value: 1, icon: 'assets/ui/icon_sword.svg', desc: 'Mão: 1 Tento' }
     ]
   },
   {
@@ -557,21 +689,26 @@ const DUNGEON_ENEMIES = [
     image: 'assets/characters/recepcionista_fullbody.png?v=30',
     background: 'assets/backgrounds/underworld_arena_staircase.jpg',
     bgTitle: 'CÂMARA II: CARTÓRIO DO LIMBO',
-    bgDesc: 'A fúria de mil processos não arquivados e almas em protesto...',
-    maxHp: 64,
-    hp: 64,
-    initialShield: 8,
+    bgDesc: 'O guichê executivo de entrada. Atendimento impaciente, com procedimentos burocráticos implacáveis.',
+    maxHp: 3,
+    hp: 3,
     passiveId: 'burocracia_histerica',
     passiveIcon: 'assets/ui/icon_scroll.svg',
-    passiveText: 'Senha 9.999: Embaralha Burocracia no seu Deck!',
+    passiveText: 'Burocracia Feroz: Arredia e reativa a provocações',
+    courage: 0.48,
+    skillBias: 0.12,
+    specialAbility: {
+      id: 'falta_carimbo',
+      name: 'Falta de Carimbo',
+      desc: 'Carimba a carta de Louis, reduzindo sua força em -2 pontos!',
+      icon: 'assets/ui/icon_scroll.svg'
+    },
     callouts: {
-      attack: ['SENHA 9.999!', 'SEM AGENDAMENTO!', 'FALTOU CARIMBO!', 'PREENCHA A VIA AZUL!'],
-      hurt: ['MEU BALCÃO!', 'PROCESSO EXTRAVIADO!', 'DESACATO NO GUICHÊ!', 'SISTEMA FORA DO AR!']
+      attack: ['TRUCO NO GUICHÊ!', 'SENHA 9.999!', 'FALTOU CARIMBO!', 'MINHA RODADA!'],
+      hurt: ['MEU BALCÃO!', 'BLEFE DE RICO!', 'DESACATO NA MESA!', 'SISTEMA CAIU!']
     },
     intents: [
-      { type: 'curse_attack', value: 11, curses: 1, icon: 'assets/ui/icon_scroll.svg', desc: '11 Dano + 1 Formulário 9.999' },
-      { type: 'attack', value: 15, icon: 'assets/ui/icon_burst.svg', desc: '15 Dano (Grito Estridente)' },
-      { type: 'shield_curse', value: 12, curses: 1, icon: 'assets/ui/icon_shield.svg', desc: '+12 Escudo e +1 Formulário no Deck' }
+      { type: 'attack', value: 1, icon: 'assets/ui/icon_scroll.svg', desc: 'Mão: 1 Tento' }
     ]
   },
   {
@@ -582,22 +719,26 @@ const DUNGEON_ENEMIES = [
     image: 'assets/characters/gargula_fullbody.png?v=30',
     background: 'assets/backgrounds/underworld_arena_paths.jpg',
     bgTitle: 'CÂMARA III: PORTÕES DO CÓCITO',
-    bgDesc: 'Onde nenhum recurso judicial tem efeito suspensivo...',
-    maxHp: 82,
-    hp: 82,
-    initialShield: 12,
-    thorns: 3,
+    bgDesc: 'A muralha de pedra que controla o fluxo de almas. Firmeza absoluta e olhos pesados sobre a mesa.',
+    maxHp: 3,
+    hp: 3,
     passiveId: 'pele_granito',
     passiveIcon: 'assets/ui/icon_gargoyle.svg',
-    passiveText: 'Pele de Granito: Reflete 3 de Dano em ataques diretos!',
+    passiveText: 'Postura Inabalável: Firme como rocha diante de bravatas',
+    courage: 0.58,
+    skillBias: 0.22,
+    specialAbility: {
+      id: 'bloqueio_catraca',
+      name: 'Bloqueio de Catraca',
+      desc: 'Endurece sua carta de pedra com impacto pesado, ganhando +2 de força!',
+      icon: 'assets/ui/icon_gargoyle.svg'
+    },
     callouts: {
-      attack: ['ACESSO NEGADO!', 'REVISTA OBRIGATÓRIA!', 'PROTOCOLO ABSOLUTO!', 'FORA DA CATRACA!'],
-      hurt: ['RACHARAM MEU GRANITO!', 'MÁRMORE TRINCADO!', 'CÓDIGO VERMELHO!', 'CHAMEM O REFORÇO!']
+      attack: ['ACESSO NEGADO!', 'SEIS NA CATRACA!', 'PEDRA MATA TUDO!', 'FORA DA MESA!'],
+      hurt: ['RACHARAM MEU GRANITO!', 'ZAP APELÃO!', 'CÓDIGO VERMELHO!', 'CHAMEM O REFORÇO!']
     },
     intents: [
-      { type: 'attack', value: 14, icon: 'assets/ui/icon_sword.svg', desc: '14 Dano (Empurrão Bruto)' },
-      { type: 'shield', value: 16, icon: 'assets/ui/icon_shield.svg', desc: '+16 Muralha do Cócito' },
-      { type: 'attack', value: 19, icon: 'assets/ui/icon_burst.svg', desc: '19 Dano Esmagador' }
+      { type: 'attack', value: 1, icon: 'assets/ui/icon_sword.svg', desc: 'Mão: 1 Tento' }
     ]
   },
   {
@@ -608,21 +749,26 @@ const DUNGEON_ENEMIES = [
     image: 'assets/characters/minos_fullbody.png?v=31',
     background: 'assets/backgrounds/underworld_arena.jpg',
     bgTitle: 'CÂMARA IV: TRIBUNAL DE MINOS',
-    bgDesc: 'A audiência final antes do abismo eterno...',
-    maxHp: 102,
-    hp: 102,
-    initialShield: 10,
+    bgDesc: 'O tribunal que nunca dorme. Cada jogada é avaliada sob o peso rigoroso de jurisprudências milenares.',
+    maxHp: 3,
+    hp: 3,
     passiveId: 'juros_mora',
     passiveIcon: 'assets/ui/icon_scales.svg',
-    passiveText: 'Juros de Mora: Ganha +2 de Força a cada turno!',
+    passiveText: 'Rigor Processual: Implacável nos detalhes e desempates',
+    courage: 0.65,
+    skillBias: 0.30,
+    specialAbility: {
+      id: 'decisao_monocratica',
+      name: 'Decisão Monocrática',
+      desc: 'Cassa o recurso da mesa e vence desempates monocraticamente!',
+      icon: 'assets/ui/icon_scales.svg'
+    },
     callouts: {
-      attack: ['RECURSO INDEFERIDO!', 'DESACATO À CORTE!', 'LITIGÂNCIA DE MÁ-FÉ!', 'SENTENÇA IMEDIATA!'],
-      hurt: ['OBJEÇÃO NEGADA!', 'MINHA TOGA IMPERIAL!', 'QUEBRA DE DECORO!', 'ANULEM ESSA PROVA!']
+      attack: ['TRUCO DE OFÍCIO!', 'RECURSO INDEFERIDO!', 'SENTENÇA NA MESA!', 'DESACATO!'],
+      hurt: ['OBJEÇÃO NEGADA!', 'MINHA TOGA IMPERIAL!', 'QUEBRA DE DECORO!', 'ANULEM ESSA MÃO!']
     },
     intents: [
-      { type: 'curse_attack', value: 16, curses: 1, icon: 'assets/ui/icon_scales.svg', desc: '16 Dano + Sentença (Formulário)' },
-      { type: 'shield', value: 18, icon: 'assets/ui/icon_shield.svg', desc: '+18 Jurisprudência Blindada' },
-      { type: 'attack', value: 22, icon: 'assets/ui/icon_burst.svg', desc: '22 Dano (O Malhete do Juízo)' }
+      { type: 'attack', value: 1, icon: 'assets/ui/icon_scales.svg', desc: 'Mão: 1 Tento' }
     ]
   },
   {
@@ -633,33 +779,51 @@ const DUNGEON_ENEMIES = [
     image: 'assets/characters/hades_fullbody.png?v=31',
     background: 'assets/backgrounds/underworld_arena.jpg',
     bgTitle: 'CÂMARA V: GABINETE EXECUTIVO DE HADES',
-    bgDesc: 'O embate definitivo pelo controle acionário e reestruturação do Submundo...',
-    maxHp: 140,
-    hp: 140,
-    initialShield: 15,
+    bgDesc: 'A mesa executiva suprema. O CEO da Inferno S/A dita o preço dos ativos e exige liquidez imediata.',
+    maxHp: 3,
+    hp: 3,
     passiveId: 'monopolio_tartaro',
     passiveIcon: 'assets/ui/icon_bident.svg',
-    passiveText: 'Monopólio: +2 Força/turno e Fase 2 com 50% HP!',
+    passiveText: 'Comando Absoluto: Impetuoso e dominante nos momentos decisivos',
+    courage: 0.74,
+    skillBias: 0.38,
+    specialAbility: {
+      id: 'liquidacao_forcada',
+      name: 'Liquidação Forçada',
+      desc: 'Executa uma chamada de margem com fúria executiva no momento crítico!',
+      icon: 'assets/ui/icon_bident.svg'
+    },
     callouts: {
-      attack: ['ESTORNO NEGADO!', 'DEMISSÃO SUMÁRIA!', 'EU SOU O CONSELHO!', 'LIQUIDAÇÃO DE ALMA!'],
-      hurt: ['MEU BALANÇO ANUAL!', 'QUEBRA DE CONTRATO?!', 'INSOLÊNCIA MORTAL!', 'MEU FUNDO SOBERANO!']
+      attack: ['TRUCO SOBERANO!', 'ESTORNO NEGADO!', 'EU SOU A BANCA!', 'SEIS, GAROTO!'],
+      hurt: ['MEU BALANÇO ANUAL!', 'ZAP NO MEU TRONO?!', 'INSOLÊNCIA MORTAL!', 'MEU FUNDO SOBERANO!']
     },
     intents: [
-      { type: 'attack', value: 19, icon: 'assets/ui/icon_bident.svg', desc: '19 Dano (Bidente Sombrio)' },
-      { type: 'curse_attack', value: 17, curses: 2, icon: 'assets/ui/icon_scroll.svg', desc: '17 Dano + 2 Passivos (Formulários)' },
-      { type: 'shield', value: 22, icon: 'assets/ui/icon_shield.svg', desc: '+22 Blindagem Soberana' },
-      { type: 'attack', value: 26, icon: 'assets/ui/icon_burst.svg', desc: '26 Dano (Liquidação de Alma)' }
+      { type: 'attack', value: 1, icon: 'assets/ui/icon_bident.svg', desc: 'Mão: 1 Tento' }
     ]
   }
 ];
 
-// 4. ESTADO DO JOGO COM PROGRESSÃO DE DECK, RELÍQUIAS, ARQUÉTIPOS E SALAS
+// ESCADA DE APOSTAS DO TRUCO PAULISTA (1, 3, 6, 9, 12 TENTOS)
+// Level 0: 1 Tento (Inicial)  -> Próximo pedido: TRUCO! (3 Tentos)
+// Level 1: 3 Tentos           -> Próximo pedido: SEIS! (6 Tentos)
+// Level 2: 6 Tentos           -> Próximo pedido: NOVE! (9 Tentos)
+// Level 3: 9 Tentos           -> Próximo pedido: DOZE! (12 Tentos)
+// Level 4: 12 Tentos          -> Teto Máximo
+const TRUCO_STAKES_LADDER = [
+  { level: 0, points: 1, name: 'VALE 1 TENTO', raiseCallTitle: 'TRUCO!', raisePoints: 3, raiseCoinSvg: 'assets/ui/coins_truco_3.svg' },
+  { level: 1, points: 3, name: 'VALE 3 TENTOS', raiseCallTitle: 'SEIS!', raisePoints: 6, raiseCoinSvg: 'assets/ui/coins_truco_6.svg' },
+  { level: 2, points: 6, name: 'VALE 6 TENTOS', raiseCallTitle: 'NOVE!', raisePoints: 9, raiseCoinSvg: 'assets/ui/coins_truco_9.svg' },
+  { level: 3, points: 9, name: 'VALE 9 TENTOS', raiseCallTitle: 'DOZE!', raisePoints: 12, raiseCoinSvg: 'assets/ui/coins_truco_12.svg' },
+  { level: 4, points: 12, name: 'VALE 12 TENTOS (PARTIDO)', raiseCallTitle: 'MÁXIMO', raisePoints: 12, raiseCoinSvg: 'assets/ui/coins_truco_12.svg' }
+];
+
+// 4. ESTADO DO JOGO COM MOTOR DE TRUCO PAULISTA, VIRA/MANILHA E BÊNÇÃOS OLÍMPICAS
 class GameState {
   constructor() {
     this.player = {
       name: 'Louis Beznoir IV',
-      maxHp: 65,
-      hp: 65,
+      maxHp: 3,
+      hp: 3,
       shield: 0,
       energy: 3,
       maxEnergy: 3,
@@ -669,15 +833,55 @@ class GameState {
 
     this.archetype = 'private_equity';
     this.relics = ['alavancagem_ares'];
+    this.blessings = ['aumento_poder', 'diminuicao_inimigo'];
+    this.blessingsUsedThisHand = {};
+    this.activeRoundBlessing = null;
+
+    // Habilidades 1x por Boss (Nerfadas e Balanceadas)
+    this.bossAbilitiesUsed = {
+      quantDraw4: false,
+      quantOddWins: false,
+      peBoostPlayer: false,
+      peNerfBoss: false,
+      hedgeEvenWins: false
+    };
+    this.activePartidaBonus = null; // 'quantOddWins', 'peBoostPlayer', 'peNerfBoss', 'hedgeEvenWins'
+    this.quantDraw4Pending = false;
+
     this.turnNumber = 1;
     this.attacksPlayedThisTurn = 0;
+
+    // Placar da Partida de Truco (0 a 12 Tentos)
+    this.playerTentos = 0;
+    this.enemyTentos = 0;
+    this.maxTentos = 12;
+
+    // Estado da Rodada de Truco (Conjunto de 3 Partidas)
+    this.vazaResults = [null, null, null];
+    this.currentVaza = 0;
+    this.trucoLevel = 0;
+    this.bonusPot = 0;
+    this.lastTrucoCaller = null;
+
+    // Baralho Clássico de 40 Cartas, Vira, Manilha e Cartas na Mesa
+    this.tableDeck = [];
+    this.viraCard = { rank: '7', suit: TRUCO_SUITS[2] };
+    this.manilhaRank = 'Q';
+    this.tablePlayedEnemy = null;
+    this.tablePlayedPlayer = null;
+    this.lastRoundWinner = null;
+
+    this.enemyTrucoHand = [];
+    this.currentEnemyCard = null;
+    this.enemyPlayedOpen = true;
+    this.isResolvingVaza = false;
+    this.bluffBoostActive = false;
+    this.clashStatusText = 'Jogue uma carta na mesa ou peça TRUCO!';
 
     this.enemyIndex = 0;
     this.enemy = this.createEnemy(0);
 
-    // DECK INICIAL (8 cartas do Arquétipo escolhido)
-    this.deck = [...ARCHETYPES.private_equity.deck];
-
+    this.deck = [...this.blessings];
     this.drawPile = [];
     this.discardPile = [];
     this.hand = [];
@@ -689,6 +893,18 @@ class GameState {
     this.isDragging = false;
     this.draggedCardIndex = null;
     this.dragHoverCardIndex = null;
+  }
+
+  resetBossAbilities() {
+    this.bossAbilitiesUsed = {
+      quantDraw4: false,
+      quantOddWins: false,
+      peBoostPlayer: false,
+      peNerfBoss: false,
+      hedgeEvenWins: false
+    };
+    this.activePartidaBonus = null;
+    this.quantDraw4Pending = false;
   }
 
   hasRelic(relicId) {
@@ -713,30 +929,150 @@ class GameState {
       background: data.background || 'assets/backgrounds/ground_horizon_planted.png',
       bgTitle: data.bgTitle || `Círculo I: Sala ${this.roomNumber}`,
       bgDesc: data.bgDesc || 'Um novo desafio no submundo...',
-      maxHp: data.maxHp,
-      hp: data.maxHp,
-      shield: data.initialShield || 0,
-      thorns: data.thorns || 0,
+      maxHp: 3,
+      hp: 3,
+      shield: 0,
+      thorns: 0,
       passiveId: data.passiveId || null,
       passiveIcon: data.passiveIcon || 'assets/ui/icon_scroll.svg',
       passiveText: data.passiveText || '',
+      courage: data.courage || 0.45,
+      skillBias: data.skillBias || 0.1,
       bonusDamage: 0,
       phase2Triggered: false,
+      specialAbility: data.specialAbility || null,
+      specialAbilityUsed: false,
       callouts: data.callouts || ENEMY_COMIC_CALLOUTS,
       intents: data.intents,
-      intent: data.intents[0],
+      intent: { ...(data.intents[0] || { type: 'attack', value: 1, icon: 'assets/ui/icon_sword.svg', desc: 'Mão: 1 Tento' }) },
       statuses: {}
     };
+  }
+
+  // Gera e embaralha o Baralho Clássico de 40 Cartas (4, 5, 6, 7, Q, J, K, A, 2, 3 nos 4 naipes)
+  buildClassicTrucoDeck() {
+    const deck = [];
+    for (const rank of TRUCO_RANKS) {
+      for (const suit of TRUCO_SUITS) {
+        deck.push({
+          id: `${rank}_${suit.id}`,
+          rank,
+          suit,
+          isSpecialProtagonist: false,
+          art: COURT_CARD_ART[rank] || null
+        });
+      }
+    }
+    for (let i = deck.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [deck[i], deck[j]] = [deck[j], deck[i]];
+    }
+    return deck;
+  }
+
+  // Cria a Carta Especial Única do Protagonista (Louis Beznoir IV)
+  createProtagonistSpecialCard() {
+    return {
+      id: 'special_louis_beznoir',
+      rank: '★',
+      suit: TRUCO_SUITS[3], // Paus (♣)
+      isSpecialProtagonist: true,
+      name: 'Suborno Real Beznoir',
+      art: COURT_CARD_ART['★']
+    };
+  }
+
+  // Calcula a força hierárquica de uma carta no Truco Paulista considerando a Manilha ativa e Bênçãos
+  getPlayingCardStrength(card, isEnemy = false) {
+    if (!card) return 0;
+
+    // Carta Especial do Protagonista (★ Beznoir): força altíssima (23.5 — só perde para o ZAP ♣ da Manilha!)
+    if (card.isSpecialProtagonist) {
+      return 23.5;
+    }
+
+    const rankStr = String(card.rank);
+    const baseIdx = TRUCO_RANKS.indexOf(rankStr); // 0 (para '4') até 9 (para '3')
+    let strength = (baseIdx >= 0 ? baseIdx + 1 : 5); // 1 a 10
+
+    const isManilha = (rankStr === String(this.manilhaRank));
+
+    if (isManilha) {
+      const suitOrder = card.suit ? card.suit.suitOrder : 1; // 1 (Ouros) a 4 (Paus/ZAP)
+      strength = 20 + suitOrder; // 21 (Ouros), 22 (Espadas), 23 (Copas), 24 (ZAP Paus)
+    }
+
+    if (!isEnemy) {
+      // Relíquia Alavancagem Hostil: +1 nível em cartas comuns
+      if (this.hasRelic('alavancagem_ares') && !isManilha) {
+        strength += 1;
+      }
+      // Patek dos Deuses: +1 nível de força na 1ª partida de cada rodada
+      if (this.hasRelic('patek_olimpico') && this.currentVaza === 0) {
+        strength += 1;
+      }
+      // Habilidade Ativa do Arquétipo PE Hostil: +2 números mais forte nesta partida
+      if (this.activePartidaBonus === 'peBoostPlayer') {
+        strength += 2;
+      }
+    } else {
+      // Habilidade Ativa do Arquétipo PE Hostil: Deixa a carta do chefe 2 números mais fraca nesta partida
+      if (this.activePartidaBonus === 'peNerfBoss') {
+        strength = Math.max(1, strength - 2);
+      }
+      // Benefício de Hades (Golden Parachute): +2 de poder quando a aposta vale 6, 9 ou 12
+      if (this.enemy && this.enemy.passiveId === 'monopolio_tartaro' && this.trucoLevel >= 2) {
+        strength += 2;
+      }
+      // Benefício do Segurança (Adicional de Periculosidade): +1 de poder em cartas de Espadas
+      if (this.enemy && this.enemy.passiveId === 'pele_granito' && card.suit && card.suit.id === 'espadas') {
+        strength += 1;
+      }
+    }
+
+    return strength;
+  }
+
+  isCardManilha(card) {
+    if (!card) return false;
+    return String(card.rank) === String(this.manilhaRank);
+  }
+
+  formatCardShortName(card) {
+    if (!card) return '?';
+    if (card.isSpecialProtagonist) return '★ Cartão Beznoir';
+    const suitName = card.suit ? card.suit.name : '';
+    if (this.isCardManilha(card)) {
+      return `${card.rank} de ${suitName} (${card.suit.manilhaTitle})`;
+    }
+    return `${card.rank} de ${suitName}`;
+  }
+
+  getStakePointsForLevel(level) {
+    const idx = Math.max(0, Math.min(level, TRUCO_STAKES_LADDER.length - 1));
+    let pts = TRUCO_STAKES_LADDER[idx].points;
+    if (level === 0 && this.hasRelic('alavancagem_ares')) {
+      pts += 1; // Mão normal vale 2 Tentos com Alavancagem Hostil
+    }
+    return Math.min(12, pts + (this.bonusPot || 0));
+  }
+
+  getCurrentStakeDamage() {
+    return this.getStakePointsForLevel(this.trucoLevel);
+  }
+
+  getEffectivePlayerCardPower(card) {
+    return this.getPlayingCardStrength(card, false);
   }
 
   init() {
     this.turnNumber = 1;
     this.attacksPlayedThisTurn = 0;
     this.isFusing = false;
-    this.player.shield = this.hasRelic('safra_1800') ? 8 : 0;
-    this.drawPile = [...this.deck].sort(() => Math.random() - 0.5);
-    this.discardPile = [];
-    this.hand = [];
+    this.isResolvingVaza = false;
+    this.hideTrucoChallengeModal();
+    this.playerTentos = this.hasRelic('safra_1800') ? 2 : 0;
+    this.enemyTentos = 0;
     this.startTurn();
     this.speak(this.getRandomQuote(LUIZ_QUOTES.start));
   }
@@ -775,15 +1111,16 @@ class GameState {
     const arch = ARCHETYPES[archId] || ARCHETYPES.private_equity;
     this.archetype = arch.id;
     this.relics = [arch.relic];
-    this.deck = [...arch.deck];
-    this.player.maxHp = arch.id === 'hedge_fund' ? 72 : arch.id === 'quant' ? 60 : 65;
-    this.player.hp = this.player.maxHp;
+    this.blessings = [...(arch.blessings || ['aumento_poder', 'diminuicao_inimigo'])];
+    this.deck = [...this.blessings];
     this.player.gold = arch.id === 'quant' ? 110 : 90;
     this.roomNumber = 1;
     this.enemyIndex = 0;
     this.isVictoryHandled = false;
     this.isVictoryInProgress = false;
     this.isFusing = false;
+    this.isResolvingVaza = false;
+    this.resetBossAbilities();
     this.enemy = this.createEnemy(0);
 
     const modal = document.getElementById('archetype-modal');
@@ -791,215 +1128,919 @@ class GameState {
 
     sfx.boonAcquired();
     this.init();
-    this.speak(`Tese "${arch.name}" aprovada pelo comitê! Vamos iniciar o takeover.`);
+    this.speak(`Tese "${arch.name}" aprovada! Partida até 12 Tentos — olhe a Vira e grite TRUCO!`);
   }
 
+  // Inicia uma Nova RODADA DE TRUCO PAULISTA (Conjunto de 3 Partidas)
   startTurn() {
+    if (this.isVictoryHandled || this.isVictoryInProgress) return;
+
     this.attacksPlayedThisTurn = 0;
+    this.isResolvingVaza = false;
+    this.hideTrucoChallengeModal();
 
-    // 1. Expiração do Escudo do Jogador (Retém 50% apenas se tiver Holding Blindada)
-    if (this.turnNumber > 1) {
-      if (this.hasRelic('blindagem_patrimonial') && this.player.shield > 0) {
-        this.player.shield = Math.floor(this.player.shield * 0.5);
-      } else {
-        this.player.shield = 0;
-      }
+    // Reseta o placar das 3 Partidas da Rodada
+    this.vazaResults = [null, null, null];
+    this.currentVaza = 0;
+    this.trucoLevel = 0;
+    this.bonusPot = 0;
+    this.lastTrucoCaller = null;
+    this.bluffBoostActive = false;
+    this.activeRoundBlessing = null;
+    this.activePartidaBonus = null;
+    this.blessingsUsedThisHand = {};
+    this.tablePlayedEnemy = null;
+    this.tablePlayedPlayer = null;
+    this.lastRoundWinner = null;
+    this.selectedCardIndex = null;
+
+    // 1. Monta e embaralha o Baralho Clássico de 40 Cartas
+    this.tableDeck = this.buildClassicTrucoDeck();
+
+    // 2. Vira 1 Carta no centro da mesa e define a MANILHA (carta seguinte na ordem do Truco Paulista)
+    this.viraCard = this.tableDeck.pop();
+    this.manilhaRank = getNextTrucoRank(this.viraCard.rank);
+
+    // 3. Distribui as Cartas de Louis (3 cartas normais, ou 4 se ativou o bônus quantitativo)
+    const wantsQuantDraw4 = this.quantDraw4Pending && !this.bossAbilitiesUsed.quantDraw4;
+    if (wantsQuantDraw4) {
+      this.bossAbilitiesUsed.quantDraw4 = true;
+      this.quantDraw4Pending = false;
+    }
+    const cardsToDraw = wantsQuantDraw4 ? 4 : 3;
+    this.hand = [];
+    for (let i = 0; i < cardsToDraw; i++) {
+      this.hand.push(this.tableDeck.pop());
     }
 
-    // 2. Energia Base + Bônus de Turno 1 do Algoritmo HFT
-    this.player.energy = this.player.maxEnergy;
-    let cardsToDraw = 4;
-
-    if (this.turnNumber === 1) {
-      if (this.hasRelic('algoritmo_hermes')) {
-        this.player.energy += 1;
-        cardsToDraw += 1;
-      }
-      // Passiva da Recepcionista (Câmara II): Embaralha 1 Formulário 9.999 logo na abertura!
-      if (this.enemy.passiveId === 'burocracia_histerica') {
-        this.drawPile.push('protocolo_pendente');
-        this.drawPile.sort(() => Math.random() - 0.5);
-      }
+    // Inclui a Carta Especial do Protagonista (★ Suborno Real Beznoir)
+    const includeProtagonistSpecial = (this.turnNumber === 1) || this.hasRelic('fusao_perpetua') || (Math.random() < 0.45);
+    if (includeProtagonistSpecial && this.hand.length > 0) {
+      this.hand[0] = this.createProtagonistSpecialCard();
     }
 
-    // 3. Queimadura no Inimigo
-    if (this.enemy.statuses.burn > 0) {
-      const burnDmg = this.enemy.statuses.burn;
-      this.damageEnemy(burnDmg, false, true);
-      this.enemy.statuses.burn = Math.max(0, this.enemy.statuses.burn - 1);
-      if (this.enemy.statuses.burn === 0) delete this.enemy.statuses.burn;
-      if (this.enemy.hp <= 0) {
-        this.updateUI();
-        this.handleVictory();
-        return;
+    // 4. Distribui as 3 Cartas da mão do Chefe
+    this.generateEnemyTrucoHand();
+
+    this.drawPile = this.tableDeck;
+    this.discardPile = [];
+
+    // Quem começa a 1ª partida da Rodada é 50% aleatório (Louis ou Chefe)!
+    this.currentTurnStarter = Math.random() < 0.5 ? 'player' : 'enemy';
+
+    // Prepara a 1ª Partida na mesa
+    this.prepareVaza();
+    this.updateUI();
+
+    if (wantsQuantDraw4) {
+      setTimeout(() => {
+        this.openQuantDiscardModal();
+      }, 250);
+    }
+  }
+
+  generateEnemyTrucoHand() {
+    const hand = [];
+    const bias = (this.enemy.skillBias || 0) + (this.enemy.phase2Triggered ? 0.18 : 0);
+    for (let i = 0; i < 3; i++) {
+      let card = this.tableDeck.pop();
+      // Em câmaras avançadas, o Chefe tem chance de pescar uma carta melhor do monte
+      if (Math.random() < bias && this.tableDeck.length > 2) {
+        const alt = this.tableDeck.pop();
+        if (this.getPlayingCardStrength(alt, true) > this.getPlayingCardStrength(card, true)) {
+          this.tableDeck.unshift(card);
+          card = alt;
+        } else {
+          this.tableDeck.unshift(alt);
+        }
       }
+      hand.push(card);
+    }
+    this.enemyTrucoHand = hand;
+  }
+
+  prepareVaza() {
+    if (this.isVictoryHandled || this.isVictoryInProgress) return;
+
+    this.activeRoundBlessing = null;
+    this.tablePlayedPlayer = null;
+    this.lastRoundWinner = null;
+    this.selectedCardIndex = null;
+
+    // Se for a 2ª ou 3ª partida, quem venceu a anterior começa!
+    if (this.currentVaza > 0) {
+      const prevResult = this.vazaResults[this.currentVaza - 1];
+      if (prevResult === 'win') {
+        this.currentTurnStarter = 'player';
+      } else if (prevResult === 'loss') {
+        this.currentTurnStarter = 'enemy';
+      }
+      // Se foi empate ('tie'), mantém o mesmo que começou a anterior!
     }
 
-    ['chill', 'daze', 'charm'].forEach(st => {
-      if (this.enemy.statuses[st] > 0) {
-        this.enemy.statuses[st]--;
-        if (this.enemy.statuses[st] === 0) delete this.enemy.statuses[st];
-      }
-    });
+    this.currentEnemyCard = this.enemyTrucoHand[0] || this.tableDeck.pop();
+    const pwr = this.getPlayingCardStrength(this.currentEnemyCard, true);
 
-    this.drawCards(cardsToDraw);
-    this.rollEnemyIntent();
+    if (this.currentTurnStarter === 'enemy') {
+      // Chefe joga primeiro! Carta aberta na mesa
+      this.enemyPlayedOpen = true;
+      this.tablePlayedEnemy = { ...this.currentEnemyCard, isFaceDown: false };
+      this.tablePlayedPlayer = null;
+      this.enemy.intent = {
+        type: 'attack',
+        value: pwr,
+        icon: this.isCardManilha(this.currentEnemyCard) ? 'assets/ui/icon_burst.svg' : 'assets/ui/icon_sword.svg',
+        desc: `Jogou: ${this.formatCardShortName(this.currentEnemyCard)}`
+      };
+      this.clashStatusText = `${this.currentVaza + 1}ª PARTIDA: Chefe iniciou e jogou ${this.formatCardShortName(this.currentEnemyCard)}!`;
+    } else {
+      // Louis joga primeiro! O Chefe ainda não jogou carta na mesa (slot vazio ?)
+      this.enemyPlayedOpen = false;
+      this.tablePlayedEnemy = null;
+      this.tablePlayedPlayer = null;
+      this.enemy.intent = {
+        type: 'attack',
+        value: pwr,
+        icon: 'assets/ui/icon_dice.svg',
+        desc: 'Você joga primeiro!'
+      };
+      this.clashStatusText = `${this.currentVaza + 1}ª PARTIDA: Sua vez de iniciar! Jogue uma carta na mesa.`;
+    }
+
+    this.updateUI();
+
+    // Chance do Chefe pedir TRUCO na 2ª ou 3ª Partida
+    if (
+      this.currentVaza > 0 &&
+      this.trucoLevel < 4 &&
+      this.lastTrucoCaller !== 'enemy' &&
+      !this.isResolvingVaza
+    ) {
+      const bossHasStrongCard = pwr >= 9;
+      const bossBluffs = Math.random() < 0.24;
+      if ((bossHasStrongCard && Math.random() < this.enemy.courage + 0.2) || bossBluffs) {
+        setTimeout(() => {
+          if (!this.isResolvingVaza && !this.isVictoryHandled && !this.pendingEnemyTrucoLevel) {
+            this.triggerEnemyTrucoCall();
+          }
+        }, 380);
+      }
+    }
+  }
+
+
+  // =========================================================================
+  // HABILIDADES ATIVAS DOS ARQUÉTIPOS (NERFADAS E BALANCEADAS — 1X POR BOSS)
+  // =========================================================================
+
+  activateQuantDraw4() {
+    if (this.bossAbilitiesUsed.quantDraw4 || this.isResolvingVaza) return;
+    this.bossAbilitiesUsed.quantDraw4 = true;
+    sfx.playCard();
+
+    // Se estiver na 1ª partida com a mão completa de 3 cartas, compra a 4ª agora e abre o modal de descarte!
+    if (this.currentVaza === 0 && this.hand.length === 3 && this.tableDeck && this.tableDeck.length > 0) {
+      this.hand.push(this.tableDeck.pop());
+      this.openQuantDiscardModal();
+    } else {
+      // Caso contrário, fica programado para a próxima rodada
+      this.quantDraw4Pending = true;
+      this.clashStatusText = 'FUNDO QUANT: Na próxima rodada você comprará 4 cartas e descartará 1!';
+      this.speak('Algoritmo calibrado! Na próxima rodada teremos 4 opções de compra!');
+    }
     this.updateUI();
   }
 
-  drawCards(amount) {
-    for (let i = 0; i < amount; i++) {
-      if (this.drawPile.length === 0) {
-        if (this.discardPile.length === 0) break;
-        this.drawPile = [...this.discardPile].sort(() => Math.random() - 0.5);
-        this.discardPile = [];
+  openQuantDiscardModal() {
+    const modal = document.getElementById('discard-card-modal');
+    const grid = document.getElementById('discard-cards-grid');
+    if (!modal || !grid) return;
+
+    grid.innerHTML = '';
+    this.hand.forEach((card, idx) => {
+      const suit = card.suit || TRUCO_SUITS[0];
+      const cardEl = document.createElement('div');
+      cardEl.className = `discard-card-item ${suit.isRed ? 'suit-red' : 'suit-dark'}`;
+      cardEl.innerHTML = this.buildMiniTableCardHTML(card);
+      cardEl.onclick = () => {
+        this.hand.splice(idx, 1);
+        this.discardPile.push(card);
+        modal.classList.add('hidden');
+        sfx.playCard();
+        this.speak(`Descartei o ${card.rank} de ${suit.name}! Fiquei com as 3 posições vencedoras.`);
+        this.updateUI();
+      };
+      grid.appendChild(cardEl);
+    });
+
+    modal.classList.remove('hidden');
+  }
+
+  activateQuantOddWins() {
+    if (this.bossAbilitiesUsed.quantOddWins || this.isResolvingVaza) return;
+    this.bossAbilitiesUsed.quantOddWins = true;
+    this.activePartidaBonus = 'quantOddWins';
+    sfx.swordSlash();
+    this.triggerCardCombatVFX({ vfxType: 'lightning' });
+    this.clashStatusText = 'ALGORITMO ÍMPAR ATIVO: Carta ÍMPAR vence PAR nesta partida (entre 2 ímpares, a maior vence)!';
+    this.speak('Algoritmo de Hermes ativado: nesta partida os números ímpares vencem!');
+    this.updateUI();
+  }
+
+  activatePEBoostPlayer() {
+    if (this.bossAbilitiesUsed.peBoostPlayer || this.isResolvingVaza) return;
+    this.bossAbilitiesUsed.peBoostPlayer = true;
+    this.activePartidaBonus = 'peBoostPlayer';
+    sfx.swordSlash();
+    this.triggerCardCombatVFX({ vfxType: 'fire' });
+    this.clashStatusText = 'ALAVANCAGEM ATIVA: Sua carta ganha +2 de poder nesta partida!';
+    this.speak('Alavancagem hostil na mesa: minha carta sobe 2 patamares!');
+    this.updateUI();
+  }
+
+  activatePENerfBoss() {
+    if (this.bossAbilitiesUsed.peNerfBoss || this.isResolvingVaza) return;
+    this.bossAbilitiesUsed.peNerfBoss = true;
+    this.activePartidaBonus = 'peNerfBoss';
+    sfx.enemyCoffeeSplash();
+    this.triggerCardCombatVFX({ vfxType: 'blood' });
+    this.clashStatusText = 'HOSTILE TAKEOVER ATIVO: A carta do chefe perde -2 de poder nesta partida!';
+    this.speak('Reestruturação forçada: a posição do chefe desaba 2 níveis!');
+    this.updateUI();
+  }
+
+  activateHedgeEvenWins() {
+    if (this.bossAbilitiesUsed.hedgeEvenWins || this.isResolvingVaza) return;
+    this.bossAbilitiesUsed.hedgeEvenWins = true;
+    this.activePartidaBonus = 'hedgeEvenWins';
+    sfx.swordSlash();
+    this.triggerCardCombatVFX({ vfxType: 'lightning' });
+    this.clashStatusText = 'PARIDADE BLINDADA ATIVA: Carta PAR vence ÍMPAR nesta partida (entre 2 pares, a maior vence)!';
+    this.speak('Holding Blindada: paridade absoluta! Os pares vencem a partida!');
+    this.updateUI();
+  }
+
+  // =========================================================================
+  // SISTEMA DE GRITAR TRUCO / SEIS / NOVE / DOZE (VALENDO 3, 6, 9, 12 TENTOS)
+  // =========================================================================
+  callPlayerTruco() {
+    if (
+      this.isVictoryHandled ||
+      this.isVictoryInProgress ||
+      this.isResolvingVaza ||
+      this.pendingEnemyTrucoLevel
+    ) return;
+
+    if (this.trucoLevel >= 4) {
+      this.speak('A mesa já está valendo DOZE TENTOS (Partido Inteiro)! Jogue sua carta!');
+      return;
+    }
+
+    // REGRA DE TRUCO: A mesma pessoa NÃO PODE solicitar 2x seguidas!
+    if (this.lastTrucoCaller === 'player') {
+      this.speak('Você já aumentou a aposta! Aguarde a resposta do Chefe.');
+      return;
+    }
+
+    const currentTier = TRUCO_STAKES_LADDER[this.trucoLevel];
+    const proposedLevel = this.trucoLevel + 1;
+    const callTitle = currentTier.raiseCallTitle;
+    const proposedPts = currentTier.raisePoints;
+    this.lastTrucoCaller = 'player';
+    this.selectedCardIndex = null;
+
+    sfx.swordSlash();
+    sfx.snobAttack();
+    this.playPlayerAttack();
+
+    const arena = document.getElementById('battle-arena');
+    if (arena) {
+      arena.classList.add('arena-shake');
+      setTimeout(() => arena.classList.remove('arena-shake'), 380);
+    }
+
+    const calloutEl = document.getElementById('player-comic-callout');
+    if (calloutEl) {
+      calloutEl.textContent = `${callTitle} (VALE ${proposedPts} PTS!)`;
+      calloutEl.className = 'comic-callout attack-callout';
+      calloutEl.classList.remove('hidden');
+    }
+
+    const quoteIdx = Math.min(proposedLevel - 1, LUIZ_QUOTES.trucoCall.length - 1);
+    this.speak(LUIZ_QUOTES.trucoCall[quoteIdx]);
+
+    // Benefício da Recepcionista: Triagem Burocrática (30% de chance de barrar o aumento no compliance)
+    if (this.enemy && this.enemy.passiveId === 'burocracia_histerica' && Math.random() < 0.30) {
+      this.lastTrucoCaller = null;
+      const enemyEl = document.getElementById('enemy-sprite');
+      this.spawnFloatingText(enemyEl, 'COMPLIANCE BARROU!', '#e74c3c', 'assets/ui/icon_scroll.svg');
+      this.speak('O Compliance da Recepcionista indeferiu seu pedido de Truco! A aposta segue no valor atual!');
+      return;
+    }
+
+    const enemyCardPwr = this.getPlayingCardStrength(this.currentEnemyCard, true);
+    let bossConfidence = (enemyCardPwr - 2) / 14;
+    bossConfidence = (bossConfidence * 0.65) + (this.enemy.courage * 0.35);
+
+    // Benefício do Segurança: Imune a correr na 1ª rodada
+    if (this.enemy && this.enemy.passiveId === 'pele_granito' && this.currentVaza === 0 && bossConfidence < 0.42) {
+      bossConfidence = 0.50;
+    }
+
+    if (this.vazaResults[0] === 'win') bossConfidence -= 0.22;
+    if (this.vazaResults[0] === 'loss') bossConfidence += 0.18;
+    if (this.hasRelic('trituradora_vip')) bossConfidence -= 0.15;
+
+    bossConfidence -= (proposedLevel - 1) * 0.12;
+    bossConfidence += (Math.random() * 0.24 - 0.12);
+
+    // 1. CHEFE CORREU DO TRUCO! (Louis ganha os Tentos atuais já aceitos na rodada!)
+    if (bossConfidence < 0.42) {
+      this.isResolvingVaza = true;
+      const earnedPts = this.getCurrentStakeDamage();
+      const bluffGold = this.hasRelic('cartao_centurion') ? 20 : 8;
+      this.player.gold += bluffGold;
+
+      const enemyEl = document.getElementById('enemy-sprite');
+      const playerEl = document.getElementById('player-bust-frame');
+      this.spawnFloatingText(enemyEl, 'CORREU DO TRUCO!', '#ffd700', 'assets/ui/icon_scroll.svg');
+      this.spawnFloatingText(playerEl, `+${earnedPts} TENTOS!`, '#2ecc71', 'assets/ui/icon_dracma.svg');
+
+      this.clashStatusText = `${this.enemy.luizName} CORREU do seu ${callTitle}! Você ganhou +${earnedPts} Tento${earnedPts > 1 ? 's' : ''}!`;
+      this.awardHandTentos('player', earnedPts, true);
+      return;
+    }
+
+    // 2. CHEFE REVIDA PEDINDO SEIS / NOVE / DOZE!
+    if (bossConfidence > 0.78 && proposedLevel < 4) {
+      this.trucoLevel = proposedLevel;
+      this.updateUI();
+      setTimeout(() => {
+        this.triggerEnemyTrucoCall(true);
+      }, 420);
+      return;
+    }
+
+    // 3. CHEFE ACEITOU O TRUCO!
+    this.trucoLevel = proposedLevel;
+    const newPts = this.getCurrentStakeDamage();
+    const enemyEl = document.getElementById('enemy-sprite');
+    this.playEnemyAttack();
+    this.spawnFloatingText(enemyEl, `ACEITOU! VALE ${newPts} PTS!`, '#ff4757', 'assets/ui/icon_burst.svg');
+    this.clashStatusText = `CHEFE ACEITOU O ${callTitle}! A Rodada agora vale ${newPts} Tento${newPts > 1 ? 's' : ''}!`;
+    this.updateUI();
+  }
+
+  triggerEnemyTrucoCall(isCounterRaise = false) {
+    if (this.trucoLevel >= 4 || this.isVictoryHandled) return;
+    if (this.lastTrucoCaller === 'enemy') return;
+
+    const currentTier = TRUCO_STAKES_LADDER[this.trucoLevel];
+    const proposedLevel = this.trucoLevel + 1;
+    const callTitle = currentTier.raiseCallTitle;
+    const currentPts = this.getCurrentStakeDamage();
+    const proposedPts = currentTier.raisePoints;
+
+    this.lastTrucoCaller = 'enemy';
+    sfx.enemyCoffeeSplash();
+    this.playEnemyAttack();
+
+    const modal = document.getElementById('truco-challenge-modal');
+    const tagEl = document.getElementById('truco-challenge-tag');
+    const titleEl = document.getElementById('truco-challenge-title');
+    const quoteEl = document.getElementById('truco-challenge-quote');
+    const stakesEl = document.getElementById('truco-challenge-stakes');
+    const counterBtn = document.getElementById('btn-truco-counter');
+    const counterLabel = document.getElementById('btn-truco-counter-label');
+    const foldLabel = document.getElementById('btn-truco-fold-label');
+
+    if (tagEl) tagEl.textContent = isCounterRaise ? 'REVIDE NA MESA!' : 'DESAFIO DE TRUCO!';
+    if (titleEl) {
+      titleEl.textContent = isCounterRaise
+        ? `${this.enemy.luizName.toUpperCase()} REVIDOU COM ${callTitle}!`
+        : `${this.enemy.luizName.toUpperCase()} PEDIU ${callTitle}!`;
+    }
+    if (quoteEl) {
+      quoteEl.textContent = isCounterRaise
+        ? `"Truco é troco de pinga, playboy! Peço ${callTitle} na sua cara! Vai encarar?!"`
+        : `"Quero ver se você tem Manilha mesmo! ${callTitle} na mesa — aceita ou corre?!"`;
+    }
+    if (stakesEl) {
+      stakesEl.innerHTML = `A Mão sobe de <strong>${currentPts} Tento(s)</strong> para <strong>${proposedPts} Tentos</strong>!`;
+    }
+
+    if (counterBtn && counterLabel) {
+      if (proposedLevel < 4) {
+        const nextTier = TRUCO_STAKES_LADDER[proposedLevel];
+        counterBtn.style.display = 'flex';
+        counterLabel.textContent = `PEDIR ${nextTier.raiseCallTitle} (Vale ${nextTier.raisePoints} Tentos)`;
+      } else {
+        counterBtn.style.display = 'none';
       }
-      this.hand.push(this.drawPile.pop());
     }
+
+    if (foldLabel) {
+      foldLabel.textContent = `CORRER (Chefe leva só ${currentPts} Tento${currentPts > 1 ? 's' : ''})`;
+    }
+
+    this.pendingEnemyTrucoLevel = proposedLevel;
+    if (modal) modal.classList.remove('hidden');
   }
 
-  pushCardToDiscard(cardKey) {
-    // Se for uma carta fundida, ela se desfaz em suas 2 componentes no descarte (a menos que tenha Contrato M&A)
-    if (cardKey && cardKey.includes('+') && !this.hasRelic('fusao_perpetua')) {
-      const [k1, k2] = cardKey.split('+');
-      if (CARD_DATABASE[k1]) this.discardPile.push(k1);
-      if (CARD_DATABASE[k2]) this.discardPile.push(k2);
-    } else if (cardKey) {
-      this.discardPile.push(cardKey);
-    }
+  hideTrucoChallengeModal() {
+    const modal = document.getElementById('truco-challenge-modal');
+    if (modal) modal.classList.add('hidden');
+    this.pendingEnemyTrucoLevel = null;
   }
 
+  acceptEnemyTruco() {
+    const level = this.pendingEnemyTrucoLevel || Math.min(4, this.trucoLevel + 1);
+    this.hideTrucoChallengeModal();
+    this.trucoLevel = level;
+    sfx.swordSlash();
+    const newPts = this.getCurrentStakeDamage();
+    this.clashStatusText = `Desafio aceito! A Rodada agora vale ${newPts} Tento${newPts > 1 ? 's' : ''}!`;
+    this.speak(`Aceito! Pode descer a carta que a Manilha aqui canta!`);
+    this.updateUI();
+  }
+
+  counterEnemyTruco() {
+    const acceptedLevel = this.pendingEnemyTrucoLevel || Math.min(4, this.trucoLevel + 1);
+    this.hideTrucoChallengeModal();
+    this.trucoLevel = acceptedLevel;
+    this.lastTrucoCaller = 'enemy';
+    this.callPlayerTruco();
+  }
+
+  foldHand() {
+    if (this.isVictoryHandled || this.isVictoryInProgress) return;
+
+    this.hideTrucoChallengeModal();
+    this.isResolvingVaza = true;
+
+    // Regra clássica: quem corre entrega o valor que já havia sido aceito na rodada (1, 3, 6, 9 ou 12)
+    const surrenderedPts = this.getCurrentStakeDamage();
+    this.clashStatusText = `Você correu da mão (Chefe ganhou +${surrenderedPts} Tento${surrenderedPts > 1 ? 's' : ''}).`;
+    this.speak('Melhor correr dessa mão podre e entregar o tento aceito do que pagar mais caro!');
+    this.awardHandTentos('enemy', surrenderedPts, true);
+  }
+
+  // =========================================================================
+  // JOGAR CARTA NA MESA (CARTA PERMANECE VISÍVEL NA MESA ATÉ O FIM DA RODADA)
+  // =========================================================================
   playCard(index) {
-    if (this.isVictoryHandled || this.isVictoryInProgress || this.isFusing || this.enemy.hp <= 0 || this.player.hp <= 0) return;
+    if (
+      this.isVictoryHandled ||
+      this.isVictoryInProgress ||
+      this.isResolvingVaza ||
+      this.pendingEnemyTrucoLevel
+    ) return;
 
-    const cardKey = this.hand[index];
-    const card = resolveCardDefinition(cardKey);
+    const card = this.hand[index];
     if (!card) return;
 
-    // Relíquia Compliance VIP torna Formulário 9.999 custo 0!
-    const effectiveCost = (card.type === 'curse' && this.hasRelic('trituradora_vip')) ? 0 : card.cost;
-
-    if (this.player.energy < effectiveCost) {
-      this.speak('Minha energia arcana está exaurida no momento!');
-      return;
-    }
-
+    this.isResolvingVaza = true;
     this.selectedCardIndex = null;
-    this.player.energy -= effectiveCost;
     sfx.playCard();
 
-    // Tratamento Especial: Despachar Carta de Burocracia (Formulário 9.999)
-    if (card.type === 'curse') {
-      const playerEl = document.getElementById('player-bust-frame');
-      this.spawnFloatingText(playerEl, 'INCINERADO!', '#ffd700', 'assets/ui/icon_scroll.svg');
-      this.hand.splice(index, 1);
-      if (this.hasRelic('trituradora_vip')) {
-        this.drawCards(1);
-        this.speak('Meu jurídico despachou essa papelada e ainda tirou proveito!');
+    const playerEl = document.getElementById('player-bust-frame');
+    const enemyEl = document.getElementById('enemy-sprite');
+
+    // Remove a carta da mão de Louis e coloca na MESA
+    this.hand.splice(index, 1);
+    this.tablePlayedPlayer = { ...card, isFaceDown: false };
+
+    let enemyCard = this.currentEnemyCard;
+    if (this.currentTurnStarter === 'player') {
+      // Louis jogou primeiro! O Chefe escolhe inteligentemente a carta de resposta:
+      const playerPower = this.getPlayingCardStrength(card, false);
+      let chosenCardIdx = 0;
+      let bestWinningIdx = -1;
+      let minWinningDiff = 999;
+      let lowestCardIdx = 0;
+      let minPower = 999;
+
+      this.enemyTrucoHand.forEach((eCard, idx) => {
+        const ePwr = this.getPlayingCardStrength(eCard, true);
+        if (ePwr < minPower) {
+          minPower = ePwr;
+          lowestCardIdx = idx;
+        }
+        if (ePwr >= playerPower) {
+          const diff = ePwr - playerPower;
+          if (diff < minWinningDiff) {
+            minWinningDiff = diff;
+            bestWinningIdx = idx;
+          }
+        }
+      });
+
+      chosenCardIdx = bestWinningIdx >= 0 ? bestWinningIdx : lowestCardIdx;
+      enemyCard = this.enemyTrucoHand.splice(chosenCardIdx, 1)[0] || enemyCard;
+      this.currentEnemyCard = enemyCard;
+    } else {
+      // O Chefe já havia jogado aberto na mesa! Remove a carta dele da mão
+      const idxInHand = this.enemyTrucoHand.findIndex(c => c.rank === enemyCard.rank && (!c.suit || !enemyCard.suit || c.suit.id === enemyCard.suit.id));
+      if (idxInHand >= 0) {
+        this.enemyTrucoHand.splice(idxInHand, 1);
+      }
+    }
+
+    this.tablePlayedEnemy = { ...enemyCard, isFaceDown: false };
+
+    // Se jogou a Carta Especial de Louis, ganha +12 Dracmas de dividendo!
+    if (card.isSpecialProtagonist) {
+      this.player.gold += 12;
+      this.spawnFloatingText(playerEl, '+12 Dracmas VIP', '#ffd700', 'assets/ui/icon_dracma.svg');
+      this.triggerCardCombatVFX({ vfxType: 'lightning' });
+    } else if (this.isCardManilha(card)) {
+      this.triggerCardCombatVFX({ vfxType: 'fire' });
+    }
+
+    // 1. Calcula Força da Carta de Louis vs. Carta do Chefe
+    let playerPower = this.getPlayingCardStrength(card, false);
+    let enemyPower = this.getPlayingCardStrength(enemyCard, true);
+
+    // Habilidade Especial do Chefe (1x por Duelo):
+    let bossSpecialTriggered = false;
+    let bossSpecialDesc = '';
+
+    if (this.enemy && this.enemy.specialAbility && !this.enemy.specialAbilityUsed) {
+      const bossAbility = this.enemy.specialAbility;
+
+      // Se Louis possui a relíquia Compliance VIP, os advogados barram a habilidade do chefe 1x por duelo!
+      if (this.hasRelic('trituradora_vip') && !this.complianceBlockedThisDuel) {
+        this.complianceBlockedThisDuel = true;
+        this.enemy.specialAbilityUsed = true;
+        this.spawnFloatingText(playerEl, 'COMPLIANCE BARRADO!', '#2ecc71', 'assets/ui/relic_compliance.png');
+        this.speak('Recurso indeferido pelo Compliance da Holding Beznoir! Segue o jogo normal!');
       } else {
-        this.speak('Burocracia ridícula! Incinerem esse formulário imediatamente!');
+        // Estagiário: "Atestado Médico" (Força empate/canga quando está perdendo)
+        if (bossAbility.id === 'atestado_medico' && (this.currentVaza >= 1 || this.vazaResults[0] === 'win')) {
+          if (playerPower > enemyPower && Math.random() < 0.70) {
+            this.enemy.specialAbilityUsed = true;
+            bossSpecialTriggered = true;
+            bossSpecialDesc = ' [Atestado Médico: Estagiário Cangou!]';
+            this.spawnFloatingText(enemyEl, 'ATESTADO MÉDICO!', '#ffd700', 'assets/ui/icon_scroll.svg');
+            sfx.aristocratGasp();
+            const calloutEl = document.getElementById('enemy-comic-callout');
+            if (calloutEl) {
+              calloutEl.textContent = 'ATESTADO MÉDICO! NÃO BATO PONTO HOJE!';
+              calloutEl.className = 'comic-callout hurt-callout';
+              calloutEl.classList.remove('hidden');
+              setTimeout(() => calloutEl.classList.add('hidden'), 2200);
+            }
+          }
+        }
+        // Recepcionista: "Falta de Carimbo" (-2 na força da carta de Louis)
+        else if (bossAbility.id === 'falta_carimbo' && playerPower >= 6 && Math.random() < 0.65) {
+          this.enemy.specialAbilityUsed = true;
+          playerPower = Math.max(1, playerPower - 2);
+          bossSpecialDesc = ' [Falta de Carimbo: Louis -2 Força!]';
+          this.spawnFloatingText(enemyEl, 'FALTA DE CARIMBO!', '#ff4757', 'assets/ui/icon_scroll.svg');
+          sfx.enemyCoffeeSplash();
+          const calloutEl = document.getElementById('enemy-comic-callout');
+          if (calloutEl) {
+            calloutEl.textContent = 'FALTOU CARIMBO! SUA CARTA PERDEU 2 DE FORÇA!';
+            calloutEl.className = 'comic-callout attack-callout';
+            calloutEl.classList.remove('hidden');
+            setTimeout(() => calloutEl.classList.add('hidden'), 2200);
+          }
+        }
+        // Segurança: "Bloqueio de Catraca" (+2 na força da carta do Chefe)
+        else if (bossAbility.id === 'bloqueio_catraca' && playerPower >= enemyPower && Math.random() < 0.65) {
+          this.enemy.specialAbilityUsed = true;
+          enemyPower += 2;
+          bossSpecialDesc = ' [Bloqueio de Catraca: Chefe +2 Força!]';
+          this.spawnFloatingText(enemyEl, 'BLOQUEIO DE CATRACA (+2)!', '#74b9ff', 'assets/ui/icon_gargoyle.svg');
+          sfx.swordSlash();
+          const calloutEl = document.getElementById('enemy-comic-callout');
+          if (calloutEl) {
+            calloutEl.textContent = 'ACESSO NEGADO! CATRACA TRAVADA!';
+            calloutEl.className = 'comic-callout attack-callout';
+            calloutEl.classList.remove('hidden');
+            setTimeout(() => calloutEl.classList.add('hidden'), 2200);
+          }
+        }
+        // Hades: "Liquidação Forçada" (+2 no momento decisivo se estiver apostado)
+        else if (bossAbility.id === 'liquidacao_forcada' && this.trucoLevel >= 1 && Math.random() < 0.65) {
+          this.enemy.specialAbilityUsed = true;
+          enemyPower += 2;
+          bossSpecialDesc = ' [Liquidação Forçada: Hades +2 Força!]';
+          this.spawnFloatingText(enemyEl, 'LIQUIDAÇÃO FORÇADA (+2)!', '#d63031', 'assets/ui/icon_bident.svg');
+          sfx.swordSlash();
+          const calloutEl = document.getElementById('enemy-comic-callout');
+          if (calloutEl) {
+            calloutEl.textContent = 'LIQUIDAÇÃO FORÇADA! EU CONTROLO O MERCADO!';
+            calloutEl.className = 'comic-callout attack-callout';
+            calloutEl.classList.remove('hidden');
+            setTimeout(() => calloutEl.classList.add('hidden'), 2200);
+          }
+        }
       }
-      this.updateUI();
-      return;
     }
 
-    // Dispara Animação Visual de Combate (VFX)
-    this.triggerCardCombatVFX(card);
+    const isPlayerOdd = isRankOdd(card.rank);
+    const isEnemyOdd = isRankOdd(enemyCard.rank);
+    const isPlayerEven = isRankEven(card.rank);
+    const isEnemyEven = isRankEven(enemyCard.rank);
 
-    let totalDmg = card.damage || 0;
-    if (card.isRetaliation && this.player.lastDamageTaken > 0) {
-      totalDmg += this.player.lastDamageTaken * 2;
+    // 2. Resolução clássica da Partida de Truco Paulista
+    let vazaOutcome = 'tie';
+    let specialReason = bossSpecialDesc || '';
+
+    if (bossSpecialTriggered && this.enemy && this.enemy.specialAbility && this.enemy.specialAbility.id === 'atestado_medico') {
+      vazaOutcome = 'tie';
+    } else if (this.activePartidaBonus === 'quantOddWins') {
+      if (isPlayerOdd && !isEnemyOdd) {
+        vazaOutcome = 'win';
+        specialReason = ' [Ímpar Vence!]';
+      } else if (!isPlayerOdd && isEnemyOdd) {
+        vazaOutcome = 'loss';
+        specialReason = ' [Chefe Ímpar Venceu!]';
+      } else {
+        if (playerPower > enemyPower) vazaOutcome = 'win';
+        else if (playerPower < enemyPower) vazaOutcome = 'loss';
+        else vazaOutcome = this.hasRelic('blindagem_patrimonial') || this.archetype === 'hedge_fund' ? 'win' : 'tie';
+      }
+      this.triggerCardCombatVFX({ vfxType: 'lightning' });
+    } else if (this.activePartidaBonus === 'hedgeEvenWins') {
+      if (isPlayerEven && !isEnemyEven) {
+        vazaOutcome = 'win';
+        specialReason = ' [Par Vence!]';
+      } else if (!isPlayerEven && isEnemyEven) {
+        vazaOutcome = 'loss';
+        specialReason = ' [Chefe Par Venceu!]';
+      } else {
+        if (playerPower > enemyPower) vazaOutcome = 'win';
+        else if (playerPower < enemyPower) vazaOutcome = 'loss';
+        else vazaOutcome = 'win'; // Hedge sempre vence empate
+      }
+      this.triggerCardCombatVFX({ vfxType: 'lightning' });
+    } else {
+      if (playerPower > enemyPower) {
+        vazaOutcome = 'win';
+      } else if (playerPower < enemyPower) {
+        vazaOutcome = 'loss';
+      } else {
+        // Minos: "Decisão Monocrática" (Vence desempate no tribunal)
+        if (this.enemy && this.enemy.specialAbility && this.enemy.specialAbility.id === 'decisao_monocratica' && !this.enemy.specialAbilityUsed) {
+          this.enemy.specialAbilityUsed = true;
+          vazaOutcome = 'loss';
+          specialReason = ' [Decisão Monocrática: Minos Vence Desempate!]';
+          this.spawnFloatingText(enemyEl, 'DECISÃO MONOCRÁTICA!', '#e17055', 'assets/ui/icon_scales.svg');
+          const calloutEl = document.getElementById('enemy-comic-callout');
+          if (calloutEl) {
+            calloutEl.textContent = 'RECURSO INDEFERIDO! SENTENÇA MONOCRÁTICA!';
+            calloutEl.className = 'comic-callout attack-callout';
+            calloutEl.classList.remove('hidden');
+            setTimeout(() => calloutEl.classList.add('hidden'), 2200);
+          }
+        } else if (
+          this.archetype === 'hedge_fund' ||
+          this.hasRelic('blindagem_patrimonial')
+        ) {
+          vazaOutcome = 'win';
+          specialReason = ' [Holding Blindada: Desempate VIP!]';
+        } else {
+          vazaOutcome = 'tie';
+        }
+      }
     }
 
-    // Sinergia de Relíquias Ofensivas
-    if (totalDmg > 0) {
-      this.attacksPlayedThisTurn++;
+    this.activePartidaBonus = null;
+    this.vazaResults[this.currentVaza] = vazaOutcome;
+    this.lastRoundWinner = vazaOutcome;
 
-      // Alavancagem Hostil (Private Equity)
-      if (this.hasRelic('alavancagem_ares')) {
-        const hasStatus = Object.values(this.enemy.statuses).some(v => v > 0);
-        if (hasStatus) totalDmg += 3;
-        if (this.player.hp <= this.player.maxHp * 0.5) totalDmg += 4;
-      }
-      // Patek Olímpico (1º ataque do turno)
-      if (this.hasRelic('patek_olimpico') && this.attacksPlayedThisTurn === 1) {
-        totalDmg += 4;
-        this.player.shield += 3;
-      }
-      // Amex Obsidiana (Juros Compostos por Dracmas)
-      if (this.hasRelic('cartao_centurion')) {
-        totalDmg += Math.floor(this.player.gold / 35);
-      }
-      // Contrato M&A (+4 Dano em cartas fundidas)
-      if (card.type === 'fused' && this.hasRelic('fusao_perpetua')) {
-        totalDmg += 4;
+    const pName = this.formatCardShortName(card);
+    const eName = this.formatCardShortName(enemyCard);
+
+    if (vazaOutcome === 'win') {
+      this.clashStatusText = `${this.currentVaza + 1}ª PARTIDA SUA! ${pName} venceu ${eName}!${specialReason}`;
+      this.spawnFloatingText(enemyEl, `PERDEU PARTIDA!`, '#ffd700', 'assets/ui/icon_spark.svg');
+      this.playPlayerAttack();
+      this.speak(this.getRandomQuote(LUIZ_QUOTES.playAction));
+    } else if (vazaOutcome === 'loss') {
+      this.clashStatusText = `CHEFE LEVOU A ${this.currentVaza + 1}ª PARTIDA! ${eName} bateu ${pName}!${specialReason}`;
+      this.spawnFloatingText(playerEl, `Perdeu Partida`, '#ff6b81', 'assets/ui/icon_skull.svg');
+      this.playEnemyAttack();
+    } else {
+      this.clashStatusText = `${this.currentVaza + 1}ª PARTIDA CANCOU (${card.rank} = ${enemyCard.rank})!${specialReason}`;
+      this.spawnFloatingText(enemyEl, `CANCOU!`, '#a29bfe', 'assets/ui/icon_scales.svg');
+    }
+
+    // Renderiza imediatamente as cartas na mesa e os blocos 1/3, 2/3, 3/3
+    this.updateUI();
+
+    // Verifica se a Rodada já foi decidida (Melhor de 2 ou regras clássicas de canga do Truco Paulista)
+    const earlyOrFinalWinner = this.checkEarlyOrFinalRodadaWinner();
+
+    if (earlyOrFinalWinner) {
+      // Rodada decidida imediatamente!
+      setTimeout(() => {
+        this.resolveTrucoHand(earlyOrFinalWinner);
+      }, 1250);
+    } else if (this.currentVaza < 2) {
+      // Se ainda não decidiu e restam partidas, avança mantendo as cartas na mão
+      this.currentVaza++;
+      setTimeout(() => {
+        this.isResolvingVaza = false;
+        this.prepareVaza();
+      }, 1250);
+    } else {
+      // Fallback de segurança se chegou ao fim da 3ª partida
+      const rodadaWinner = this.calculateRodadaWinner();
+      setTimeout(() => {
+        this.resolveTrucoHand(rodadaWinner);
+      }, 1250);
+    }
+  }
+
+  // Regras autênticas de vitória de Rodada no Truco Paulista:
+  // - Melhor de 2: Se vencer 2 seguidas (2-0), acaba na hora!
+  // - Se empatar na 1ª partida: quem ganhar a 2ª ganha a rodada imediatamente!
+  // - Se empatar na 2ª ou na 3ª partida: quem ganhou a 1ª ganha a rodada imediatamente!
+  checkEarlyOrFinalRodadaWinner() {
+    const r = this.vazaResults;
+    const p1 = r[0];
+    const p2 = r[1];
+    const p3 = r[2];
+
+    // Se só jogou a 1ª partida, a rodada nunca termina ainda
+    if (this.currentVaza === 0) return null;
+
+    // Se acabou de jogar a 2ª partida (currentVaza === 1):
+    if (this.currentVaza === 1) {
+      // 1. Ganhou 2 seguidas (2-0) -> Fim de rodada imediato!
+      if (p1 === 'win' && p2 === 'win') return 'player';
+      if (p1 === 'loss' && p2 === 'loss') return 'enemy';
+
+      // 2. Se empatou na primeira partida, quem ganhar a segunda ganha a rodada imediatamente!
+      if (p1 === 'tie') {
+        if (p2 === 'win') return 'player';
+        if (p2 === 'loss') return 'enemy';
+        // Se empatou a 1ª E a 2ª, vai para a 3ª partida!
+        return null;
       }
 
-      if (this.enemy.statuses.daze > 0) {
-        totalDmg = Math.floor(totalDmg * 1.5);
+      // 3. Se empatar na segunda partida, quem ganhou a primeira ganha a rodada imediatamente!
+      if (p2 === 'tie') {
+        if (p1 === 'win') return 'player';
+        if (p1 === 'loss') return 'enemy';
       }
 
-      if (this.enemy.statuses.shock > 0) {
-        totalDmg += this.enemy.statuses.shock * 4;
-        delete this.enemy.statuses.shock;
+      // 4. Se 1 a 1 (um ganhou a 1ª e o outro a 2ª), precisa da 3ª partida
+      return null;
+    }
+
+    // Se acabou de jogar a 3ª partida (currentVaza === 2):
+    if (this.currentVaza === 2) {
+      // Quem venceu a 3ª partida ganha a rodada
+      if (p3 === 'win') return 'player';
+      if (p3 === 'loss') return 'enemy';
+
+      // Se empatar na terceira partida: quem ganhou a primeira ganha a rodada!
+      if (p3 === 'tie') {
+        if (p1 === 'win') return 'player';
+        if (p1 === 'loss') return 'enemy';
+
+        // Se a 1ª também foi empate, quem ganhou a 2ª:
+        if (p2 === 'win') return 'player';
+        if (p2 === 'loss') return 'enemy';
+
+        // Holding Blindada ou Relíquia de desempate
+        if (this.archetype === 'hedge_fund' || this.hasRelic('blindagem_patrimonial') || this.hasRelic('trituradora_vip')) {
+          return 'player';
+        }
+        return 'player';
       }
     }
 
-    // Ganho de Escudo ANTES do reflexo de espinhos para recompensar cartas híbridas
-    if (card.shield > 0) {
-      sfx.shield();
-      const bonusShield = this.hasRelic('blindagem_patrimonial') ? 3 : 0;
-      const finalShield = card.shield + bonusShield;
-      this.player.shield += finalShield;
-      const playerEl = document.getElementById('player-bust-frame');
-      this.spawnFloatingText(playerEl, `+${finalShield}`, '#70a1ff', 'assets/ui/icon_shield.svg');
+    return null;
+  }
+
+  // Regras autênticas de vitória de Rodada no Truco Paulista (Melhor de 3 Partidas + Desempate de Canga)
+  calculateRodadaWinner() {
+    const r = this.vazaResults;
+    const wins = r.filter(x => x === 'win').length;
+    const losses = r.filter(x => x === 'loss').length;
+
+    if (wins > losses) return 'player';
+    if (losses > wins) return 'enemy';
+
+    // Em caso de empate no número de partidas:
+    // Benefício de Minos (Decisão Monocrática): o tribunal julga empates a favor de Minos (a menos que Louis tenha Compliance VIP)
+    if (this.enemy && this.enemy.passiveId === 'juros_mora' && !this.hasRelic('trituradora_vip')) {
+      return 'enemy';
     }
 
-    if (totalDmg > 0) {
+    // Holding Blindada ou Relíquia de desempate
+    if (this.archetype === 'hedge_fund' || this.hasRelic('blindagem_patrimonial') || this.hasRelic('trituradora_vip')) {
+      return 'player';
+    }
+
+    // Regra clássica de canga do Truco Paulista:
+    if (r[0] === 'win') return 'player';
+    if (r[0] === 'loss') return 'enemy';
+
+    if (r[1] === 'win') return 'player';
+    if (r[1] === 'loss') return 'enemy';
+
+    if (r[2] === 'win') return 'player';
+    if (r[2] === 'loss') return 'enemy';
+
+    return 'player';
+  }
+
+  resolveTrucoHand(winner) {
+    if (this.isVictoryHandled || this.isVictoryInProgress) return;
+    const pts = this.getCurrentStakeDamage();
+    this.awardHandTentos(winner, pts, false);
+  }
+
+  awardHandTentos(winner, pts, wasFold = false) {
+    if (this.isVictoryHandled || this.isVictoryInProgress) return;
+
+    const enemyEl = document.getElementById('enemy-sprite');
+    const playerEl = document.getElementById('player-bust-frame');
+
+    if (winner === 'player') {
+      this.playerTentos = Math.min(this.maxTentos, this.playerTentos + pts);
       sfx.swordSlash();
       sfx.snobAttack();
       this.playPlayerAttack();
-      this.damageEnemy(totalDmg, true, false);
-    }
+      this.playEnemyHurt();
 
-    if (card.gainGold) {
-      this.player.gold += card.gainGold;
-      const playerEl = document.getElementById('player-bust-frame');
-      this.spawnFloatingText(playerEl, `+${card.gainGold}`, '#ffd700', 'assets/ui/icon_dracma.svg');
-    }
+      // Ganho de Dracmas proporcional aos Tentos conquistados!
+      const earnedGold = pts * 6;
+      this.player.gold += earnedGold;
+      this.spawnFloatingText(playerEl, `+${earnedGold} Dracmas`, '#ffd700', 'assets/ui/icon_dracma.svg');
 
-    if (card.drawCards) {
-      this.drawCards(card.drawCards);
-    }
+      if (this.hasRelic('fundo_soberano') && this.vazaResults.filter(x => x === 'win').length >= 2 && this.vazaResults.filter(x => x === 'loss').length === 0) {
+        this.player.gold += 20;
+        this.spawnFloatingText(playerEl, '+20 Dracmas (Fundo Soberano)', '#ffd700', 'assets/ui/icon_scales.svg');
+      }
 
-    if (card.conditionalDraw && (this.enemy.intent.type === 'attack' || this.enemy.intent.type === 'curse_attack')) {
-      this.drawCards(1);
-    }
+      if (!wasFold) {
+        this.clashStatusText = `RODADA SUA! Você ganhou +${pts} Tento(s)! (Placar: ${this.playerTentos} a ${this.enemyTentos})`;
+        this.spawnFloatingText(playerEl, `+${pts} TENTO(S)! (${this.playerTentos}/12)`, '#2ecc71', 'assets/ui/icon_dracma.svg');
+      }
+    } else {
+      // Benefício do Estagiário: se a 1ª partida empatou, ganha +1 Tento de consolação
+      if (this.enemy && this.enemy.passiveId === 'corpo_mole' && this.vazaResults[0] === 'tie') {
+        pts += 1;
+        this.spawnFloatingText(enemyEl, '+1 Tento (Adicional Noturno)', '#f39c12', 'assets/ui/icon_scroll.svg');
+      }
 
-    if (card.bonusEnergy) {
-      this.player.energy += card.bonusEnergy;
-    }
+      this.enemyTentos = Math.min(this.maxTentos, this.enemyTentos + pts);
+      sfx.enemyCoffeeSplash();
+      this.playEnemyAttack();
+      this.playPlayerHurt();
 
-    if (card.applyStatus) {
-      const st = card.applyStatus;
-      if (st.stacks) {
-        this.enemy.statuses[st.type] = (this.enemy.statuses[st.type] || 0) + st.stacks;
-      } else if (st.duration) {
-        this.enemy.statuses[st.type] = Math.max(this.enemy.statuses[st.type] || 0, st.duration);
+      if (!wasFold) {
+        this.clashStatusText = `RODADA DO CHEFE! Ele ganhou +${pts} Tento(s)! (Placar: ${this.playerTentos} a ${this.enemyTentos})`;
+        this.spawnFloatingText(enemyEl, `+${pts} TENTO(S)! (${this.enemyTentos}/12)`, '#ff4757', 'assets/ui/icon_burst.svg');
+        sfx.aristocratGasp();
+        this.speak(this.getRandomQuote(LUIZ_QUOTES.hurt));
       }
     }
 
-    if (card.cancelEnemyTurn) {
-      this.enemy.intent = { type: 'stun', value: 0, icon: 'assets/ui/status_gelo.svg', desc: 'Ação Cancelada!' };
+    // Fase 2 de Hades quando chega a 6 Tentos!
+    if (this.enemy.passiveId === 'monopolio_tartaro' && !this.enemy.phase2Triggered && this.enemyTentos >= 6) {
+      this.enemy.phase2Triggered = true;
+      this.enemy.passiveIcon = 'assets/ui/status_fogo.svg';
+      this.enemy.passiveText = 'FASE 2: BANCA EM CHAMAS (+Manilhas!)';
+      this.spawnFloatingText(enemyEl, 'FASE 2 ATIVADA!', '#ffd700', 'assets/ui/icon_bident.svg');
     }
 
-    this.hand.splice(index, 1);
-    if (!card.exhaust) {
-      this.pushCardToDiscard(cardKey);
-    }
-
-    this.speak(card.catchphrase || this.getRandomQuote(LUIZ_QUOTES.playAction));
     this.updateUI();
+
+    // Verifica se alguém atingiu 12 Tentos e fechou a Partida!
+    if (this.playerTentos >= this.maxTentos) {
+      this.isVictoryHandled = true;
+      this.hideTrucoChallengeModal();
+      setTimeout(() => {
+        this.handleVictory();
+      }, 650);
+      return;
+    }
+
+    if (this.enemyTentos >= this.maxTentos) {
+      this.hideTrucoChallengeModal();
+      setTimeout(() => {
+        this.handleGameOver();
+      }, 650);
+      return;
+    }
+
+    setTimeout(() => {
+      this.turnNumber++;
+      this.startTurn();
+    }, 950);
+  }
+
+  endTurn() {
+    this.callPlayerTruco();
   }
 
   triggerCardCombatVFX(card) {
@@ -1066,7 +2107,7 @@ class GameState {
   }
 
   fuseCards(indexSource, indexTarget) {
-    if (this.isVictoryHandled || this.isVictoryInProgress || this.isFusing || this.enemy.hp <= 0) return false;
+    if (this.isVictoryHandled || this.isVictoryInProgress || this.isFusing || this.isResolvingVaza || this.enemy.hp <= 0) return false;
 
     const sourceKey = this.hand[indexSource];
     const targetKey = this.hand[indexTarget];
@@ -1119,10 +2160,12 @@ class GameState {
 
       const fusedKey = recipeKey1 in FUSION_RECIPES ? recipeKey1 : recipeKey2;
       this.hand.push(fusedKey);
+      // Repõe 1 carta do baralho para que o jogador continue com cartas para as 3 rodadas!
+      this.drawCards(1);
       this.isFusing = false;
 
       this.showFusionBanner(recipe);
-      this.speak(recipe.catchphrase || 'Flawless! Essa fusão tem o selo de qualidade Beznoir.');
+      this.speak(recipe.catchphrase || 'ZAP FORJADO NA MÃO! Agora quero ver quem aguenta meu Truco!');
       this.updateUI();
     }, 280);
 
@@ -1319,11 +2362,6 @@ class GameState {
 
     // Passivas de Reação dos Chefes (Apenas contra ataques diretos e se o chefe sobreviveu)
     if (!isPassiveDot && this.enemy.hp > 0) {
-      // Câmara I (Estagiário): Ganha +3 Escudo de Corpo Mole após sofrer ataque
-      if (this.enemy.passiveId === 'corpo_mole') {
-        this.enemy.shield += 3;
-        this.spawnFloatingText(enemyEl, '+3 Corpo Mole', '#70a1ff', 'assets/ui/icon_shield.svg');
-      }
       // Câmara III (Gárgula): Pele de Granito reflete 3 de Dano em Louis!
       if (this.enemy.thorns > 0) {
         this.damagePlayer(this.enemy.thorns, 'Espinhos', 'assets/ui/icon_gargoyle.svg');
@@ -1333,12 +2371,11 @@ class GameState {
     // Fase 2 de Hades (Liquidação Hostil aos 50% de HP!)
     if (this.enemy.passiveId === 'monopolio_tartaro' && !this.enemy.phase2Triggered && this.enemy.hp > 0 && this.enemy.hp <= this.enemy.maxHp * 0.5) {
       this.enemy.phase2Triggered = true;
-      this.enemy.shield += 22;
+      this.enemy.shield += 20;
       this.enemy.bonusDamage += 4;
       this.enemy.passiveIcon = 'assets/ui/status_fogo.svg';
-      this.enemy.passiveText = 'FASE 2: LIQUIDAÇÃO TOTAL (+6 Força!)';
-      this.discardPile.push('protocolo_pendente');
-      this.spawnFloatingText(enemyEl, 'FASE 2: +22 ESCUDO!', '#ffd700', 'assets/ui/icon_bident.svg');
+      this.enemy.passiveText = 'FASE 2: LIQUIDAÇÃO TOTAL (+Manilhas!)';
+      this.spawnFloatingText(enemyEl, 'FASE 2: +20 ESCUDO!', '#ffd700', 'assets/ui/icon_bident.svg');
       const calloutEl = document.getElementById('enemy-comic-callout');
       if (calloutEl) {
         calloutEl.textContent = 'LIQUIDAÇÃO HOSTIL ATIVADA!';
@@ -1349,120 +2386,10 @@ class GameState {
     // GATILHO UNIVERSAL DE VITÓRIA
     if (this.enemy.hp <= 0 && !this.isVictoryHandled) {
       this.isVictoryHandled = true;
+      this.hideTrucoChallengeModal();
       setTimeout(() => {
         this.handleVictory();
       }, 400);
-    }
-  }
-
-  endTurn() {
-    if (this.isVictoryHandled || this.isVictoryInProgress || this.isFusing || this.enemy.hp <= 0 || this.player.hp <= 0) return;
-
-    this.player.lastDamageTaken = 0;
-
-    // 1. Penalidade de Burocracia: Formulários 9.999 que ficaram na mão causam 4 de dano cada!
-    const cursesInHand = this.hand.filter(k => k === 'protocolo_pendente').length;
-    if (cursesInHand > 0 && !this.hasRelic('trituradora_vip')) {
-      const curseDmg = cursesInHand * 4;
-      this.damagePlayer(curseDmg, 'Multa', 'assets/ui/icon_scroll.svg');
-      if (this.player.hp <= 0) return;
-    }
-
-    // 2. Decaimento parcial do escudo do inimigo no início do turno dele
-    if (this.enemy.shield > 0) {
-      this.enemy.shield = Math.floor(this.enemy.shield * 0.5);
-    }
-
-    const intentType = this.enemy.intent.type;
-    const enemyEl = document.getElementById('enemy-sprite');
-
-    if (intentType === 'attack' || intentType === 'curse_attack') {
-      sfx.enemyCoffeeSplash();
-      this.playEnemyAttack();
-      let dmg = (this.enemy.intent.value || 0) + (this.enemy.bonusDamage || 0);
-
-      if (this.enemy.statuses.chill > 0) dmg = Math.floor(dmg * 0.7);
-      if (this.enemy.statuses.charm > 0) dmg = Math.floor(dmg * 0.5);
-
-      if (this.enemy.statuses.bleed > 0) {
-        const bleedDmg = this.enemy.statuses.bleed;
-        this.damageEnemy(bleedDmg, true, true);
-        this.enemy.statuses.bleed = Math.max(0, this.enemy.statuses.bleed - 1);
-        if (this.enemy.statuses.bleed === 0) delete this.enemy.statuses.bleed;
-        if (this.enemy.hp <= 0) {
-          this.hand.forEach(cardKey => this.pushCardToDiscard(cardKey));
-          this.hand = [];
-          this.updateUI();
-          return;
-        }
-      }
-
-      this.damagePlayer(dmg);
-      if (this.player.lastDamageTaken > 0) {
-        sfx.aristocratGasp();
-        this.speak(this.getRandomQuote(LUIZ_QUOTES.hurt));
-        if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
-      }
-
-      if (intentType === 'curse_attack' && this.enemy.intent.curses) {
-        for (let c = 0; c < this.enemy.intent.curses; c++) {
-          this.discardPile.push('protocolo_pendente');
-        }
-        const playerEl = document.getElementById('player-bust-frame');
-        this.spawnFloatingText(playerEl, `+${this.enemy.intent.curses} Burocracia!`, '#ff6b81', 'assets/ui/icon_scroll.svg');
-      }
-    } else if (intentType === 'shield' || intentType === 'shield_curse') {
-      this.enemy.shield += this.enemy.intent.value;
-      this.spawnFloatingText(enemyEl, `+${this.enemy.intent.value}`, '#70a1ff', 'assets/ui/icon_shield.svg');
-      if (intentType === 'shield_curse' && this.enemy.intent.curses) {
-        for (let c = 0; c < this.enemy.intent.curses; c++) {
-          this.drawPile.push('protocolo_pendente');
-        }
-        this.drawPile.sort(() => Math.random() - 0.5);
-        const playerEl = document.getElementById('player-bust-frame');
-        this.spawnFloatingText(playerEl, `+${this.enemy.intent.curses} no Deck!`, '#ff6b81', 'assets/ui/icon_scroll.svg');
-      }
-    }
-
-    // 3. Escalada de Poder (Juros de Mora / Monopólio) de Minos e Hades no fim do turno
-    if (this.enemy.passiveId === 'juros_mora' || this.enemy.passiveId === 'monopolio_tartaro') {
-      this.enemy.bonusDamage = (this.enemy.bonusDamage || 0) + 2;
-      this.spawnFloatingText(enemyEl, '+2 Juros!', '#ffd700', 'assets/ui/icon_sword.svg');
-    }
-
-    // 4. Descarta a mão (desfazendo cartas fundidas de volta às originais, salvo Contrato M&A)
-    this.hand.forEach(cardKey => this.pushCardToDiscard(cardKey));
-    this.hand = [];
-
-    if (this.player.hp <= 0) {
-      this.handleGameOver();
-      return;
-    }
-
-    if (this.enemy.hp <= 0) {
-      this.handleVictory();
-      return;
-    }
-
-    this.turnNumber++;
-    this.startTurn();
-  }
-
-  rollEnemyIntent() {
-    const list = this.enemy.intents || [
-      { type: 'attack', value: 8, icon: 'assets/ui/icon_sword.svg', desc: '8 Dano' },
-      { type: 'shield', value: 10, icon: 'assets/ui/icon_shield.svg', desc: '+10 Escudo' }
-    ];
-    const base = list[Math.floor(Math.random() * list.length)];
-    const bonus = this.enemy.bonusDamage || 0;
-    if ((base.type === 'attack' || base.type === 'curse_attack') && bonus > 0) {
-      const boostedVal = base.value + bonus;
-      this.enemy.intent = {
-        ...base,
-        desc: base.desc.replace(`${base.value}`, `${boostedVal}`)
-      };
-    } else {
-      this.enemy.intent = { ...base };
     }
   }
 
@@ -1470,13 +2397,13 @@ class GameState {
     if (this.isVictoryInProgress) return;
     this.isVictoryInProgress = true;
     this.isVictoryHandled = true;
+    this.hideTrucoChallengeModal();
 
     sfx.victory();
     this.speak(this.getRandomQuote(LUIZ_QUOTES.win));
     const rewardGold = 45 + (this.roomNumber * 10);
     this.player.gold += rewardGold;
 
-    // Relíquia Bordeaux 1800: cura +10 HP ao vencer cada câmara
     if (this.hasRelic('safra_1800')) {
       this.player.hp = Math.min(this.player.maxHp, this.player.hp + 10);
     }
@@ -1505,7 +2432,7 @@ class GameState {
           }
           if (artWrap) artWrap.classList.remove('hidden');
           if (h2) h2.textContent = '"Flawless acquisition! A Inferno S/A agora pertence à Holding Beznoir!"';
-          if (p) p.textContent = 'Louis Beznoir IV destituiu Hades, assumiu o Trono Executivo do Tártaro e rebaixou o antigo Lorde do Submundo!';
+          if (p) p.textContent = 'Louis Beznoir IV liquidou Hades na mesa de Truco, assumiu o Trono Executivo do Tártaro e rebaixou o antigo Lorde do Submundo!';
           if (btnText) btnText.textContent = 'NOVA OPERAÇÃO';
           gameOverModal.classList.remove('hidden');
         }
@@ -1530,33 +2457,27 @@ class GameState {
 
     const isHermes = this.roomNumber % 2 !== 0;
     if (isHermes) {
-      godTitle.textContent = 'BÊNÇÃO DE HERMES';
-      godName.textContent = 'Hermes, o Mensageiro';
+      godTitle.textContent = 'PATROCÍNIO OLÍMPICO: MERCADO DE ATIVOS';
+      godName.textContent = 'Hermes, Broker dos Deuses';
       godImg.src = 'assets/characters/god_hermes.png';
-      godQuote.textContent = '"E aí, primo rico! O mercado no Tártaro está volátil hoje! Escolha um ativo divino para alavancar seu deck — ou pague 25 Dracmas se quiser que eu busque novas ofertas!"';
+      godQuote.textContent = '"Excelente vitória na mesa, primo rico! O conselho do Olimpo liberou novos Ativos Passivos para sua Holding. Escolha um para incorporar ao seu portfólio!"';
     } else {
-      godTitle.textContent = 'BÊNÇÃO DE ZEUS';
-      godName.textContent = 'Zeus, o Rei do Olimpo';
+      godTitle.textContent = 'CONSELHO SUPREMO DE ZEUS';
+      godName.textContent = 'Zeus, Chairman do Olimpo';
       godImg.src = 'assets/characters/god_zeus.png';
-      godQuote.textContent = '"Jovem Louis! Sua tentativa de aquisição hostil contra meu irmão Hades diverte todo o Olimpo! Escolha uma centelha divina para fundir às suas ações!"';
+      godQuote.textContent = '"Jovem Louis! Todo o Olimpo aplaude seu desempenho nas mesas de Truco! Selecione um Ativo de prestígio para expandir sua influência!"';
     }
 
-    const pool = [
-      'bencao_velocidade',
-      'bencao_raio',
-      'bencao_guerra',
-      'bencao_fogo',
-      'alavancagem_divina',
-      'blindagem_olimpica',
-      'acao_indenizatoria',
-      'discurso_impacto'
-    ];
+    const availableRelicIds = Object.keys(RELIC_DATABASE).filter(k => 
+      !['algoritmo_hermes', 'alavancagem_ares', 'blindagem_patrimonial'].includes(k) && !this.hasRelic(k)
+    );
+    const pool = availableRelicIds.length >= 3 ? availableRelicIds : Object.keys(RELIC_DATABASE).filter(k => !['algoritmo_hermes', 'alavancagem_ares', 'blindagem_patrimonial'].includes(k));
     const shuffled = [...pool].sort(() => Math.random() - 0.5);
-    const boonChoices = shuffled.slice(0, 3);
+    const relicChoices = shuffled.slice(0, 3);
 
     if (rerollBtn) {
       rerollBtn.disabled = this.player.gold < 25;
-      rerollBtn.innerHTML = `<img src="assets/ui/icon_dice.svg" class="inline-ui-art" alt=""> Subornar Olimpo: Trocar Ofertas (-25 <img src="assets/ui/icon_dracma.svg" class="inline-ui-art" alt=""> | Saldo: ${this.player.gold} <img src="assets/ui/icon_dracma.svg" class="inline-ui-art" alt="">)`;
+      rerollBtn.innerHTML = `<img src="assets/ui/icon_dice.svg" class="inline-ui-art" alt=""> Subornar Corretora: Trocar Ativos (-25 <img src="assets/ui/icon_dracma.svg" class="inline-ui-art" alt=""> | Saldo: ${this.player.gold} <img src="assets/ui/icon_dracma.svg" class="inline-ui-art" alt="">)`;
       rerollBtn.onclick = () => {
         if (this.player.gold >= 25) {
           this.player.gold -= 25;
@@ -1568,39 +2489,35 @@ class GameState {
     }
 
     cardsContainer.innerHTML = '';
-    boonChoices.forEach(cardKey => {
-      const card = CARD_DATABASE[cardKey];
-      if (!card) return;
+    relicChoices.forEach(relicKey => {
+      const relic = RELIC_DATABASE[relicKey];
+      if (!relic) return;
 
       const cardEl = document.createElement('div');
       cardEl.className = 'boon-card-choice';
       
-      let boonChosen = false;
-      const chooseBoon = (e) => {
+      let relicChosen = false;
+      const chooseRelic = (e) => {
         if (e && e.type === 'touchend') {
           e.preventDefault();
         }
-        if (boonChosen) return;
-        boonChosen = true;
-        this.claimBoon(cardKey);
+        if (relicChosen) return;
+        relicChosen = true;
+        this.claimRelic(relicKey);
       };
 
-      cardEl.addEventListener('click', chooseBoon);
-      cardEl.addEventListener('touchend', chooseBoon);
-
-      const illustrationHtml = card.image
-        ? `<img src="${card.image}" class="card-art-img" alt="${card.name}" onerror="this.src='${card.icon}'"/>`
-        : `<img src="${card.icon}" class="card-art-img" alt="${card.name}"/>`;
+      cardEl.addEventListener('click', chooseRelic);
+      cardEl.addEventListener('touchend', chooseRelic);
 
       cardEl.innerHTML = `
         <div class="card-art-container">
-          ${illustrationHtml}
+          <img src="${relic.art}" class="card-art-img" alt="${relic.name}" onerror="this.src='assets/ui/icon_spark.svg'"/>
         </div>
         <img class="card-frame-overlay" src="assets/ui/card_frame_action_cutout.png?v=3" alt="Frame" />
-        <div class="card-cost">${card.cost}</div>
-        <div class="card-header">${card.name}</div>
-        <div class="card-desc">${card.desc}</div>
-        <div class="card-type-tag">${card.type === 'blessing' ? 'BÊNÇÃO' : 'AÇÃO'}</div>
+        <div class="card-cost">★</div>
+        <div class="card-header">${relic.name}</div>
+        <div class="card-desc">${relic.desc}</div>
+        <div class="card-type-tag">ATIVO PASSIVO</div>
       `;
       cardsContainer.appendChild(cardEl);
     });
@@ -1608,11 +2525,11 @@ class GameState {
     modal.classList.remove('hidden');
   }
 
-  claimBoon(cardKey) {
-    const card = CARD_DATABASE[cardKey];
-    if (!card) return;
+  claimRelic(relicKey) {
+    const relic = RELIC_DATABASE[relicKey];
+    if (!relic) return;
 
-    this.deck.push(cardKey);
+    this.addRelic(relicKey);
     sfx.boonAcquired();
 
     const boonModal = document.getElementById('god-boon-modal');
@@ -1621,10 +2538,9 @@ class GameState {
     }
 
     this.updateUI();
-    this.speak(`Excelente aquisição de portfólio! Agora vamos decidir a alocação de recursos antes da próxima Câmara.`);
+    this.speak(`Ativo "${relic.name}" incorporado ao portfólio da Holding Beznoir!`);
 
     setTimeout(() => {
-      // Abre o Hub Estratégico de Risco vs. Recompensa & Mercado de Caronte!
       this.showRoomChoice();
     }, 420);
   }
@@ -1636,16 +2552,14 @@ class GameState {
     if (!modal || !doorsContainer) return;
 
     if (statusBar) {
-      statusBar.innerHTML = `<img src="assets/ui/icon_hp.svg" class="inline-ui-art" alt=""> <strong>${this.player.hp}/${this.player.maxHp} HP</strong> &nbsp;|&nbsp; <img src="assets/ui/icon_dracma.svg" class="inline-ui-art" alt=""> <strong>${this.player.gold} Dracmas</strong> &nbsp;|&nbsp; <img src="assets/ui/icon_deck.svg" class="inline-ui-art" alt=""> <strong>${this.deck.length} Cartas</strong>`;
+      statusBar.innerHTML = `<img src="assets/ui/icon_dracma.svg" class="inline-ui-art" alt=""> <strong>${this.player.gold} Dracmas</strong> &nbsp;|&nbsp; <img src="assets/ui/icon_scales.svg" class="inline-ui-art" alt=""> <strong>${this.relics.length} Ativos no Portfólio</strong>`;
     }
 
-    // Seleciona uma Relíquia ainda não comprada para ofertar no Mercado de Caronte
-    const shopRelics = ['patek_olimpico', 'cartao_centurion', 'trituradora_vip', 'safra_1800', 'fusao_perpetua']
-      .filter(id => !this.hasRelic(id));
-    const offeredRelicId = shopRelics.length > 0 ? shopRelics[this.roomNumber % shopRelics.length] : null;
+    const availableShopRelics = Object.keys(RELIC_DATABASE)
+      .filter(id => !['algoritmo_hermes', 'alavancagem_ares', 'blindagem_patrimonial'].includes(id) && !this.hasRelic(id));
+    const offeredRelicId = availableShopRelics.length > 0 ? availableShopRelics[this.roomNumber % availableShopRelics.length] : null;
     const offeredRelic = offeredRelicId ? RELIC_DATABASE[offeredRelicId] : null;
     const canAffordRelic = Boolean(offeredRelic && this.player.gold >= offeredRelic.cost);
-    const canAffordTrim = Boolean(this.player.gold >= 50 && this.deck.length > 5);
 
     const options = [
       {
@@ -1654,7 +2568,7 @@ class GameState {
         enabled: true,
         art: 'assets/ui/relic_bordeaux.png',
         title: `Lounge VIP do Estige <span class="door-cost-tag">GRÁTIS</span>`,
-        desc: `Descanso Executivo: Recupera <strong>+26 de HP</strong> antes da próxima Câmara.`
+        desc: `Suborno de Abertura: Começa a próxima partida de Truco já com <strong>+2 Tentos</strong> no placar!`
       }
     ];
 
@@ -1671,20 +2585,20 @@ class GameState {
 
     options.push(
       {
-        choice: 'trim_deck',
+        choice: 'consulting',
         param: null,
-        enabled: canAffordTrim,
+        enabled: this.player.gold >= 40,
         art: 'assets/ui/relic_compliance.png',
-        title: `Reestruturação Lean (Enxugar Deck) <span class="door-cost-tag">-50 <img src="assets/ui/icon_dracma.svg" class="inline-ui-art" alt=""></span>`,
-        desc: `Remove 1 carta básica do deck (compras mais rápidas) e ganha <strong>+10 HP Máx</strong>!`
+        title: `Consultoria Jurídica <span class="door-cost-tag">-40 <img src="assets/ui/icon_dracma.svg" class="inline-ui-art" alt=""></span>`,
+        desc: `Contrata advogados para a próxima Câmara: começa com <strong>+1 Tento</strong> de vantagem extra!`
       },
       {
         choice: 'dividend_rush',
         param: null,
         enabled: true,
         art: 'assets/ui/relic_centurion.png',
-        title: `Alavancagem Agressiva (Risco Alto) <span class="door-cost-tag">+65 <img src="assets/ui/icon_dracma.svg" class="inline-ui-art" alt=""></span>`,
-        desc: `Avança sem descansar, mas fatura <strong>+65 Dracmas</strong> imediatos em dividendos!`
+        title: `Alavancagem Agressiva <span class="door-cost-tag">+65 <img src="assets/ui/icon_dracma.svg" class="inline-ui-art" alt=""></span>`,
+        desc: `Avança direto para a próxima mesa faturando <strong>+65 Dracmas</strong> imediatos em dividendos!`
       }
     );
 
@@ -1737,7 +2651,6 @@ class GameState {
     const currentChamber = Math.min(Math.max(this.roomNumber, 1), 5);
     const chamberInfo = CHAMBER_COORDS[currentChamber];
 
-    // Atualiza classes dos nós do mapa
     const nodes = document.querySelectorAll('.map-node');
     nodes.forEach(node => {
       const chamberNum = parseInt(node.dataset.chamber);
@@ -1751,14 +2664,12 @@ class GameState {
       }
     });
 
-    // Atualiza a posição do pino de Louis com transição suave
     const pin = document.getElementById('map-player-pin');
     if (pin && chamberInfo) {
       pin.style.top = chamberInfo.top;
       pin.style.left = chamberInfo.left;
     }
 
-    // Atualiza cartão de detalhes da câmara com Selo Grego Cinzelado
     const cardStatus = document.getElementById('map-card-status');
     const cardTitle = document.getElementById('map-card-title');
     const cardDesc = document.getElementById('map-card-desc');
@@ -1773,7 +2684,6 @@ class GameState {
     if (cardTitle && chamberInfo) cardTitle.textContent = chamberInfo.title;
     if (cardDesc && chamberInfo) cardDesc.textContent = `"${chamberInfo.desc}"`;
 
-    // Botões de ação no rodapé e cabeçalho
     const btnProceed = document.getElementById('map-btn-proceed');
     const btnCloseBottom = document.getElementById('map-btn-close-bottom');
     const btnCloseHeader = document.getElementById('btn-close-map');
@@ -1893,8 +2803,11 @@ class GameState {
     const choiceModal = document.getElementById('room-choice-modal');
     if (choiceModal) choiceModal.classList.add('hidden');
 
+    this.nextDuelBonusTentos = 0;
+
     if (choice === 'heal') {
-      this.player.hp = Math.min(this.player.maxHp, this.player.hp + 26);
+      this.nextDuelBonusTentos = 2;
+      sfx.boonAcquired();
     } else if (choice === 'buy_relic' && param && RELIC_DATABASE[param]) {
       const relic = RELIC_DATABASE[param];
       if (this.player.gold >= relic.cost) {
@@ -1902,19 +2815,10 @@ class GameState {
         this.addRelic(param);
         sfx.boonAcquired();
       }
-    } else if (choice === 'trim_deck') {
-      if (this.player.gold >= 50) {
-        this.player.gold -= 50;
-        const basicPriority = ['corte_custos', 'toque_aristocratico', 'liminar_judicial'];
-        for (const basicKey of basicPriority) {
-          const idx = this.deck.indexOf(basicKey);
-          if (idx !== -1 && this.deck.length > 5) {
-            this.deck.splice(idx, 1);
-            break;
-          }
-        }
-        this.player.maxHp += 10;
-        this.player.hp = Math.min(this.player.maxHp, this.player.hp + 10);
+    } else if (choice === 'consulting') {
+      if (this.player.gold >= 40) {
+        this.player.gold -= 40;
+        this.nextDuelBonusTentos = (this.nextDuelBonusTentos || 0) + 1;
         sfx.boonAcquired();
       }
     } else if (choice === 'dividend_rush') {
@@ -1928,10 +2832,12 @@ class GameState {
     this.isVictoryHandled = false;
     this.isVictoryInProgress = false;
     this.isFusing = false;
+    this.isResolvingVaza = false;
+    this.hideTrucoChallengeModal();
+    this.resetBossAbilities();
 
     this.enemy = this.createEnemy(this.enemyIndex);
     this.updateUI();
-    // Exibe o mapa com o avanço da jornada até a próxima câmara
     this.openUnderworldMap(true);
   }
 
@@ -1944,36 +2850,34 @@ class GameState {
 
     if (titleEl) titleEl.textContent = this.enemy.bgTitle;
     if (descEl) descEl.textContent = `"${this.enemy.bgDesc}"`;
-    if (subEl) subEl.textContent = `OPERAÇÃO SUBMUNDO — CÂMARA ${this.roomNumber}`;
+    if (subEl) subEl.textContent = `TRUCO PAULISTA (12 TENTOS) — CÂMARA ${this.roomNumber}`;
 
     if (overlay) overlay.classList.remove('hidden');
 
-    // Troca o cenário de fundo da arena
     if (bgLayer && this.enemy.background) {
       bgLayer.style.backgroundImage = `url("${this.enemy.background}")`;
       bgLayer.style.backgroundSize = 'cover';
       bgLayer.style.backgroundPosition = 'center';
     }
 
-    // Atualiza Top HUD com o novo círculo/câmara
     const roomNameEl = document.getElementById('room-name');
     if (roomNameEl) roomNameEl.textContent = this.enemy.bgTitle;
 
-    // Inicializa imediatamente a mão e o turno da nova câmara para evitar condição de corrida
     this.turnNumber = 1;
     this.attacksPlayedThisTurn = 0;
     this.isFusing = false;
-    this.player.shield = this.hasRelic('safra_1800') ? 8 : 0;
-    this.drawPile = [...this.deck].sort(() => Math.random() - 0.5);
-    this.discardPile = [];
-    this.hand = [];
+    this.isResolvingVaza = false;
+    this.hideTrucoChallengeModal();
+    this.playerTentos = (this.hasRelic('safra_1800') ? 2 : 0) + (this.nextDuelBonusTentos || 0);
+    this.nextDuelBonusTentos = 0;
+    this.enemyTentos = 0;
     this.startTurn();
 
     const station = document.getElementById('enemy-battle-station');
     if (station) {
       station.classList.remove('defeat-exit');
       station.style.animation = 'none';
-      void station.offsetWidth; // Reflow
+      void station.offsetWidth;
       station.style.animation = '';
       station.classList.add('enter-station');
     }
@@ -1985,15 +2889,15 @@ class GameState {
       if (station) setTimeout(() => station.classList.remove('enter-station'), 500);
 
       this.speak(this.getRandomQuote([
-        'Outstanding! Que recepção calorosa... onde fica o atendimento VIP?',
-        'Mais burocracia? Pelo visto meu advogado terá muito trabalho.',
-        'Esse ambiente é totalmente hostil a investidores.',
-        'Minha presença aqui é meramente protocolar.'
+        'Outstanding! Mais uma mesa de Truco Paulista até 12 Tentos!',
+        'Tragam o baralho e virem a Manilha! Quero ver se esse chefe aguenta quando eu gritar SEIS!',
+        'Esse ambiente é hostil, mas minhas Bênçãos Olímpicas mudam qualquer regra!'
       ]));
     }, 1350);
   }
 
   handleGameOver() {
+    this.hideTrucoChallengeModal();
     const gameOverModal = document.getElementById('game-over-modal');
     if (gameOverModal) {
       const box = gameOverModal.querySelector('.game-over-box');
@@ -2004,18 +2908,19 @@ class GameState {
       const btnText = document.getElementById('btn-restart-text') || document.getElementById('btn-restart');
       if (box) box.classList.remove('victory-mode');
       if (tag) {
-        tag.innerHTML = `<img src="assets/ui/icon_skull.svg" class="inline-ui-art" alt=""> OPERAÇÃO LIQUIDADA <img src="assets/ui/icon_skull.svg" class="inline-ui-art" alt="">`;
+        tag.innerHTML = `<img src="assets/ui/icon_skull.svg" class="inline-ui-art" alt=""> DERROTA NA MESA (12 TENTOS) <img src="assets/ui/icon_skull.svg" class="inline-ui-art" alt="">`;
         tag.classList.remove('victory-tag-style');
       }
       if (artWrap) artWrap.classList.add('hidden');
       if (h2) h2.textContent = '"Isso é um dealbreaker total..."';
-      if (p) p.textContent = `Louis entrou em colapso nas chamas de ${this.enemy ? this.enemy.bgTitle : 'Câmara I'}.`;
+      if (p) p.textContent = `O Chefe fechou os 12 Tentos na mesa de ${this.enemy ? this.enemy.bgTitle : 'Câmara I'}.`;
       if (btnText) btnText.textContent = 'NOVA TESE / RECOMEÇAR';
       gameOverModal.classList.remove('hidden');
     }
   }
 
   restart() {
+    this.hideTrucoChallengeModal();
     document.getElementById('game-over-modal').classList.add('hidden');
     document.getElementById('room-choice-modal').classList.add('hidden');
     this.closeUnderworldMap();
@@ -2047,27 +2952,12 @@ class GameState {
 
   showFusionBanner(recipe) {
     const banner = document.getElementById('fusion-banner');
-    const nameEl = document.getElementById('fusion-card-name');
-    const previewImg = document.getElementById('fusion-preview-img');
-    const previewCost = document.getElementById('fusion-preview-cost');
-    const previewHeader = document.getElementById('fusion-preview-header');
-    const previewDesc = document.getElementById('fusion-preview-desc');
-
-    const cardName = recipe.name || 'FUSÃO ARCANA';
-    nameEl.textContent = cardName.toUpperCase();
-
-    if (previewImg && recipe.image) {
-      previewImg.src = recipe.image;
-    }
-    if (previewCost) previewCost.textContent = recipe.cost ?? 1;
-    if (previewHeader) previewHeader.textContent = cardName;
-    if (previewDesc) previewDesc.textContent = recipe.desc || '';
-
+    if (!banner) return;
     banner.classList.remove('hidden');
     clearTimeout(this.fusionBannerTimer);
     this.fusionBannerTimer = setTimeout(() => {
       banner.classList.add('hidden');
-    }, 2400);
+    }, 2000);
   }
 
   renderRelicsBar() {
@@ -2088,25 +2978,322 @@ class GameState {
     });
   }
 
-  updateUI() {
-    document.getElementById('player-name').textContent = this.player.name;
-    document.getElementById('player-hp-fill').style.width = `${(this.player.hp / this.player.maxHp) * 100}%`;
-    document.getElementById('player-hp-text').textContent = `${this.player.hp} / ${this.player.maxHp}`;
-    document.getElementById('energy-current').textContent = this.player.energy;
-    document.getElementById('energy-max').textContent = this.player.maxEnergy;
-    document.getElementById('player-gold').textContent = this.player.gold;
+  // Renderiza uma mini-carta na mesa (para a Carta VIRA e para as Cartas Jogadas na Rodada)
+  buildMiniTableCardHTML(card) {
+    if (!card) return `<span class="slot-placeholder">?</span>`;
+    if (card.isFaceDown) {
+      return `<img src="assets/cards/truco_card_back.svg" alt="Carta Coberta" class="deck-back-img">`;
+    }
+    const suit = card.suit || TRUCO_SUITS[0];
+    const isManilha = this.isCardManilha(card) || card.isSpecialProtagonist;
+    const artHtml = card.art
+      ? `<img src="${card.art}" class="mini-card-art" alt="${card.rank}">`
+      : `<img src="${suit.svg}" class="mini-center-suit" alt="${suit.name}">`;
 
-    this.renderRelicsBar();
+    return `
+      <div class="mini-playing-card ${suit.isRed ? 'suit-red' : ''} ${isManilha ? 'is-manilha' : ''}">
+        ${artHtml}
+        <div class="mini-corner">
+          <span class="mini-rank">${card.rank}</span>
+          <img src="${suit.svg}" class="mini-suit-img" alt="${suit.name}">
+        </div>
+      </div>
+    `;
+  }
 
-    const pShield = document.getElementById('player-shield');
-    if (this.player.shield > 0) {
-      pShield.classList.remove('hidden');
-      document.getElementById('player-shield-val').textContent = this.player.shield;
-    } else {
-      pShield.classList.add('hidden');
+
+  renderArchetypeAbilities() {
+    const bar = document.getElementById('archetype-abilities-bar');
+    if (!bar) return;
+    bar.innerHTML = '';
+
+    const arch = this.archetype; // 'quant', 'private_equity', 'hedge_fund'
+
+    if (arch === 'quant') {
+      // 1. Compra 4 Cartas e Descarta 1 (1x por boss)
+      const usedDraw4 = this.bossAbilitiesUsed.quantDraw4;
+      const btnDraw4 = document.createElement('button');
+      btnDraw4.type = 'button';
+      btnDraw4.className = `archetype-ability-btn ${usedDraw4 ? 'ability-used' : ''}`;
+      btnDraw4.disabled = usedDraw4 || this.isResolvingVaza;
+      btnDraw4.innerHTML = `
+        <img src="assets/ui/archetype_quant.png" class="archetype-ability-icon" alt="">
+        <span>${usedDraw4 ? '4 Cartas (Usado)' : '4 Cartas (1x)'}</span>
+      `;
+      btnDraw4.title = 'Fundo Quant: Compre 4 cartas e descarte 1 para escolher as 3 melhores nesta rodada (1x por boss).';
+      btnDraw4.onclick = () => this.activateQuantDraw4();
+      bar.appendChild(btnDraw4);
+
+      // 2. Ímpar Vence (1x por boss)
+      const usedOdd = this.bossAbilitiesUsed.quantOddWins;
+      const isActiveOdd = this.activePartidaBonus === 'quantOddWins';
+      const btnOdd = document.createElement('button');
+      btnOdd.type = 'button';
+      btnOdd.className = `archetype-ability-btn ${usedOdd ? 'ability-used' : ''} ${isActiveOdd ? 'ability-active' : ''}`;
+      btnOdd.disabled = usedOdd || this.isResolvingVaza;
+      btnOdd.innerHTML = `
+        <img src="assets/ui/status_raio.svg" class="archetype-ability-icon" alt="">
+        <span>${isActiveOdd ? 'ÍMPAR ATIVO!' : (usedOdd ? 'Ímpar (Usado)' : 'Ímpar Vence (1x)')}</span>
+      `;
+      btnOdd.title = 'Algoritmo Ímpar: Na partida atual, carta ÍMPAR vence PAR. Entre 2 ímpares, a maior vence (1x por boss).';
+      btnOdd.onclick = () => this.activateQuantOddWins();
+      bar.appendChild(btnOdd);
+
+    } else if (arch === 'private_equity') {
+      // 1. +2 Força Player (1x por boss)
+      const usedBoost = this.bossAbilitiesUsed.peBoostPlayer;
+      const isActiveBoost = this.activePartidaBonus === 'peBoostPlayer';
+      const btnBoost = document.createElement('button');
+      btnBoost.type = 'button';
+      btnBoost.className = `archetype-ability-btn ${usedBoost ? 'ability-used' : ''} ${isActiveBoost ? 'ability-active' : ''}`;
+      btnBoost.disabled = usedBoost || this.isResolvingVaza;
+      btnBoost.innerHTML = `
+        <img src="assets/ui/archetype_pe.png" class="archetype-ability-icon" alt="">
+        <span>${isActiveBoost ? '+2 ATIVO!' : (usedBoost ? '+2 Força (Usado)' : '+2 Força (1x)')}</span>
+      `;
+      btnBoost.title = 'Alavancagem: Deixa sua carta 2 números mais forte nesta partida (1x por boss).';
+      btnBoost.onclick = () => this.activatePEBoostPlayer();
+      bar.appendChild(btnBoost);
+
+      // 2. -2 Força Chefe (1x por boss)
+      const usedNerf = this.bossAbilitiesUsed.peNerfBoss;
+      const isActiveNerf = this.activePartidaBonus === 'peNerfBoss';
+      const btnNerf = document.createElement('button');
+      btnNerf.type = 'button';
+      btnNerf.className = `archetype-ability-btn ${usedNerf ? 'ability-used' : ''} ${isActiveNerf ? 'ability-active' : ''}`;
+      btnNerf.disabled = usedNerf || this.isResolvingVaza;
+      btnNerf.innerHTML = `
+        <img src="assets/ui/status_sangria.svg" class="archetype-ability-icon" alt="">
+        <span>${isActiveNerf ? '-2 CHEFE ATIVO!' : (usedNerf ? '-2 Chefe (Usado)' : '-2 Chefe (1x)')}</span>
+      `;
+      btnNerf.title = 'Hostile Takeover: Deixa a carta do chefe 2 números mais fraca nesta partida (1x por boss).';
+      btnNerf.onclick = () => this.activatePENerfBoss();
+      bar.appendChild(btnNerf);
+
+    } else if (arch === 'hedge_fund') {
+      // Passiva permanente: Vence empates
+      const chipTie = document.createElement('div');
+      chipTie.className = 'archetype-passive-chip';
+      chipTie.innerHTML = `
+        <img src="assets/ui/archetype_hedge.png" class="archetype-ability-icon" alt="">
+        <span>Holding: Vence Cangas</span>
+      `;
+      chipTie.title = 'Holding Blindada: Você vence todos os empates (cangas) automaticamente!';
+      bar.appendChild(chipTie);
+
+      // 1. Par Vence (1x por boss)
+      const usedEven = this.bossAbilitiesUsed.hedgeEvenWins;
+      const isActiveEven = this.activePartidaBonus === 'hedgeEvenWins';
+      const btnEven = document.createElement('button');
+      btnEven.type = 'button';
+      btnEven.className = `archetype-ability-btn ${usedEven ? 'ability-used' : ''} ${isActiveEven ? 'ability-active' : ''}`;
+      btnEven.disabled = usedEven || this.isResolvingVaza;
+      btnEven.innerHTML = `
+        <img src="assets/ui/icon_shield.svg" class="archetype-ability-icon" alt="">
+        <span>${isActiveEven ? 'PAR ATIVO!' : (usedEven ? 'Par (Usado)' : 'Par Vence (1x)')}</span>
+      `;
+      btnEven.title = 'Paridade Blindada: Na partida atual, carta PAR vence ÍMPAR. Entre 2 pares, a maior vence (1x por boss).';
+      btnEven.onclick = () => this.activateHedgeEvenWins();
+      bar.appendChild(btnEven);
+    }
+  }
+
+  selectCardForInspection(index) {
+    if (this.selectedCardIndex === index) {
+      this.playCard(index);
+      return;
     }
 
-    // Atualização com Nome do Luiz + Subnome Real
+    this.selectedCardIndex = index;
+    const card = this.hand[index];
+    const banner = document.getElementById('card-inspector-banner');
+
+    if (banner && card) {
+      const suit = card.suit || TRUCO_SUITS[0];
+      const isSpecial = Boolean(card.isSpecialProtagonist);
+      const isManilha = this.isCardManilha(card);
+      const pwr = this.getPlayingCardStrength(card, false);
+
+      banner.className = 'card-inspector-banner';
+
+      if (isSpecial) {
+        banner.classList.add('special-selected');
+        banner.innerHTML = `<strong>★ SUBORNO REAL BEZNOIR:</strong> Força Suprema (só perde pro ZAP ♣ da Manilha). Concede +12 Dracmas! <em>(Toque novamente para jogar)</em>`;
+      } else if (isManilha) {
+        banner.classList.add('manilha-selected');
+        banner.innerHTML = `<strong>${suit.manilhaTitle} (${card.rank} de ${suit.name}):</strong> MANILHA DA RODADA! Força ${pwr}. <em>(Toque novamente para jogar)</em>`;
+      } else {
+        banner.innerHTML = `<strong>${card.rank} de ${suit.name}:</strong> Carta Comum (Hierarquia: Força ${pwr}). <em>(Toque novamente para jogar)</em>`;
+      }
+    }
+
+    this.renderHand();
+  }
+
+  renderTrucoHUD() {
+    const stakePts = this.getCurrentStakeDamage();
+    const currentTier = TRUCO_STAKES_LADDER[Math.min(this.trucoLevel, TRUCO_STAKES_LADDER.length - 1)];
+
+    // Placar Unificado Clean
+    const scoreEnemyName = document.getElementById('scoreboard-enemy-name');
+    if (scoreEnemyName && this.enemy) {
+      scoreEnemyName.textContent = this.enemy.luizName.toUpperCase();
+    }
+    const scoreEnemyVal = document.getElementById('enemy-tentos-val');
+    if (scoreEnemyVal) scoreEnemyVal.textContent = this.enemyTentos;
+    const scorePlayerVal = document.getElementById('player-tentos-val');
+    if (scorePlayerVal) scorePlayerVal.textContent = this.playerTentos;
+
+    const stakeBadge = document.getElementById('scoreboard-stake-badge');
+    const stakesLabel = document.getElementById('truco-stakes-label');
+    if (stakesLabel) {
+      stakesLabel.textContent = `VALE ${stakePts} TENTO${stakePts > 1 ? 'S' : ''}`;
+    }
+    if (stakeBadge) {
+      stakeBadge.classList.toggle('stake-escalated', this.trucoLevel > 0);
+    }
+
+    const manilhaRankEl = document.getElementById('active-manilha-rank');
+    if (manilhaRankEl) {
+      manilhaRankEl.textContent = this.manilhaRank;
+    }
+
+    // Renderiza a Carta VIRA no baralho da mesa
+    const viraSlot = document.getElementById('table-vira-card');
+    if (viraSlot && this.viraCard) {
+      viraSlot.innerHTML = this.buildMiniTableCardHTML(this.viraCard);
+    }
+
+    // Renderiza as Cartas Jogadas no Turno na Mesa (permanecem visíveis até o fim da partida/rodada)
+    const enemySlot = document.getElementById('table-slot-enemy');
+    const playerSlot = document.getElementById('table-slot-player');
+    const vsInd = document.getElementById('table-vs-indicator');
+
+    if (enemySlot) {
+      enemySlot.className = `table-played-slot ${this.tablePlayedEnemy ? '' : 'empty-slot'} ${this.lastRoundWinner === 'loss' ? 'slot-winner' : ''}`;
+      enemySlot.innerHTML = this.tablePlayedEnemy ? this.buildMiniTableCardHTML(this.tablePlayedEnemy) : `<span class="slot-placeholder">?</span>`;
+    }
+
+    if (playerSlot) {
+      playerSlot.className = `table-played-slot ${this.tablePlayedPlayer ? '' : 'empty-slot'} ${this.lastRoundWinner === 'win' ? 'slot-winner' : ''}`;
+      playerSlot.innerHTML = this.tablePlayedPlayer ? this.buildMiniTableCardHTML(this.tablePlayedPlayer) : `<span class="slot-placeholder">?</span>`;
+    }
+
+    if (vsInd) {
+      if (this.lastRoundWinner === 'win') vsInd.textContent = 'SUA!';
+      else if (this.lastRoundWinner === 'loss') vsInd.textContent = 'DELE!';
+      else if (this.lastRoundWinner === 'tie') vsInd.textContent = 'CANGA!';
+      else vsInd.textContent = 'VS';
+    }
+
+    const tableHud = document.getElementById('truco-table-hud');
+    if (tableHud) {
+      tableHud.classList.toggle('truco-escalated', this.trucoLevel > 0);
+    }
+
+    const potBadge = document.getElementById('truco-pot-badge');
+    const potText = document.getElementById('truco-pot-text');
+    if (potBadge && potText) {
+      potBadge.classList.toggle('pot-high-stakes', this.trucoLevel > 0);
+      potText.textContent = `VALE ${stakePts} PT${stakePts > 1 ? 'S' : ''}`;
+    }
+
+    const dots = document.querySelectorAll('#truco-vaza-dots .vaza-dot');
+    dots.forEach((dot, idx) => {
+      dot.className = 'vaza-dot';
+      const res = this.vazaResults[idx];
+      if (res === 'win') {
+        dot.classList.add('vaza-win');
+        dot.textContent = `${idx + 1}ª SUA`;
+      } else if (res === 'loss') {
+        dot.classList.add('vaza-loss');
+        dot.textContent = `${idx + 1}ª CHEFE`;
+      } else if (res === 'tie') {
+        dot.classList.add('vaza-tie');
+        dot.textContent = `${idx + 1}ª CANGA`;
+      } else {
+        dot.textContent = `${idx + 1}ª PARTIDA`;
+      }
+    });
+
+    const clashEl = document.getElementById('truco-clash-status');
+    if (clashEl) {
+      clashEl.textContent = this.clashStatusText || 'Jogue uma carta na mesa ou peça TRUCO!';
+    }
+
+    // Botão TRUCO Centralizado com Moedas Ilustradas
+    const trucoBtn = document.getElementById('btn-end-turn');
+    const trucoBtnText = document.getElementById('btn-truco-text');
+    const trucoBtnSub = document.getElementById('btn-truco-sub-label');
+    const trucoCoinImg = document.getElementById('btn-truco-coin-img');
+
+    if (trucoBtn) {
+      if (this.trucoLevel >= 4) {
+        trucoBtn.disabled = true;
+        trucoBtn.className = 'btn-truco-call-centered truco-waiting';
+        if (trucoBtnText) trucoBtnText.textContent = 'MÁXIMO (12)';
+        if (trucoBtnSub) trucoBtnSub.textContent = 'JOGO TOTAL';
+        if (trucoCoinImg) trucoCoinImg.src = 'assets/ui/coins_truco_12.svg';
+      } else if (this.lastTrucoCaller === 'player') {
+        trucoBtn.disabled = true;
+        trucoBtn.className = 'btn-truco-call-centered truco-waiting';
+        if (trucoBtnText) trucoBtnText.textContent = 'APOSTA FEITA';
+        if (trucoBtnSub) trucoBtnSub.textContent = 'AGUARDE O CHEFE';
+        if (trucoCoinImg) trucoCoinImg.src = currentTier.raiseCoinSvg;
+      } else {
+        trucoBtn.disabled = false;
+        trucoBtn.className = 'btn-truco-call-centered';
+        if (trucoBtnText) trucoBtnText.textContent = currentTier.raiseCallTitle;
+        if (trucoBtnSub) trucoBtnSub.textContent = `VALE ${currentTier.raisePoints} TENTOS`;
+        if (trucoCoinImg) trucoCoinImg.src = currentTier.raiseCoinSvg;
+      }
+    }
+
+    this.renderArchetypeAbilities();
+    this.renderRelicsBar();
+  }
+
+  updateUI() {
+    document.getElementById('player-name').textContent = this.player.name;
+    document.getElementById('player-gold').textContent = this.player.gold;
+
+    // 1. Atualiza as Barras em 3 Blocos Equivalentes às Rodadas (1/3, 2/3, 3/3) — Sem numeração de HP!
+    const playerWins = this.vazaResults.filter(x => x === 'win').length;
+    const enemyWins = this.vazaResults.filter(x => x === 'loss').length;
+
+    const pText = document.getElementById('player-hp-text');
+    if (pText) pText.textContent = `${playerWins}/3`;
+    const eText = document.getElementById('enemy-hp-text');
+    if (eText) eText.textContent = `${enemyWins}/3`;
+
+    const pFill = document.getElementById('player-hp-fill');
+    if (pFill) pFill.style.width = '0%';
+    const eFill = document.getElementById('enemy-hp-fill');
+    if (eFill) eFill.style.width = '0%';
+
+    const pBlocks = document.querySelectorAll('#player-round-blocks .round-block-cell');
+    pBlocks.forEach((cell, idx) => {
+      cell.className = 'round-block-cell';
+      if (idx < playerWins) cell.classList.add('block-won-player');
+      else if (this.vazaResults[idx] === 'tie') cell.classList.add('block-tie');
+    });
+
+    const eBlocks = document.querySelectorAll('#enemy-round-blocks .round-block-cell');
+    eBlocks.forEach((cell, idx) => {
+      cell.className = 'round-block-cell';
+      if (idx < enemyWins) cell.classList.add('block-won-enemy');
+      else if (this.vazaResults[idx] === 'tie') cell.classList.add('block-tie');
+    });
+
+    // 2. Atualiza o Placar de Tentos da Partida (0 / 12)
+    const pTentosEl = document.getElementById('player-tentos-val');
+    if (pTentosEl) pTentosEl.textContent = this.playerTentos;
+    const eTentosEl = document.getElementById('enemy-tentos-val');
+    if (eTentosEl) eTentosEl.textContent = this.enemyTentos;
+
+    this.renderRelicsBar();
+    this.renderTrucoHUD();
+
     document.getElementById('enemy-name').textContent = this.enemy.luizName;
     document.getElementById('enemy-subname').textContent = `(${this.enemy.realName})`;
 
@@ -2138,8 +3325,6 @@ class GameState {
       enemyFallback.style.display = 'block';
     }
 
-    document.getElementById('enemy-hp-fill').style.width = `${(this.enemy.hp / this.enemy.maxHp) * 100}%`;
-    document.getElementById('enemy-hp-text').textContent = `${this.enemy.hp} / ${this.enemy.maxHp}`;
     const intentIconEl = document.getElementById('intent-icon');
     if (intentIconEl) {
       intentIconEl.innerHTML = `<img src="${this.enemy.intent.icon || 'assets/ui/icon_sword.svg'}" class="intent-art-icon" alt="">`;
@@ -2147,101 +3332,76 @@ class GameState {
     const intentDescEl = document.getElementById('intent-desc');
     if (intentDescEl) intentDescEl.textContent = this.enemy.intent.desc;
 
-    const eShield = document.getElementById('enemy-shield');
-    if (this.enemy.shield > 0) {
-      eShield.classList.remove('hidden');
-      document.getElementById('enemy-shield-val').textContent = this.enemy.shield;
-    } else {
-      eShield.classList.add('hidden');
-    }
-
-    this.renderStatusBadges();
-
-    document.getElementById('draw-pile-count').textContent = this.drawPile.length;
-    document.getElementById('discard-pile-count').textContent = this.discardPile.length;
+    document.getElementById('draw-pile-count').textContent = this.tableDeck ? this.tableDeck.length : 0;
+    document.getElementById('discard-pile-count').textContent = this.discardPile ? this.discardPile.length : 0;
 
     this.renderHand();
   }
 
-  renderStatusBadges() {
-    const container = document.getElementById('enemy-status-container');
-    const tooltip = document.getElementById('status-tooltip');
+  renderStatusBadges() {}
+
+  // Gera os Pips Clássicos de Baralho para as cartas numeradas (2, 3, 4, 5, 6, 7)
+  buildNumberCardPipsHTML(rank, suit) {
+    const count = parseInt(rank, 10) || 4;
+    let pips = '';
+    for (let i = 0; i < count; i++) {
+      const spanCenter = ((count === 5 || count === 7) && i === Math.floor(count / 2)) ? 'pip-center-span' : '';
+      pips += `<img src="${suit.svg}" class="pip-suit-item ${spanCenter}" alt="${suit.name}">`;
+    }
+    return `<div class="playing-card-pips-grid pips-count-${count}">${pips}</div>`;
+  }
+
+  // Renderiza as Cartas Limpas do Baralho Clássico (Sem caixa de texto poluída!)
+  renderHand() {
+    const container = document.getElementById('cards-hand');
     if (!container) return;
     container.innerHTML = '';
 
-    const stMap = {
-      burn: { icon: 'assets/ui/status_fogo.svg', label: 'Queimadura', desc: 'Causa dano de fogo contínuo no início do turno (reduz em 1 a cada turno).', class: 'status-burn' },
-      shock: { icon: 'assets/ui/status_raio.svg', label: 'Choque Elétrico', desc: 'Causa dano elétrico bônus devastador no próximo ataque sofrido.', class: 'status-shock' },
-      chill: { icon: 'assets/ui/status_gelo.svg', label: 'Congelamento', desc: 'O inimigo fica entorpecido pelo frio e causa 30% a menos de dano.', class: 'status-chill' },
-      bleed: { icon: 'assets/ui/status_sangria.svg', label: 'Sangria', desc: 'Sofre dano físico adicional acumulativo a cada ação realizada.', class: 'status-bleed' },
-      daze: { icon: 'assets/ui/status_confusao.svg', label: 'Confusão Mental', desc: 'Ataques do inimigo sofrem +50% de dano adicional.', class: 'status-daze' },
-      charm: { icon: 'assets/ui/status_charme.svg', label: 'Charme Nobre', desc: 'O inimigo hesita perante o carisma e tem seu dano reduzido em 50%.', class: 'status-charm' }
-    };
-
-    for (const [key, val] of Object.entries(this.enemy.statuses)) {
-      if (val > 0 && stMap[key]) {
-        const info = stMap[key];
-        const badge = document.createElement('span');
-        badge.className = `status-badge ${info.class}`;
-        badge.title = `${info.label} (${val})`;
-        badge.innerHTML = `<img src="${info.icon}" class="status-badge-art" alt="${info.label}"/><span class="status-badge-val">${val}</span>`;
-        
-        badge.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (!tooltip) return;
-          if (!tooltip.classList.contains('hidden') && tooltip.dataset.currentKey === key) {
-            tooltip.classList.add('hidden');
-          } else {
-            tooltip.dataset.currentKey = key;
-            tooltip.innerHTML = `<div class="tooltip-header"><img src="${info.icon}" class="status-tooltip-art" alt="${info.label}"/><strong>${info.label} ${val}</strong></div><p>${info.desc}</p>`;
-            tooltip.classList.remove('hidden');
-          }
-        });
-
-        container.appendChild(badge);
-      }
-    }
-  }
-
-  renderHand() {
-    const container = document.getElementById('cards-hand');
-    container.innerHTML = '';
-
-    this.hand.forEach((cardKey, index) => {
-      const card = resolveCardDefinition(cardKey);
+    this.hand.forEach((card, index) => {
       if (!card) return;
 
+      const suit = card.suit || TRUCO_SUITS[0];
+      const isManilha = this.isCardManilha(card);
+      const isSpecial = Boolean(card.isSpecialProtagonist);
       const isSelected = this.selectedCardIndex === index;
+
       const cardEl = document.createElement('div');
-      cardEl.className = `game-card ${card.type === 'blessing' ? 'blessing-card' : ''} ${card.type === 'fused' ? 'fused-card' : ''} ${card.type === 'curse' ? 'curse-card' : ''} ${isSelected ? 'is-selected' : ''}`;
+      cardEl.className = `game-card playing-card-clean ${suit.isRed ? 'suit-red' : 'suit-dark'} ${isManilha ? 'manilha-card' : ''} ${isSpecial ? 'protagonist-special-card' : ''} ${isSelected ? 'is-selected' : ''}`;
       cardEl.dataset.index = index;
 
-      // Geometria de Leque Estilo Hearthstone (Fan Arc)
       const total = this.hand.length;
       const center = (total - 1) / 2;
       const diff = index - center;
-      const rot = (diff * 5.2).toFixed(1);
-      const offsetY = (Math.abs(diff) * 4.2).toFixed(1);
+      const rot = (diff * 4.8).toFixed(1);
+      const offsetY = (Math.abs(diff) * 3.8).toFixed(1);
       cardEl.style.setProperty('--card-rot', `${rot}deg`);
       cardEl.style.setProperty('--card-y', `${offsetY}px`);
       cardEl.style.setProperty('--card-z', index + 1);
 
-      const illustrationHtml = card.image
-        ? `<img src="${card.image}" class="card-art-img" alt="${card.name}" onerror="this.src='${card.icon}'"/>`
-        : `<img src="${card.icon}" class="card-art-img" alt="${card.name}"/>`;
+      // Centro da carta: Figuras Ilustradas (A, J, Q, K, ★) OU Pips Clássicos para Números (2, 3, 4, 5, 6, 7)
+      const centerArtHTML = card.art
+        ? `<img src="${card.art}" class="card-art-fullbleed" alt="${card.rank}">`
+        : this.buildNumberCardPipsHTML(card.rank, suit);
 
-      const effectiveCost = (card.type === 'curse' && this.hasRelic('trituradora_vip')) ? 0 : card.cost;
-      const tagLabel = card.type === 'blessing' ? 'Bênção' : card.type === 'fused' ? 'Fusão' : card.type === 'curse' ? 'Burocracia' : 'Ação';
+      // Selo minimalista apenas se for MANILHA da rodada ou a Carta Especial do Protagonista
+      let badgeHTML = '';
+      if (isSpecial) {
+        badgeHTML = `<div class="clean-card-badge badge-special">★ ESPECIAL</div>`;
+      } else if (isManilha) {
+        badgeHTML = `<div class="clean-card-badge">${suit.manilhaTitle}</div>`;
+      }
 
       cardEl.innerHTML = `
-        <div class="card-art-container">
-          ${illustrationHtml}
+        <div class="playing-card-corner top-left">
+          <span class="corner-rank">${card.rank}</span>
+          <img src="${suit.svg}" class="corner-suit-svg" alt="${suit.name}">
         </div>
-        <img class="card-frame-overlay" src="assets/ui/card_frame_action_cutout.png?v=3" alt="Frame" />
-        <div class="card-cost">${effectiveCost}</div>
-        <div class="card-header">${card.name}</div>
-        <div class="card-desc">${card.desc}</div>
-        <div class="card-type-tag">${tagLabel}</div>
+        ${centerArtHTML}
+        <div class="playing-card-corner bottom-right">
+          <span class="corner-rank">${card.rank}</span>
+          <img src="${suit.svg}" class="corner-suit-svg" alt="${suit.name}">
+        </div>
+        ${badgeHTML}
       `;
 
       this.bindCardEvents(cardEl, index);
@@ -2273,30 +3433,6 @@ class GameState {
       if (Math.abs(deltaY) > 10 || Math.abs(deltaX) > 10) {
         hasMoved = true;
       }
-
-      // Detecção Geométrica de Alvo de Fusão (Imune a sobreposição de ponteiro no mobile)
-      const allCardEls = Array.from(document.querySelectorAll('.game-card'));
-      let foundTargetIndex = null;
-
-      for (const otherEl of allCardEls) {
-        const otherIndex = parseInt(otherEl.dataset.index);
-        if (otherIndex === index) continue;
-
-        const rect = otherEl.getBoundingClientRect();
-        if (
-          e.clientX >= rect.left - 12 &&
-          e.clientX <= rect.right + 12 &&
-          e.clientY >= rect.top - 20 &&
-          e.clientY <= rect.bottom + 25
-        ) {
-          foundTargetIndex = otherIndex;
-          otherEl.classList.add('fusion-target-highlight');
-        } else {
-          otherEl.classList.remove('fusion-target-highlight');
-        }
-      }
-
-      this.dragHoverCardIndex = foundTargetIndex;
     };
 
     const onPointerUp = (e) => {
@@ -2307,38 +3443,19 @@ class GameState {
         cardEl.releasePointerCapture(e.pointerId);
       } catch (err) {}
 
-      document.querySelectorAll('.game-card').forEach(c => c.classList.remove('fusion-target-highlight'));
-
       const deltaX = e.clientX - startX;
       const deltaY = e.clientY - startY;
 
-      // 1. Fusão via Arraste (soltou sobre outra carta detectada)
-      if (this.dragHoverCardIndex !== null && this.dragHoverCardIndex !== index) {
-        this.fuseCards(index, this.dragHoverCardIndex);
-        this.selectedCardIndex = null;
-      }
-      // 2. Jogar via Swipe para Cima intencional (requer subida expressiva em direção à arena)
-      else if (hasMoved && deltaY < -75 && Math.abs(deltaY) > Math.abs(deltaX) * 1.25) {
+      // Arrastar para cima joga a carta na mesa imediatamente!
+      if (hasMoved && deltaY < -55 && Math.abs(deltaY) > Math.abs(deltaX)) {
         this.playCard(index);
-      }
-      // 3. Toque (sem arrastar)
-      else if (!hasMoved) {
-        // Tap-to-Fuse: se o jogador já tinha uma carta selecionada e tocou em OUTRA, tenta fundir!
-        if (this.selectedCardIndex !== null && this.selectedCardIndex !== index) {
-          const fused = this.fuseCards(this.selectedCardIndex, index);
-          if (fused) {
-            this.selectedCardIndex = null;
-            return;
-          }
-        }
-
+      } else if (!hasMoved) {
+        // Se a carta já estiver selecionada para inspeção, o toque joga ela!
+        // Caso contrário, seleciona para inspeção e exibe os detalhes no banner!
         if (this.selectedCardIndex === index) {
-          // Segundo toque na mesma carta já ampliada -> Joga a carta!
           this.playCard(index);
         } else {
-          // Primeiro toque -> Seleciona com ZOOM de leitura e leque focado!
-          this.selectedCardIndex = index;
-          this.renderHand();
+          this.selectCardForInspection(index);
         }
       }
 
@@ -2377,10 +3494,38 @@ window.addEventListener('DOMContentLoaded', () => {
     btnStartGame.addEventListener('touchend', startGameHandler);
   }
 
-  document.getElementById('btn-end-turn').addEventListener('click', () => {
-    game.selectedCardIndex = null;
-    game.endTurn();
-  });
+  // Botão Principal de GRITAR TRUCO / SEIS / NOVE / DOZE
+  const btnTrucoCall = document.getElementById('btn-end-turn');
+  if (btnTrucoCall) {
+    btnTrucoCall.addEventListener('click', () => {
+      game.selectedCardIndex = null;
+      game.callPlayerTruco();
+    });
+  }
+
+  // Botão de CORRER da mão atual
+  const btnFoldHand = document.getElementById('btn-fold-hand');
+  if (btnFoldHand) {
+    btnFoldHand.addEventListener('click', () => {
+      game.selectedCardIndex = null;
+      game.foldHand();
+    });
+  }
+
+  // Botões do Modal de Desafio de Truco do Chefe
+  const btnTrucoAccept = document.getElementById('btn-truco-accept');
+  const btnTrucoCounter = document.getElementById('btn-truco-counter');
+  const btnTrucoFold = document.getElementById('btn-truco-fold');
+
+  if (btnTrucoAccept) {
+    btnTrucoAccept.addEventListener('click', () => game.acceptEnemyTruco());
+  }
+  if (btnTrucoCounter) {
+    btnTrucoCounter.addEventListener('click', () => game.counterEnemyTruco());
+  }
+  if (btnTrucoFold) {
+    btnTrucoFold.addEventListener('click', () => game.foldHand());
+  }
 
   document.getElementById('btn-restart').addEventListener('click', () => {
     game.restart();

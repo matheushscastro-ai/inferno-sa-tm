@@ -3,8 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Inferno S/A: O Takeover de Louis Beznoir</title>
-  <link rel="stylesheet" href="style.css?v=35">
+  <title>Inferno S/A: Truco Mode (TM) - O Takeover de Louis Beznoir</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0d0a14">
+  <link rel="stylesheet" href="style.css?v=42">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
@@ -44,7 +48,7 @@
       <div class="modal-content archetype-box">
         <span class="room-victory-tag"><img src="assets/ui/icon_scales.svg" class="inline-ui-art" alt=""> TESE DE INVESTIMENTO <img src="assets/ui/icon_scales.svg" class="inline-ui-art" alt=""></span>
         <h2>Escolha sua Estratégia de Takeover</h2>
-        <p>Cada tese define seu Ativo Passivo inicial e a composição do seu Deck:</p>
+        <p>Cada tese define seu Ativo Passivo inicial e suas Bênçãos Olímpicas na mesa de Truco:</p>
         <div id="archetype-choices" class="doors-grid archetype-grid">
           <!-- Gerado dinamicamente via game.js -->
         </div>
@@ -88,137 +92,242 @@
       <!-- Background do submundo -->
       <div id="arena-bg-layer" class="arena-bg-layer"></div>
 
-      <!-- Quadrante Superior: Status na Esquerda, Monstro na Direita -->
-      <section class="top-battle-row">
-        <!-- Superior Esquerdo: Caixa de Status do Inimigo com Moldura Oficial Grega de Hades -->
-        <div class="enemy-hud-container">
-          <div class="enemy-hud-box ornate-hud-frame">
-            <img class="ornate-frame-bg" src="assets/ui/hud_frame_ornate.png" alt="HUD Frame" />
-            <div class="ornate-overlay-content">
-              <div class="ornate-nameplate">
-                <h3 id="enemy-name">O Estagiário Preguiçoso</h3>
-                <span id="enemy-subname" class="enemy-subname">(Sombra de Aqueronte)</span>
+      <!-- 1. Animação do Boss Centralizada -->
+      <div id="enemy-battle-station" class="enemy-battle-station enemy-battle-station-vertical">
+        <div class="enemy-backlight-aura"></div>
+        <div id="enemy-sprite" class="enemy-fullbody-wrapper">
+          <!-- 3 Estados de Sprites do Inimigo (Idle, Attack, Hurt) -->
+          <img id="enemy-sprite-idle" src="assets/characters/estagiario_fullbody.png?v=5" alt="Inimigo Idle" class="enemy-fullbody-sprite active-enemy-idle">
+          <img id="enemy-sprite-attack" src="assets/characters/estagiario_attack.png?v=2" alt="Inimigo Attack" class="enemy-fullbody-sprite hidden-sprite">
+          <img id="enemy-sprite-hurt" src="assets/characters/estagiario_hurt.png?v=2" alt="Inimigo Hurt" class="enemy-fullbody-sprite hidden-sprite">
+          <span id="enemy-avatar-fallback" class="avatar-fallback" style="display:none;"><img src="assets/ui/icon_skull.svg" class="inline-ui-art" alt=""></span>
+          
+          <!-- Balão Cômico de Grito do Monstro -->
+          <div id="enemy-comic-callout" class="enemy-comic-callout hidden"></div>
+        </div>
+        <!-- Plataforma Estilo Pokémon com Campo Gravitacional -->
+        <div class="pedestal-container">
+          <div class="pedestal-gravitational-field"></div>
+          <img src="assets/ui/battle_pedestal_muted.png?v=2" alt="Plataforma de Batalha" class="enemy-battle-pedestal">
+          <div class="pedestal-contact-shadow"></div>
+        </div>
+      </div>
+
+      <!-- 2. Frame Ornato do Boss (Centralizado) -->
+      <div class="hud-frame-wrap">
+        <div class="enemy-hud-box ornate-hud-frame">
+          <img class="ornate-frame-bg" src="assets/ui/hud_frame_ornate.png" alt="HUD Frame" />
+          <div class="ornate-overlay-content">
+            <div class="ornate-nameplate">
+              <h3 id="enemy-name">O Estagiário Preguiçoso</h3>
+              <span id="enemy-subname" class="enemy-subname">(Sombra de Aqueronte)</span>
+            </div>
+            <!-- Contagem dos 12 Pontos e das 3 Rodadas dentro do Frame -->
+            <div class="frame-meters-container">
+              <div class="frame-tentos-pill" title="Pontos / Tentos do Chefe na Partida">
+                <span class="tentos-label">PONTOS</span>
+                <span class="tentos-badge"><strong id="enemy-tentos-val">0</strong>/12</span>
               </div>
-              <div class="ornate-hp-slot">
-                <div id="enemy-hp-fill" class="hp-bar-fill" style="width: 100%;"></div>
-                <span id="enemy-hp-text" class="hp-text">40 / 40 HP</span>
+              <div class="ornate-hp-slot round-blocks-slot" title="Melhor de 3 Partidas da Rodada">
+                <div id="enemy-hp-fill" class="hp-bar-fill" style="width: 0%;"></div>
+                <div class="round-blocks-grid" id="enemy-round-blocks">
+                  <span class="round-block-cell" data-block="0"></span>
+                  <span class="round-block-cell" data-block="1"></span>
+                  <span class="round-block-cell" data-block="2"></span>
+                </div>
+                <span id="enemy-hp-text" class="hp-text">0/3</span>
               </div>
             </div>
           </div>
+        </div>
+        <!-- Benefício CLT / Passiva Corporativa do Boss -->
+        <div id="enemy-passive-badge" class="enemy-passive-badge"></div>
+      </div>
 
-          <div id="enemy-shield" class="shield-badge hidden"><img src="assets/ui/icon_shield.svg" class="inline-ui-art" alt=""> <span id="enemy-shield-val">0</span></div>
+      <!-- 3. Tabuleiro Central (Mesa de Baralho Clássica e Limpa) -->
+      <div id="truco-table-hud" class="truco-table-hud truco-table-hud-vertical">
+        <!-- Tapete da Mesa: Monte + Vira à Esquerda | Cartas Jogadas no Turno à Direita -->
+        <div class="truco-felt-surface">
+          <!-- Monte do Baralho + Carta VIRA -->
+          <div class="table-deck-vira-area" title="Carta Vira e Manilha da Rodada">
+            <div class="deck-back-stack">
+              <img src="assets/cards/truco_card_back.svg" alt="Baralho" class="deck-back-img">
+            </div>
+            <div id="table-vira-card" class="table-mini-card vira-card-slot">
+              <!-- Renderizado via JS -->
+            </div>
+            <span class="vira-caption">VIRA</span>
+            <div class="table-manilha-tag" id="table-manilha-tag">
+              MANILHA: <strong id="active-manilha-rank">Q</strong>
+            </div>
+          </div>
 
-          <!-- Badges de Status Compactas (Apenas Ícone + Valor) com Tooltip Interativo -->
-          <div id="enemy-passive-badge" class="enemy-passive-badge"></div>
-          <div id="enemy-status-container" class="status-badges-row"></div>
-          <div id="status-tooltip" class="status-tooltip-popover hidden"></div>
+          <!-- Cartas Jogadas na Partida (Ficam na mesa até o fim da partida/rodada) -->
+          <div class="table-played-cards-area">
+            <div class="table-played-slot-wrap">
+              <span class="table-slot-owner">CHEFE</span>
+              <div id="table-slot-enemy" class="table-played-slot empty-slot">
+                <span class="slot-placeholder">?</span>
+              </div>
+            </div>
 
-          <!-- Telegrafia de Intenção do Inimigo -->
-          <div id="enemy-intent" class="intent-badge">
-            <span id="intent-icon"><img src="assets/ui/icon_sword.svg" class="intent-art-icon" alt=""></span>
-            <span id="intent-desc">7 Dano</span>
+            <div class="table-vs-indicator" id="table-vs-indicator">VS</div>
+
+            <div class="table-played-slot-wrap">
+              <span class="table-slot-owner">VOCÊ</span>
+              <div id="table-slot-player" class="table-played-slot empty-slot">
+                <span class="slot-placeholder">?</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Superior Direito: Estação de Batalha do Monstro (Plataforma Estilo Pokémon) -->
-        <div id="enemy-battle-station" class="enemy-battle-station">
-          <div class="enemy-backlight-aura"></div>
-          <div id="enemy-sprite" class="enemy-fullbody-wrapper">
-            <!-- 3 Estados de Sprites do Inimigo (Idle, Attack, Hurt) -->
-            <img id="enemy-sprite-idle" src="assets/characters/estagiario_fullbody.png?v=5" alt="Inimigo Idle" class="enemy-fullbody-sprite active-enemy-idle">
-            <img id="enemy-sprite-attack" src="assets/characters/estagiario_attack.png?v=2" alt="Inimigo Attack" class="enemy-fullbody-sprite hidden-sprite">
-            <img id="enemy-sprite-hurt" src="assets/characters/estagiario_hurt.png?v=2" alt="Inimigo Hurt" class="enemy-fullbody-sprite hidden-sprite">
-            <span id="enemy-avatar-fallback" class="avatar-fallback" style="display:none;"><img src="assets/ui/icon_skull.svg" class="inline-ui-art" alt=""></span>
-            
-            <!-- Balão Cômico de Grito do Monstro -->
-            <div id="enemy-comic-callout" class="enemy-comic-callout hidden"></div>
-          </div>
-          <!-- Plataforma Estilo Pokémon com Campo Gravitacional -->
-          <div class="pedestal-container">
-            <div class="pedestal-gravitational-field"></div>
-            <img src="assets/ui/battle_pedestal_muted.png?v=2" alt="Plataforma de Batalha" class="enemy-battle-pedestal">
-            <div class="pedestal-contact-shadow"></div>
-          </div>
+        <!-- Barra de Habilidades do Arquétipo (1x por Boss - Nerfadas e Balanceadas) -->
+        <div id="archetype-abilities-bar" class="archetype-abilities-bar">
+          <!-- Gerado via JS de acordo com o arquétipo escolhido -->
         </div>
-      </section>
+      </div>
 
-      <!-- Notificação de Fusão / Banner de Impacto Cinematográfico -->
-      <div id="fusion-banner" class="fusion-banner hidden">
-        <div class="fusion-shine"></div>
-        <div class="fusion-burst-ring"></div>
-        <span class="fusion-tag"><img src="assets/ui/icon_energy.svg" class="inline-ui-art" alt=""> FUSÃO ARCANA REALIZADA! <img src="assets/ui/icon_energy.svg" class="inline-ui-art" alt=""></span>
-        <h2 id="fusion-card-name">CHAMA NOBRE DE HEFESTO</h2>
-        
-        <!-- Preview da Carta de Fusão Forjada -->
-        <div class="fusion-card-showcase" id="fusion-card-showcase">
-          <div class="fusion-card-frame-wrap">
-            <img id="fusion-preview-img" src="assets/cards/card_combustao_gourmet.png" class="fusion-showcase-art" alt="Carta Forjada">
-            <img class="fusion-frame-overlay" src="assets/ui/card_frame_action_cutout.png?v=3" alt="Moldura Dourada">
-            <div id="fusion-preview-cost" class="card-cost">1</div>
-            <div id="fusion-preview-header" class="card-header">CHAMA NOBRE</div>
-            <div id="fusion-preview-desc" class="card-desc">Causa 14 de dano de fogo e aplica 5 de Queimadura.</div>
-            <div class="card-type-tag">FUSÃO</div>
+      <!-- 4. Frame Ornato do Protagonista (Centralizado) -->
+      <div class="hud-frame-wrap">
+        <div class="player-hud-pill ornate-hud-frame player-ornate-frame">
+          <img class="ornate-frame-bg" src="assets/ui/hud_frame_ornate.png" alt="HUD Frame" />
+          <div class="ornate-overlay-content">
+            <div class="ornate-nameplate">
+              <strong id="player-name">Louis Beznoir IV</strong>
+              <span class="player-subname">Herdeiro Nobre</span>
+            </div>
+            <!-- Contagem dos 12 Pontos e das 3 Rodadas dentro do Frame -->
+            <div class="frame-meters-container">
+              <div class="frame-tentos-pill player-tentos-pill" title="Pontos / Tentos de Louis na Partida">
+                <span class="tentos-label">PONTOS</span>
+                <span class="tentos-badge"><strong id="player-tentos-val">0</strong>/12</span>
+              </div>
+              <div class="ornate-hp-slot round-blocks-slot" title="Melhor de 3 Partidas da Rodada">
+                <div id="player-hp-fill" class="hp-bar-fill" style="width: 0%;"></div>
+                <div class="round-blocks-grid" id="player-round-blocks">
+                  <span class="round-block-cell" data-block="0"></span>
+                  <span class="round-block-cell" data-block="1"></span>
+                  <span class="round-block-cell" data-block="2"></span>
+                </div>
+                <span id="player-hp-text" class="hp-text">0/3</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Quadrante Inferior: Luiz na Esquerda (Grande), Ações na Direita -->
-      <section class="bottom-battle-row">
-        <!-- Inferior Esquerdo: Luiz (Busto/Cintura pra cima, grande!) -->
-        <div class="player-visual-column">
-          <!-- Barra de Vida Flutuando com Moldura Oficial Grega de Hades -->
-          <div class="player-hud-container">
-            <div class="player-hud-pill ornate-hud-frame player-ornate-frame">
-              <img class="ornate-frame-bg" src="assets/ui/hud_frame_ornate.png" alt="HUD Frame" />
-              <div class="ornate-overlay-content">
-                <div class="ornate-nameplate">
-                  <strong id="player-name">Louis Beznoir</strong>
-                  <span class="player-subname">Herdeiro Nobre</span>
-                </div>
-                <div class="ornate-hp-slot">
-                  <div id="player-hp-fill" class="hp-bar-fill" style="width: 100%;"></div>
-                  <span id="player-hp-text" class="hp-text">65 / 65 HP</span>
-                </div>
-              </div>
-            </div>
-            <div id="player-shield" class="shield-badge hidden"><img src="assets/ui/icon_shield.svg" class="inline-ui-art" alt=""> <span id="player-shield-val">0</span></div>
-            <!-- Energia / Ações -->
-            <div class="energy-mini-tag">
-              <img src="assets/ui/icon_energy.svg" class="inline-ui-art" alt=""> <span id="energy-current">3</span>/<span id="energy-max">3</span> Ações
-            </div>
-          </div>
+      <!-- 5. Linha Inferior: Animação do Protagonista e Mão de Cartas -->
+      <div class="player-visual-hand-row">
+        <!-- Protagonista à esquerda -->
+        <div class="player-bust-frame" id="player-bust-frame">
+          <img id="player-sprite-idle" src="assets/characters/luiz_bust.png?v=5" alt="Louis Idle" class="player-bust-sprite active-idle">
+          <img id="player-sprite-attack" src="assets/characters/lucca_attack.png?v=7" alt="Louis Attack" class="player-bust-sprite hidden-sprite">
+          <img id="player-sprite-hurt" src="assets/characters/lucca_hurt.png?v=7" alt="Louis Hurt" class="player-bust-sprite hidden-sprite">
+          <div id="player-comic-callout" class="comic-callout hidden"></div>
+        </div>
 
-          <div class="player-bust-frame" id="player-bust-frame">
-            <!-- 3 Estados de Sprites do Protagonista (Idle, Attack, Hurt) -->
-            <img id="player-sprite-idle" src="assets/characters/luiz_bust.png?v=5" alt="Louis Idle" class="player-bust-sprite active-idle">
-            <img id="player-sprite-attack" src="assets/characters/lucca_attack.png?v=7" alt="Louis Attack" class="player-bust-sprite hidden-sprite">
-            <img id="player-sprite-hurt" src="assets/characters/lucca_hurt.png?v=7" alt="Louis Hurt" class="player-bust-sprite hidden-sprite">
-            
-            <!-- Balão Cômico de Grito / Reação Instantânea -->
-            <div id="player-comic-callout" class="comic-callout hidden"></div>
+        <!-- Mão de Cartas Horizontal (Baralho Clássico Limpo) -->
+        <div id="cards-hand" class="cards-hand-container">
+          <!-- Cartas inseridas dinamicamente -->
+        </div>
+      </div>
+
+      <!-- 6. Rodapé com Botão Correr e Botão Truco Centralizado -->
+      <div class="actions-subfooter truco-subfooter-aligned">
+        <div class="footer-left-col">
+          <button id="btn-fold-hand" class="btn-fold-hand" title="Correr da Rodada (Entrega os tentos atuais da rodada)">
+            <img src="assets/ui/icon_shield.svg" class="inline-ui-art" alt=""> <span>CORRER</span>
+          </button>
+          <div class="deck-counts">
+            <span title="Baralho"><img src="assets/ui/icon_deck.svg" class="inline-ui-art" alt=""> <span id="draw-pile-count">34</span></span>
           </div>
         </div>
 
-        <!-- Inferior Direito: Cartas e Ações de Turno -->
-        <div class="battle-actions-column">
-          <!-- Mão de Cartas Horizontal -->
-          <div id="cards-hand" class="cards-hand-container">
-            <!-- Cartas inseridas dinamicamente -->
-          </div>
-
-          <!-- Rodapé com Deck e Botão Finalizar Turno -->
-          <div class="actions-subfooter">
-            <div class="deck-counts">
-              <span title="Deck de Compra"><img src="assets/ui/icon_deck.svg" class="inline-ui-art" alt=""> <span id="draw-pile-count">6</span></span>
-              <span title="Descarte"><img src="assets/ui/icon_discard.svg" class="inline-ui-art" alt=""> <span id="discard-pile-count">0</span></span>
+        <div class="footer-center-col">
+          <button id="btn-end-turn" class="btn-truco-call-centered" title="Pedir Truco / Aumentar Aposta">
+            <img id="btn-truco-coin-img" src="assets/ui/coins_truco_3.svg" class="truco-btn-coin-art" alt="Tentos">
+            <div class="truco-btn-title-wrap">
+              <span class="truco-btn-action-name" id="btn-truco-text">PEDIR TRUCO!</span>
+              <span class="truco-btn-sub-label" id="btn-truco-sub-label">VALE 3 TENTOS</span>
             </div>
-            <button id="btn-end-turn" class="btn-end-turn-styled">
-              <span class="btn-turn-icon"><img src="assets/ui/icon_sword.svg" class="inline-ui-art" alt=""></span>
-              <span class="btn-turn-text">END</span>
+          </button>
+        </div>
+
+        <div class="footer-right-col">
+          <div class="deck-counts">
+            <span title="Descarte"><img src="assets/ui/icon_discard.svg" class="inline-ui-art" alt=""> <span id="discard-pile-count">0</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Elementos de Compatibilidade com zero impacto visual -->
+      <div id="truco-clash-strip" style="display:none;"><span id="truco-clash-status"></span></div>
+      <div id="truco-unified-scoreboard" style="display:none;"><span id="scoreboard-enemy-name"></span><span id="truco-stakes-label"></span><div id="scoreboard-stake-badge"></div></div>
+      <div id="truco-rounds-row" style="display:none;"><div id="truco-vaza-dots"></div><div id="truco-manilha-pill"></div></div>
+      <div id="card-inspector-banner" style="display:none;"></div>
+      <div id="enemy-shield" class="hidden"></div>
+      <div id="enemy-status-container" style="display:none;"></div>
+      <div id="status-tooltip" class="hidden"></div>
+      <div id="enemy-intent" style="display:none;"><span id="intent-icon"></span><span id="intent-desc"></span></div>
+      <div id="player-shield" class="hidden"></div>
+      <div id="truco-stakes-pill" style="display:none;"></div>
+
+      <!-- Notificação de Bênção / Impacto -->
+      <div id="fusion-banner" class="fusion-banner hidden">
+        <div class="fusion-shine"></div>
+        <div class="fusion-burst-ring"></div>
+        <span class="fusion-tag"><img src="assets/ui/icon_energy.svg" class="inline-ui-art" alt=""> TRAPAÇA OLÍMPICA ATIVADA! <img src="assets/ui/icon_energy.svg" class="inline-ui-art" alt=""></span>
+        <h2 id="fusion-card-name">INVERSÃO DE DIONÍSIO</h2>
+        <div class="fusion-card-showcase" id="fusion-card-showcase">
+          <div class="fusion-card-frame-wrap">
+            <img id="fusion-preview-img" src="assets/cards/card_combustao_gourmet.png" class="fusion-showcase-art" alt="Carta Forjada">
+            <img class="fusion-frame-overlay" src="assets/ui/card_frame_action_cutout.png?v=3" alt="Moldura Dourada">
+            <div id="fusion-preview-cost" class="card-cost">★</div>
+            <div id="fusion-preview-header" class="card-header">TRAPAÇA</div>
+            <div id="fusion-preview-desc" class="card-desc">Efeito especial ativado na rodada!</div>
+            <div class="card-type-tag">BÊNÇÃO</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal de Descarte (Fundo Quantitativo: 4 Cartas -> Escolha 1 para descartar) -->
+      <div id="discard-card-modal" class="discard-modal-overlay hidden">
+        <div class="discard-modal-box">
+          <h3 class="discard-modal-title">FUNDO QUANTITATIVO: COMPRA 4 CARTAS</h3>
+          <p class="discard-modal-desc">Selecione 1 carta para descartar antes de iniciar a rodada:</p>
+          <div id="discard-cards-grid" class="discard-cards-grid">
+            <!-- 4 cartas renderizadas aqui via JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Overlay de Desafio de Truco do Chefe (Aceitar / Aumentar / Correr) -->
+      <div id="truco-challenge-modal" class="truco-challenge-overlay hidden">
+        <div class="truco-challenge-box">
+          <div class="truco-challenge-kicker">
+            <img src="assets/ui/icon_burst.svg" class="inline-ui-art" alt="">
+            <span id="truco-challenge-tag">CHAMADA DE MARGEM!</span>
+            <img src="assets/ui/icon_burst.svg" class="inline-ui-art" alt="">
+          </div>
+          <h3 id="truco-challenge-title">O CHEFE PEDIU TRUCO!</h3>
+          <p id="truco-challenge-quote">"Quero ver se essa carteira aguenta alavancagem! Vai encarar ou vai correr?!"</p>
+          <div class="truco-challenge-stakes" id="truco-challenge-stakes">
+            Aposta sobe para <strong>32 de Dano</strong>!
+          </div>
+          <div class="truco-challenge-actions">
+            <button id="btn-truco-accept" class="truco-resp-btn accept-btn">
+              <img src="assets/ui/icon_sword.svg" class="inline-ui-art" alt=""> <span id="btn-truco-accept-label">ACEITAR!</span>
+            </button>
+            <button id="btn-truco-counter" class="truco-resp-btn raise-btn">
+              <img src="assets/ui/icon_burst.svg" class="inline-ui-art" alt=""> <span id="btn-truco-counter-label">PEDIR SEIS!</span>
+            </button>
+            <button id="btn-truco-fold" class="truco-resp-btn fold-btn">
+              <img src="assets/ui/icon_shield.svg" class="inline-ui-art" alt=""> <span id="btn-truco-fold-label">CORRER</span>
             </button>
           </div>
         </div>
-      </section>
+      </div>
     </main>
 
 
@@ -236,8 +345,8 @@
     <div id="god-boon-modal" class="modal-overlay hidden">
       <div class="boon-encounter-box">
         <div class="boon-header">
-          <span class="boon-tag"><img src="assets/ui/icon_energy.svg" class="inline-ui-art" alt=""> FAVORES DO OLIMPO <img src="assets/ui/icon_energy.svg" class="inline-ui-art" alt=""></span>
-          <h2 id="boon-god-title">BÊNÇÃO DE HERMES</h2>
+          <span class="boon-tag"><img src="assets/ui/icon_spark.svg" class="inline-ui-art" alt=""> PATROCÍNIO OLÍMPICO: MERCADO DE ATIVOS <img src="assets/ui/icon_spark.svg" class="inline-ui-art" alt=""></span>
+          <h2 id="boon-god-title">ATIVO DE WALL STREET</h2>
         </div>
 
         <div class="boon-god-dialogue-wrap">
@@ -246,22 +355,22 @@
             <div class="boon-portrait-glow"></div>
           </div>
           <div class="boon-speech-container">
-            <div class="boon-god-name" id="boon-god-name">Hermes, o Mensageiro</div>
+            <div class="boon-god-name" id="boon-god-name">Hermes, Broker dos Deuses</div>
             <p id="boon-god-quote" class="boon-god-quote">
-              "E aí, primo rico! Soube que você engasgou com uma ostra de 4.000 euros na Côte d'Azur? Hahaha! Toma aqui uma bênção dos céus antes que o chefe descubra."
+              "Excelente vitória na mesa, primo rico! O conselho do Olimpo liberou novos Ativos Passivos para sua Holding. Escolha um para incorporar ao seu portfólio!"
             </p>
           </div>
         </div>
 
-        <div class="boon-instruction">Escolha 1 Dádiva Divina para anexar ao seu Deck:</div>
+        <div class="boon-instruction">Escolha 1 Ativo / Relíquia Passiva para incorporar ao patrimônio da sua Holding:</div>
 
         <div id="boon-cards-container" class="boon-cards-grid">
-          <!-- 3 cartas de bênção geradas dinamicamente com moldura dourada e artes exclusivas -->
+          <!-- 3 cartas de ativos geradas dinamicamente com artes de relíquias -->
         </div>
 
         <div class="boon-footer-actions">
           <button id="btn-reroll-boon" class="boon-reroll-btn">
-            <img src="assets/ui/icon_dice.svg" class="inline-ui-art" alt=""> Subornar Olimpo: Trocar Ofertas (-25 <img src="assets/ui/icon_dracma.svg" class="inline-ui-art" alt="">)
+            <img src="assets/ui/icon_dice.svg" class="inline-ui-art" alt=""> Subornar Corretora: Trocar Ativos (-25 <img src="assets/ui/icon_dracma.svg" class="inline-ui-art" alt="">)
           </button>
         </div>
       </div>
@@ -435,6 +544,6 @@
 
   </div>
 
-  <script type="module" src="src/game.js?v=35"></script>
+  <script type="module" src="src/game.js?v=42"></script>
 </body>
 </html>

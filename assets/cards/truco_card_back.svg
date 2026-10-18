@@ -1,0 +1,14 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 250'>
+  <defs>
+    <radialGradient id='bgG' cx='50%' cy='50%' r='65%'>
+      <stop offset='0%' stop-color='#30154a'/>
+      <stop offset='100%' stop-color='#0e0618'/>
+    </radialGradient>
+  </defs>
+  <rect x='4' y='4' width='172' height='242' rx='14' fill='url(#bgG)' stroke='#ffd700' stroke-width='5'/>
+  <rect x='14' y='14' width='152' height='222' rx='8' fill='none' stroke='#d4af37' stroke-width='2' stroke-dasharray='6,4'/>
+  <polygon points='90,34 142,125 90,216 38,125' fill='#1c0b2e' stroke='#ffd700' stroke-width='3'/>
+  <circle cx='90' cy='125' r='34' fill='#8b0000' stroke='#ffd700' stroke-width='3'/>
+  <polygon points='90,98 98,116 118,125 98,134 90,152 82,134 62,125 82,116' fill='#ffd700'/>
+  <circle cx='90' cy='125' r='8' fill='#ff1e42'/>
+</svg>
