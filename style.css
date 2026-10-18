@@ -4480,16 +4480,23 @@ body {
 
 .enemy-battle-station-vertical .enemy-fullbody-wrapper {
   margin: 0 auto !important;
+  position: relative !important;
+  height: clamp(170px, 26vh, 230px) !important;
+  width: 100% !important;
+  max-width: clamp(185px, 56vw, 255px) !important;
   display: flex !important;
   justify-content: center !important;
   align-items: flex-end !important;
-  width: 100% !important;
   text-align: center !important;
 }
 
 .enemy-battle-station-vertical .enemy-fullbody-sprite {
-  height: clamp(170px, 26vh, 230px) !important; /* +10% ampliado */
-  max-width: clamp(185px, 56vw, 255px) !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  height: 100% !important;
+  max-width: 100% !important;
   object-fit: contain !important;
   margin: 0 auto !important;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.95)) !important;
@@ -4497,6 +4504,8 @@ body {
 
 .enemy-battle-station-vertical .enemy-fullbody-sprite.hidden-sprite {
   display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
 }
 
 .enemy-battle-station-vertical .pedestal-container {

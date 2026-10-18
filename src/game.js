@@ -657,7 +657,7 @@ const DUNGEON_ENEMIES = [
     avatar: 'assets/ui/icon_skull.svg',
     portrait: 'assets/ui/map_node_1.png?v=30',
     image: 'assets/characters/estagiario_fullbody.png',
-    background: 'assets/backgrounds/ground_horizon_planted.png',
+    background: 'assets/backgrounds/underworld_arena_ground.jpg',
     bgTitle: 'CÂMARA I: MARGENS DO AQUERONTE',
     bgDesc: 'O primeiro escalão do submundo. Ele tenta parecer focado, mas a ansiedade corporativa é palpável.',
     maxHp: 3,
@@ -926,7 +926,7 @@ class GameState {
       avatar: data.avatar,
       portrait: data.portrait || null,
       image: data.image || null,
-      background: data.background || 'assets/backgrounds/ground_horizon_planted.png',
+      background: data.background || 'assets/backgrounds/underworld_arena_ground.jpg',
       bgTitle: data.bgTitle || `Círculo I: Sala ${this.roomNumber}`,
       bgDesc: data.bgDesc || 'Um novo desafio no submundo...',
       maxHp: 3,
@@ -2255,15 +2255,21 @@ class GameState {
     const hurtEl = document.getElementById('enemy-sprite-hurt');
     if (!idleEl || !attackEl || !hurtEl) return;
 
+    idleEl.style.display = 'none';
+    attackEl.style.display = 'none';
+    hurtEl.style.display = 'none';
     idleEl.className = 'enemy-fullbody-sprite hidden-sprite';
     attackEl.className = 'enemy-fullbody-sprite hidden-sprite';
     hurtEl.className = 'enemy-fullbody-sprite hidden-sprite';
 
     if (state === 'attack') {
+      attackEl.style.display = 'block';
       attackEl.className = 'enemy-fullbody-sprite active-enemy-attack';
     } else if (state === 'hurt') {
+      hurtEl.style.display = 'block';
       hurtEl.className = 'enemy-fullbody-sprite active-enemy-hurt';
     } else {
+      idleEl.style.display = 'block';
       idleEl.className = 'enemy-fullbody-sprite active-enemy-idle';
     }
   }
@@ -3527,9 +3533,14 @@ class GameState {
     const enemyHurtImg = document.getElementById('enemy-sprite-hurt');
     const enemyFallback = document.getElementById('enemy-avatar-fallback');
     if (enemyImg && this.enemy.image) {
-      enemyImg.src = this.enemy.image;
-      if (enemyAttackImg) enemyAttackImg.src = this.enemy.image;
-      if (enemyHurtImg) enemyHurtImg.src = this.enemy.image;
+      if (enemyAttackImg) {
+        enemyAttackImg.src = this.enemy.image;
+        enemyAttackImg.style.display = 'none';
+      }
+      if (enemyHurtImg) {
+        enemyHurtImg.src = this.enemy.image;
+        enemyHurtImg.style.display = 'none';
+      }
       if (enemyFallback) enemyFallback.style.display = 'none';
       enemyImg.style.display = 'block';
     } else if (enemyFallback) {
