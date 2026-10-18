@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#0d0a14">
-  <link rel="stylesheet" href="style.css?v=42">
+  <link rel="stylesheet" href="style.css?v=43">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
@@ -78,13 +78,15 @@
     <!-- Barra de Ativos / Relíquias Passivas da Run -->
     <div id="relics-bar" class="relics-bar"></div>
 
-    <!-- Balão de Fala do Luiz Beznol -->
+    <!-- Balão de Fala do Louis Beznoir -->
     <div id="luiz-dialogue-bubble" class="dialogue-bubble hidden">
       <div class="dialogue-speaker-row">
         <img src="assets/characters/luiz_beznol.png?v=4" class="dialogue-mini-portrait" alt="Protagonista">
-        <span class="speaker-tag">Louis Beznoir:</span>
+        <span class="speaker-tag">Louis Beznoir IV:</span>
+        <button id="dialogue-close-btn" class="dialogue-close-btn" title="Fechar">&times;</button>
       </div>
       <p id="dialogue-text">"Outstanding! Onde está seu manager? Quero uma audiência marcada com o próprio Hades."</p>
+      <div id="dialogue-action-slot" class="dialogue-action-slot hidden"></div>
     </div>
 
     <!-- Arena de Batalha (Layout Mockup) -->
@@ -135,7 +137,7 @@
                   <span class="round-block-cell" data-block="1"></span>
                   <span class="round-block-cell" data-block="2"></span>
                 </div>
-                <span id="enemy-hp-text" class="hp-text">0/3</span>
+                <span id="enemy-hp-text" class="hp-text" style="display:none;"></span>
               </div>
             </div>
           </div>
@@ -210,7 +212,7 @@
                   <span class="round-block-cell" data-block="1"></span>
                   <span class="round-block-cell" data-block="2"></span>
                 </div>
-                <span id="player-hp-text" class="hp-text">0/3</span>
+                <span id="player-hp-text" class="hp-text" style="display:none;"></span>
               </div>
             </div>
           </div>
@@ -544,6 +546,6 @@
 
   </div>
 
-  <script type="module" src="src/game.js?v=42"></script>
+  <script type="module" src="src/game.js?v=43"></script>
 </body>
 </html>

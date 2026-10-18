@@ -2914,36 +2914,150 @@ class GameState {
       if (artWrap) artWrap.classList.add('hidden');
       if (h2) h2.textContent = '"Isso é um dealbreaker total..."';
       if (p) p.textContent = `O Chefe fechou os 12 Tentos na mesa de ${this.enemy ? this.enemy.bgTitle : 'Câmara I'}.`;
-      if (btnText) btnText.textContent = 'NOVA TESE / RECOMEÇAR';
+      if (btnText) btnText.textContent = 'VOLTAR AO MENU INICIAL';
       gameOverModal.classList.remove('hidden');
     }
   }
 
   restart() {
     this.hideTrucoChallengeModal();
-    document.getElementById('game-over-modal').classList.add('hidden');
-    document.getElementById('room-choice-modal').classList.add('hidden');
+    const gameOverModal = document.getElementById('game-over-modal');
+    if (gameOverModal) gameOverModal.classList.add('hidden');
+    const roomChoiceModal = document.getElementById('room-choice-modal');
+    if (roomChoiceModal) roomChoiceModal.classList.add('hidden');
     this.closeUnderworldMap();
     const interModal = document.getElementById('interstitial-comic-modal');
     if (interModal) interModal.classList.add('hidden');
+    const archModal = document.getElementById('archetype-modal');
+    if (archModal) archModal.classList.add('hidden');
+
+    // Volta à tela inicial / capa do jogo
+    const titleModal = document.getElementById('title-screen-modal');
+    if (titleModal) {
+      titleModal.classList.remove('hidden');
+    }
+
+    this.currentRoomIndex = 0;
+    this.playerTentos = 0;
+    this.enemyTentos = 0;
+    this.player.gold = 100;
+    this.relics = [];
+    this.vazaResults = [];
+    this.hand = [];
+    this.enemyTrucoHand = [];
+    this.tablePlayedEnemy = null;
+    this.tablePlayedPlayer = null;
+    this.viraCard = null;
+    this.manilhaRank = null;
+    this.trucoLevel = 0;
+    this.trucoCaller = null;
+    this.activePartidaBonus = null;
 
     const roomNameEl = document.getElementById('room-name');
     if (roomNameEl) roomNameEl.textContent = DUNGEON_ENEMIES[0].bgTitle;
     const bgLayer = document.getElementById('arena-bg-layer');
     if (bgLayer) bgLayer.style.backgroundImage = `url("${DUNGEON_ENEMIES[0].background}")`;
+  }
 
-    this.openArchetypeModal();
+  bindSafeTap(el, callback) {
+    if (!el) return;
+    let startX = 0, startY = 0;
+    let didMove = false;
+    let isTouching = false;
+
+    el.addEventListener('touchstart', (e) => {
+      if (e.touches.length > 0) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        didMove = false;
+        isTouching = true;
+      }
+    }, { passive: true });
+
+    el.addEventListener('touchmove', (e) => {
+      if (!isTouching || e.touches.length === 0) return;
+      const dx = Math.abs(e.touches[0].clientX - startX);
+      const dy = Math.abs(e.touches[0].clientY - startY);
+      if (dx > 8 || dy > 8) {
+        didMove = true;
+      }
+    }, { passive: true });
+
+    el.addEventListener('touchend', (e) => {
+      if (!isTouching) return;
+      isTouching = false;
+      if (!didMove) {
+        e.preventDefault();
+        callback(e);
+      }
+    });
+
+    el.addEventListener('touchcancel', () => {
+      isTouching = false;
+      didMove = true;
+    });
+
+    el.addEventListener('click', (e) => {
+      if (!didMove) {
+        callback(e);
+      }
+    });
   }
 
   speak(text) {
     const bubble = document.getElementById('luiz-dialogue-bubble');
     const dialogue = document.getElementById('dialogue-text');
+    const actionSlot = document.getElementById('dialogue-action-slot');
+    if (actionSlot) actionSlot.classList.add('hidden');
     dialogue.textContent = `"${text}"`;
     bubble.classList.remove('hidden');
     clearTimeout(this.dialogueTimer);
     this.dialogueTimer = setTimeout(() => {
       bubble.classList.add('hidden');
-    }, 2600);
+    }, 3200);
+
+    const closeBtn = document.getElementById('dialogue-close-btn');
+    if (closeBtn) {
+      closeBtn.onclick = () => bubble.classList.add('hidden');
+    }
+  }
+
+  speakArrogant(term, desc, actionCallback = null, actionLabel = 'EXECUTAR ORDEM') {
+    const bubble = document.getElementById('luiz-dialogue-bubble');
+    const dialogue = document.getElementById('dialogue-text');
+    const actionSlot = document.getElementById('dialogue-action-slot');
+    if (!bubble || !dialogue) return;
+
+    dialogue.textContent = `"${term}? Como você não sabe o que é?! ${desc}"`;
+    bubble.classList.remove('hidden');
+
+    if (actionSlot) {
+      if (actionCallback) {
+        actionSlot.innerHTML = `<button type="button" class="btn-dialogue-execute">${actionLabel}</button>`;
+        actionSlot.classList.remove('hidden');
+        const execBtn = actionSlot.querySelector('.btn-dialogue-execute');
+        if (execBtn) {
+          execBtn.onclick = (e) => {
+            e.stopPropagation();
+            bubble.classList.add('hidden');
+            actionCallback();
+          };
+        }
+      } else {
+        actionSlot.innerHTML = '';
+        actionSlot.classList.add('hidden');
+      }
+    }
+
+    clearTimeout(this.dialogueTimer);
+    this.dialogueTimer = setTimeout(() => {
+      bubble.classList.add('hidden');
+    }, actionCallback ? 8000 : 4500);
+
+    const closeBtn = document.getElementById('dialogue-close-btn');
+    if (closeBtn) {
+      closeBtn.onclick = () => bubble.classList.add('hidden');
+    }
   }
 
   getRandomQuote(arr) {
@@ -2970,9 +3084,9 @@ class GameState {
       const pill = document.createElement('span');
       pill.className = 'relic-pill';
       pill.title = `${r.name}: ${r.desc}`;
-      pill.innerHTML = `<img src="${r.art}" class="relic-pill-art" alt="${r.name}"> <span>${r.name}</span>`;
-      pill.addEventListener('click', () => {
-        this.speak(`${r.name}: ${r.desc}`);
+      pill.innerHTML = `<img src="${r.art}" class="relic-pill-art" alt="${r.name}">`;
+      this.bindSafeTap(pill, () => {
+        this.speakArrogant(r.name, r.desc);
       });
       bar.appendChild(pill);
     });
@@ -3015,13 +3129,24 @@ class GameState {
       const btnDraw4 = document.createElement('button');
       btnDraw4.type = 'button';
       btnDraw4.className = `archetype-ability-btn ${usedDraw4 ? 'ability-used' : ''}`;
-      btnDraw4.disabled = usedDraw4 || this.isResolvingVaza;
+      btnDraw4.disabled = this.isResolvingVaza;
       btnDraw4.innerHTML = `
-        <img src="assets/ui/archetype_quant.png" class="archetype-ability-icon" alt="">
-        <span>${usedDraw4 ? '4 Cartas (Usado)' : '4 Cartas (1x)'}</span>
+        <img src="assets/ui/archetype_quant.png" class="archetype-ability-icon" alt="HFT">
+        <span class="archetype-ability-badge">${usedDraw4 ? '✓' : '1x'}</span>
       `;
-      btnDraw4.title = 'Fundo Quant: Compre 4 cartas e descarte 1 para escolher as 3 melhores nesta rodada (1x por boss).';
-      btnDraw4.onclick = () => this.activateQuantDraw4();
+      btnDraw4.title = 'Algoritmo HFT de Hermes (Compre 4 e descarte 1)';
+      this.bindSafeTap(btnDraw4, () => {
+        if (usedDraw4) {
+          this.speakArrogant('Algoritmo HFT de Hermes', 'Já executamos essa ordem no book neste duelo! Eu sou investidor agressivo, não imprudente!');
+        } else {
+          this.speakArrogant(
+            'Algoritmo HFT de Hermes',
+            'É automação de alta frequência! Compro 4 cartas do book de ofertas e descarto o lixo antes do mercado abrir!',
+            () => this.activateQuantDraw4(),
+            'EXECUTAR COMPRA (4 CARTAS)'
+          );
+        }
+      });
       bar.appendChild(btnDraw4);
 
       // 2. Ímpar Vence (1x por boss)
@@ -3030,13 +3155,26 @@ class GameState {
       const btnOdd = document.createElement('button');
       btnOdd.type = 'button';
       btnOdd.className = `archetype-ability-btn ${usedOdd ? 'ability-used' : ''} ${isActiveOdd ? 'ability-active' : ''}`;
-      btnOdd.disabled = usedOdd || this.isResolvingVaza;
+      btnOdd.disabled = this.isResolvingVaza;
       btnOdd.innerHTML = `
-        <img src="assets/ui/status_raio.svg" class="archetype-ability-icon" alt="">
-        <span>${isActiveOdd ? 'ÍMPAR ATIVO!' : (usedOdd ? 'Ímpar (Usado)' : 'Ímpar Vence (1x)')}</span>
+        <img src="assets/ui/status_raio.svg" class="archetype-ability-icon" alt="Ímpar">
+        <span class="archetype-ability-badge">${isActiveOdd ? 'ON' : (usedOdd ? '✓' : '1x')}</span>
       `;
-      btnOdd.title = 'Algoritmo Ímpar: Na partida atual, carta ÍMPAR vence PAR. Entre 2 ímpares, a maior vence (1x por boss).';
-      btnOdd.onclick = () => this.activateQuantOddWins();
+      btnOdd.title = 'Estatística Arbitrada (Carta Ímpar Vence Par)';
+      this.bindSafeTap(btnOdd, () => {
+        if (isActiveOdd) {
+          this.speakArrogant('Estatística Arbitrada', 'O modelo quantitativo já está rodando nesta rodada! Carta ímpar vai bater qualquer par do Chefe!');
+        } else if (usedOdd) {
+          this.speakArrogant('Estatística Arbitrada', 'Essa tese estatística já foi liquidada neste duelo!');
+        } else {
+          this.speakArrogant(
+            'Estatística Arbitrada',
+            'O modelo quantitativo provou: nesta rodada, qualquer carta ÍMPAR vence PAR!',
+            () => this.activateQuantOddWins(),
+            'APLICAR MODELO ÍMPAR'
+          );
+        }
+      });
       bar.appendChild(btnOdd);
 
     } else if (arch === 'private_equity') {
@@ -3046,13 +3184,26 @@ class GameState {
       const btnBoost = document.createElement('button');
       btnBoost.type = 'button';
       btnBoost.className = `archetype-ability-btn ${usedBoost ? 'ability-used' : ''} ${isActiveBoost ? 'ability-active' : ''}`;
-      btnBoost.disabled = usedBoost || this.isResolvingVaza;
+      btnBoost.disabled = this.isResolvingVaza;
       btnBoost.innerHTML = `
-        <img src="assets/ui/archetype_pe.png" class="archetype-ability-icon" alt="">
-        <span>${isActiveBoost ? '+2 ATIVO!' : (usedBoost ? '+2 Força (Usado)' : '+2 Força (1x)')}</span>
+        <img src="assets/ui/archetype_pe.png" class="archetype-ability-icon" alt="Alavancagem">
+        <span class="archetype-ability-badge">${isActiveBoost ? 'ON' : (usedBoost ? '✓' : '+2')}</span>
       `;
-      btnBoost.title = 'Alavancagem: Deixa sua carta 2 números mais forte nesta partida (1x por boss).';
-      btnBoost.onclick = () => this.activatePEBoostPlayer();
+      btnBoost.title = 'Alavancagem Hostil (+2 Força na sua carta)';
+      this.bindSafeTap(btnBoost, () => {
+        if (isActiveBoost) {
+          this.speakArrogant('Alavancagem Hostil', 'A rodada já está alavancada! Minha carta jogada está com +2 de poder bruto na mesa!');
+        } else if (usedBoost) {
+          this.speakArrogant('Alavancagem Hostil', 'Já injetamos a cota máxima de alavancagem contra este Chefe!');
+        } else {
+          this.speakArrogant(
+            'Alavancagem Hostil',
+            'Tomo dívida barata para alavancar a rodada! Minha carta jogada ganha +2 de poder bruto na mesa!',
+            () => this.activatePEBoostPlayer(),
+            'ALAVANCAR CARTA (+2)'
+          );
+        }
+      });
       bar.appendChild(btnBoost);
 
       // 2. -2 Força Chefe (1x por boss)
@@ -3061,24 +3212,41 @@ class GameState {
       const btnNerf = document.createElement('button');
       btnNerf.type = 'button';
       btnNerf.className = `archetype-ability-btn ${usedNerf ? 'ability-used' : ''} ${isActiveNerf ? 'ability-active' : ''}`;
-      btnNerf.disabled = usedNerf || this.isResolvingVaza;
+      btnNerf.disabled = this.isResolvingVaza;
       btnNerf.innerHTML = `
-        <img src="assets/ui/status_sangria.svg" class="archetype-ability-icon" alt="">
-        <span>${isActiveNerf ? '-2 CHEFE ATIVO!' : (usedNerf ? '-2 Chefe (Usado)' : '-2 Chefe (1x)')}</span>
+        <img src="assets/ui/status_sangria.svg" class="archetype-ability-icon" alt="Auditoria">
+        <span class="archetype-ability-badge">${isActiveNerf ? 'ON' : (usedNerf ? '✓' : '-2')}</span>
       `;
-      btnNerf.title = 'Hostile Takeover: Deixa a carta do chefe 2 números mais fraca nesta partida (1x por boss).';
-      btnNerf.onclick = () => this.activatePENerfBoss();
+      btnNerf.title = 'Auditoria Destrutiva (-2 Força na carta do Chefe)';
+      this.bindSafeTap(btnNerf, () => {
+        if (isActiveNerf) {
+          this.speakArrogant('Auditoria Destrutiva', 'Auditoria em andamento! A carta jogada do Chefe está 2 pontos desvalorizada!');
+        } else if (usedNerf) {
+          this.speakArrogant('Auditoria Destrutiva', 'Já congelamos as contas e auditamos este Chefe neste duelo!');
+        } else {
+          this.speakArrogant(
+            'Auditoria Destrutiva',
+            'Mando congelar o fluxo de caixa do Chefe e a carta dele perde 2 pontos de força na hora!',
+            () => this.activatePENerfBoss(),
+            'EXECUTAR AUDITORIA (-2)'
+          );
+        }
+      });
       bar.appendChild(btnNerf);
 
     } else if (arch === 'hedge_fund') {
       // Passiva permanente: Vence empates
-      const chipTie = document.createElement('div');
+      const chipTie = document.createElement('button');
+      chipTie.type = 'button';
       chipTie.className = 'archetype-passive-chip';
       chipTie.innerHTML = `
-        <img src="assets/ui/archetype_hedge.png" class="archetype-ability-icon" alt="">
-        <span>Holding: Vence Cangas</span>
+        <img src="assets/ui/archetype_hedge.png" class="archetype-ability-icon" alt="Holding">
+        <span class="archetype-ability-badge">H</span>
       `;
       chipTie.title = 'Holding Blindada: Você vence todos os empates (cangas) automaticamente!';
+      this.bindSafeTap(chipTie, () => {
+        this.speakArrogant('Holding Blindada', 'Minhas offshores são intocáveis: se houver empate (canga) na mesa, a vaza é automaticamente minha!');
+      });
       bar.appendChild(chipTie);
 
       // 1. Par Vence (1x por boss)
@@ -3087,13 +3255,26 @@ class GameState {
       const btnEven = document.createElement('button');
       btnEven.type = 'button';
       btnEven.className = `archetype-ability-btn ${usedEven ? 'ability-used' : ''} ${isActiveEven ? 'ability-active' : ''}`;
-      btnEven.disabled = usedEven || this.isResolvingVaza;
+      btnEven.disabled = this.isResolvingVaza;
       btnEven.innerHTML = `
-        <img src="assets/ui/icon_shield.svg" class="archetype-ability-icon" alt="">
-        <span>${isActiveEven ? 'PAR ATIVO!' : (usedEven ? 'Par (Usado)' : 'Par Vence (1x)')}</span>
+        <img src="assets/ui/icon_shield.svg" class="archetype-ability-icon" alt="Par">
+        <span class="archetype-ability-badge">${isActiveEven ? 'ON' : (usedEven ? '✓' : 'Par')}</span>
       `;
-      btnEven.title = 'Paridade Blindada: Na partida atual, carta PAR vence ÍMPAR. Entre 2 pares, a maior vence (1x por boss).';
-      btnEven.onclick = () => this.activateHedgeEvenWins();
+      btnEven.title = 'Contrato de Hedge (Carta Par Vence Ímpar)';
+      this.bindSafeTap(btnEven, () => {
+        if (isActiveEven) {
+          this.speakArrogant('Contrato de Hedge', 'Hedge ativo! Se a minha carta for par, ela já ganhou a disputa!');
+        } else if (usedEven) {
+          this.speakArrogant('Contrato de Hedge', 'Já exercemos nossa opção de proteção neste duelo!');
+        } else {
+          this.speakArrogant(
+            'Contrato de Hedge',
+            'Proteção derivativa absoluta: se a minha carta for par, ela ganha da carta do chefe sem contestação!',
+            () => this.activateHedgeEvenWins(),
+            'ATIVAR HEDGE PAR'
+          );
+        }
+      });
       bar.appendChild(btnEven);
     }
   }

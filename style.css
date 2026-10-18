@@ -154,50 +154,93 @@ body {
 /* Balão de Fala do Luiz Beznol (Posicionado na faixa central livre, sem cobrir o inimigo nem as cartas) */
 .dialogue-bubble {
   position: absolute;
-  top: 43%;
+  top: 42%;
   left: 10px;
   right: 10px;
   transform: translateY(-50%);
-  background: rgba(16, 12, 26, 0.93);
-  border: 1.5px solid var(--border-gold);
-  border-radius: 10px;
-  padding: 5px 10px;
-  z-index: 45;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.85), 0 0 12px rgba(229, 185, 95, 0.25);
+  background: linear-gradient(180deg, rgba(22, 14, 36, 0.98) 0%, rgba(12, 8, 20, 0.98) 100%);
+  border: 1.8px solid var(--border-gold);
+  border-radius: 12px;
+  padding: 8px 12px;
+  z-index: 55;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.95), 0 0 16px rgba(229, 185, 95, 0.35);
   animation: fadeIn 0.25s ease-out;
   transition: opacity 0.25s ease;
-  pointer-events: none;
+  pointer-events: auto !important;
 }
 
 .dialogue-speaker-row {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 
 .dialogue-mini-portrait {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  border: 1px solid var(--border-gold);
+  border: 1.2px solid var(--border-gold);
   object-fit: cover;
 }
 
 .speaker-tag {
-  font-size: 0.65rem;
+  font-size: 0.68rem;
   font-weight: 800;
   text-transform: uppercase;
   color: var(--border-gold);
   display: block;
 }
 
+.dialogue-close-btn {
+  background: none;
+  border: none;
+  color: #ffd700;
+  font-size: 1.2rem;
+  font-weight: 900;
+  cursor: pointer;
+  padding: 0 4px;
+  margin-left: auto;
+  line-height: 1;
+}
 
 .dialogue-bubble p {
-  font-size: 0.76rem;
+  font-size: 0.74rem;
   font-style: italic;
   color: #fff;
-  line-height: 1.2;
+  line-height: 1.28;
+  margin: 0;
+}
+
+.dialogue-action-slot {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.btn-dialogue-execute {
+  background: linear-gradient(180deg, #ffd700 0%, #e67e22 100%);
+  color: #12081c;
+  font-family: var(--font-title);
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  border: 1.5px solid #fff;
+  border-radius: 6px;
+  padding: 5px 12px;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.8), 0 0 8px rgba(255, 215, 0, 0.5);
+  touch-action: manipulation;
+}
+
+.dialogue-used-tag {
+  font-size: 0.54rem;
+  font-weight: 800;
+  color: #a4b0be;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* ==========================================================================
@@ -2962,25 +3005,28 @@ body {
 }
 
 .relic-pill {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 50%;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  background: rgba(38, 25, 58, 0.92);
-  border: 1px solid rgba(255, 215, 0, 0.55);
-  border-radius: 999px;
-  padding: 2px 8px;
-  font-size: 0.62rem;
-  font-weight: 700;
-  color: #fff9e6;
-  white-space: nowrap;
+  justify-content: center;
+  background: radial-gradient(circle, #2a1645 0%, #120920 100%);
+  border: 1.2px solid rgba(255, 215, 0, 0.75);
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.65);
-  transition: transform 0.15s ease, border-color 0.15s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.85), 0 0 6px rgba(255, 215, 0, 0.25);
+  transition: transform 0.12s ease;
+  touch-action: manipulation;
+}
+
+.relic-pill span {
+  display: none !important;
 }
 
 .relic-pill:hover,
 .relic-pill:active {
-  transform: scale(1.05);
+  transform: scale(1.15);
   border-color: #ffd700;
   background: rgba(58, 38, 88, 0.96);
 }
@@ -4073,56 +4119,77 @@ body {
 }
 
 .archetype-ability-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 50%;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  background: linear-gradient(135deg, #23153c 0%, #120920 100%);
-  border: 1.5px solid #d4af37;
-  border-radius: 7px;
-  padding: 3px 8px;
-  color: #f8fafc;
-  font-family: var(--font-title);
-  font-size: 0.56rem;
-  font-weight: 800;
+  justify-content: center;
+  position: relative;
+  background: radial-gradient(circle at center, #2e1a4d 0%, #120920 100%);
+  border: 1.5px solid #ffd700;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.85);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.85), 0 0 8px rgba(255, 215, 0, 0.35);
   transition: transform 0.12s ease, filter 0.12s ease;
+  touch-action: manipulation;
 }
 
 .archetype-ability-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  filter: brightness(1.2);
-  border-color: #ffd700;
+  transform: scale(1.1);
+  filter: brightness(1.25);
+  border-color: #fff9e6;
 }
 
-.archetype-ability-btn.ability-used,
-.archetype-ability-btn:disabled {
-  opacity: 0.42;
-  border-color: rgba(255, 255, 255, 0.25);
-  background: #181124;
-  cursor: not-allowed;
-  transform: none !important;
-  filter: grayscale(0.85);
+.archetype-ability-btn.ability-used {
+  opacity: 0.38;
+  border-color: rgba(255, 215, 0, 0.3);
+  filter: grayscale(0.9);
+  cursor: pointer;
+}
+
+.archetype-ability-btn.ability-active {
+  border-color: #2ecc71;
+  box-shadow: 0 0 10px rgba(46, 204, 113, 0.85);
 }
 
 .archetype-ability-icon {
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
   object-fit: cover;
+  pointer-events: none;
 }
 
 .archetype-passive-chip {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 50%;
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  background: rgba(30, 20, 45, 0.8);
-  border: 1px dashed #a29bfe;
-  border-radius: 7px;
-  padding: 3px 7px;
-  color: #e2d9f3;
-  font-size: 0.54rem;
-  font-weight: 700;
+  justify-content: center;
+  background: radial-gradient(circle at center, #1b2838 0%, #0c1420 100%);
+  border: 1.5px solid #48dbfb;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.8), 0 0 6px rgba(72, 219, 251, 0.35);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.archetype-ability-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -3px;
+  background: #ffd700;
+  color: #12081d;
+  font-family: var(--font-title);
+  font-size: 0.38rem;
+  font-weight: 900;
+  padding: 0 3px;
+  border-radius: 999px;
+  border: 1px solid #12081d;
+  line-height: 1.1;
+  pointer-events: none;
 }
 
 /* Rodapé de Ações Centralizado (Botão TRUCO em Destaque no Meio) */
@@ -4351,17 +4418,17 @@ body {
 
 .enemy-battle-station-vertical .enemy-fullbody-wrapper {
   margin-left: 0 !important;
-  margin-bottom: -24px !important;
+  margin-bottom: -28px !important;
 }
 
 .enemy-battle-station-vertical .enemy-fullbody-sprite {
-  height: clamp(75px, 11vh, 90px) !important;
-  max-width: 95px !important;
+  height: clamp(105px, 15vh, 135px) !important;
+  max-width: 130px !important;
   object-fit: contain !important;
 }
 
 .enemy-battle-station-vertical .pedestal-container {
-  width: clamp(120px, 34vw, 145px) !important;
+  width: clamp(135px, 38vw, 165px) !important;
 }
 
 /* 2 e 4. Wrappers de Moldura Ornata (Boss e Jogador) */
@@ -4443,6 +4510,10 @@ body {
   border-radius: 3px !important;
   overflow: hidden !important;
   border: 1px solid rgba(255, 215, 0, 0.35) !important;
+}
+
+.frame-meters-container .round-blocks-slot .hp-text {
+  display: none !important;
 }
 
 .enemy-passive-badge {
@@ -4625,7 +4696,7 @@ body {
 }
 
 .player-visual-hand-row .player-bust-frame {
-  width: 76px !important;
+  width: clamp(86px, 24vw, 105px) !important;
   flex-shrink: 0 !important;
   display: flex !important;
   align-items: flex-end !important;
@@ -4635,15 +4706,15 @@ body {
 }
 
 .player-visual-hand-row .player-bust-sprite {
-  height: clamp(80px, 12vh, 96px) !important;
-  max-width: 76px !important;
+  height: clamp(110px, 16vh, 140px) !important;
+  max-width: 105px !important;
   object-fit: contain !important;
 }
 
 .player-visual-hand-row .cards-hand-container {
   flex: 1 !important;
-  min-height: 84px !important;
-  max-height: 98px !important;
+  min-height: 88px !important;
+  max-height: 105px !important;
   display: flex !important;
   align-items: flex-end !important;
   justify-content: center !important;
@@ -4652,8 +4723,8 @@ body {
 }
 
 .cards-hand-container .playing-card-clean {
-  width: clamp(54px, 15vw, 64px) !important;
-  height: clamp(78px, 11vh, 92px) !important;
+  width: clamp(56px, 16vw, 68px) !important;
+  height: clamp(82px, 12vh, 98px) !important;
 }
 
 /* 6. Rodapé Alinhado */
