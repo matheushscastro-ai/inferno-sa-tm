@@ -1095,12 +1095,9 @@ class GameState {
           <small><strong>Ativo Inicial (${relic.name}):</strong> ${relic.desc}</small>
         </div>
       `;
-      const pick = (e) => {
-        if (e && e.type === 'touchend') e.preventDefault();
+      this.bindSafeTap(cardEl, () => {
         this.selectArchetype(arch.id);
-      };
-      cardEl.addEventListener('click', pick);
-      cardEl.addEventListener('touchend', pick);
+      });
       container.appendChild(cardEl);
     });
 
@@ -2488,6 +2485,36 @@ class GameState {
       };
     }
 
+    const inspectPanel = document.getElementById('boon-inspect-panel');
+    const inspectQuote = document.getElementById('boon-inspect-quote');
+    const btnCancel = document.getElementById('btn-boon-cancel');
+    const btnSelect = document.getElementById('btn-boon-select');
+
+    if (inspectPanel) inspectPanel.classList.add('hidden');
+    let selectedRelicKey = null;
+
+    if (btnCancel) {
+      const newCancel = btnCancel.cloneNode(true);
+      btnCancel.parentNode.replaceChild(newCancel, btnCancel);
+      this.bindSafeTap(newCancel, () => {
+        selectedRelicKey = null;
+        const allCards = cardsContainer.querySelectorAll('.boon-card-choice');
+        allCards.forEach(c => {
+          c.classList.remove('boon-card-focused', 'boon-card-dimmed');
+        });
+        if (inspectPanel) inspectPanel.classList.add('hidden');
+      });
+    }
+
+    if (btnSelect) {
+      const newSelect = btnSelect.cloneNode(true);
+      btnSelect.parentNode.replaceChild(newSelect, btnSelect);
+      this.bindSafeTap(newSelect, () => {
+        if (!selectedRelicKey) return;
+        this.claimRelic(selectedRelicKey);
+      });
+    }
+
     cardsContainer.innerHTML = '';
     relicChoices.forEach(relicKey => {
       const relic = RELIC_DATABASE[relicKey];
@@ -2496,18 +2523,22 @@ class GameState {
       const cardEl = document.createElement('div');
       cardEl.className = 'boon-card-choice';
       
-      let relicChosen = false;
-      const chooseRelic = (e) => {
-        if (e && e.type === 'touchend') {
-          e.preventDefault();
-        }
-        if (relicChosen) return;
-        relicChosen = true;
-        this.claimRelic(relicKey);
-      };
+      this.bindSafeTap(cardEl, () => {
+        selectedRelicKey = relicKey;
+        const allCards = cardsContainer.querySelectorAll('.boon-card-choice');
+        allCards.forEach(c => {
+          c.classList.remove('boon-card-focused');
+          c.classList.add('boon-card-dimmed');
+        });
+        cardEl.classList.remove('boon-card-dimmed');
+        cardEl.classList.add('boon-card-focused');
 
-      cardEl.addEventListener('click', chooseRelic);
-      cardEl.addEventListener('touchend', chooseRelic);
+        if (inspectPanel && inspectQuote) {
+          inspectQuote.innerHTML = `"${relic.name}? Como você não sabe o que é?! ${relic.desc}"`;
+          inspectPanel.classList.remove('hidden');
+        }
+        sfx.cardDraw();
+      });
 
       cardEl.innerHTML = `
         <div class="card-art-container">
@@ -2516,7 +2547,6 @@ class GameState {
         <img class="card-frame-overlay" src="assets/ui/card_frame_action_cutout.png?v=3" alt="Frame" />
         <div class="card-cost">★</div>
         <div class="card-header">${relic.name}</div>
-        <div class="card-desc">${relic.desc}</div>
         <div class="card-type-tag">ATIVO PASSIVO</div>
       `;
       cardsContainer.appendChild(cardEl);
@@ -2535,6 +2565,10 @@ class GameState {
     const boonModal = document.getElementById('god-boon-modal');
     if (boonModal) {
       boonModal.classList.add('hidden');
+    }
+    const inspectPanel = document.getElementById('boon-inspect-panel');
+    if (inspectPanel) {
+      inspectPanel.classList.add('hidden');
     }
 
     this.updateUI();
@@ -2616,8 +2650,7 @@ class GameState {
         </div>
       `;
 
-      const handlePick = (e) => {
-        if (e && e.type === 'touchend') e.preventDefault();
+      const handlePick = () => {
         if (doorChosen) return;
         if (!opt.enabled) {
           sfx.hurt();
@@ -2628,8 +2661,7 @@ class GameState {
         this.nextRoom(opt.choice, opt.param);
       };
 
-      cardEl.addEventListener('click', handlePick);
-      cardEl.addEventListener('touchend', handlePick);
+      this.bindSafeTap(cardEl, handlePick);
       doorsContainer.appendChild(cardEl);
     });
 

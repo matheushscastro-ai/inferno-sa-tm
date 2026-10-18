@@ -2510,20 +2510,7 @@ body {
 }
 
 .boon-card-choice .card-desc {
-  position: absolute;
-  top: 57%;
-  left: 16%;
-  width: 68%;
-  height: 28%;
-  font-size: 0.48rem;
-  line-height: 1.2;
-  color: #fff9e6;
-  text-shadow: 0 1px 2px #000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  z-index: 5;
+  display: none !important; /* Definição na carta removida conforme solicitado */
 }
 
 .boon-card-choice .card-type-tag {
@@ -2539,6 +2526,80 @@ body {
   z-index: 5;
   letter-spacing: 0.6px;
   text-shadow: 0 1px 3px #000;
+}
+
+.boon-card-choice.boon-card-focused {
+  transform: translateY(-8px) scale(1.15) !important;
+  z-index: 30 !important;
+  border: 1.5px solid #ffd700 !important;
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.9), 0 14px 30px rgba(0, 0, 0, 0.95) !important;
+}
+
+.boon-card-choice.boon-card-dimmed {
+  opacity: 0.38 !important;
+  filter: grayscale(0.7) !important;
+  transform: scale(0.92) !important;
+}
+
+/* Painel de Inspeção do Louis Beznoir na escolha de Bênção */
+.boon-inspect-panel {
+  margin: 10px 0 4px;
+  background: linear-gradient(180deg, rgba(24, 15, 40, 0.98) 0%, rgba(14, 9, 24, 0.98) 100%);
+  border: 1.8px solid var(--border-gold);
+  border-radius: 12px;
+  padding: 8px 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.9), 0 0 14px rgba(229, 185, 95, 0.3);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.boon-inspect-speaker-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.boon-inspect-quote {
+  font-size: 0.74rem;
+  font-style: italic;
+  color: #fff;
+  line-height: 1.28;
+  margin: 0 0 8px 0;
+}
+
+.boon-inspect-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.btn-boon-cancel {
+  background: rgba(45, 25, 65, 0.85);
+  border: 1.2px solid rgba(255, 255, 255, 0.35);
+  color: #dfe4ea;
+  font-family: var(--font-title);
+  font-size: 0.62rem;
+  font-weight: 800;
+  padding: 5px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.btn-boon-select {
+  background: linear-gradient(180deg, #ffd700 0%, #e67e22 100%);
+  border: 1.5px solid #fff;
+  color: #12081c;
+  font-family: var(--font-title);
+  font-size: 0.64rem;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  padding: 5px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.8), 0 0 8px rgba(255, 215, 0, 0.5);
+  touch-action: manipulation;
 }
 
 /* Utilitários e Animações */
@@ -4402,11 +4463,11 @@ body {
   position: relative !important;
 }
 
-/* 1. Animação do Boss Centralizada (Sem plataforma, tamanho ampliado como no mockup) */
+/* 1. Animação do Boss Centralizada (Sem plataforma, centralizado e +10% maior) */
 .enemy-battle-station-vertical {
   width: 100% !important;
-  max-width: 250px !important;
-  margin: 0 auto -52px auto !important; /* O frame do Boss sobrepõe as pernas como na referência */
+  max-width: 270px !important;
+  margin: 0 auto -58px auto !important; /* O frame do Boss sobrepõe as pernas como na referência */
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
@@ -4414,21 +4475,24 @@ body {
   position: relative !important;
   z-index: 10 !important;
   flex-shrink: 0 !important;
+  text-align: center !important;
 }
 
 .enemy-battle-station-vertical .enemy-fullbody-wrapper {
-  margin-left: 0 !important;
-  margin-bottom: 0 !important;
+  margin: 0 auto !important;
   display: flex !important;
   justify-content: center !important;
   align-items: flex-end !important;
   width: 100% !important;
+  text-align: center !important;
 }
 
 .enemy-battle-station-vertical .enemy-fullbody-sprite {
-  height: clamp(155px, 24vh, 210px) !important;
-  max-width: clamp(170px, 52vw, 230px) !important;
+  height: clamp(170px, 26vh, 230px) !important; /* +10% ampliado */
+  max-width: clamp(185px, 56vw, 255px) !important;
   object-fit: contain !important;
+  margin: 0 auto !important;
+  display: block !important;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.95)) !important;
 }
 

@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#0d0a14">
-  <link rel="stylesheet" href="style.css?v=44">
+  <link rel="stylesheet" href="style.css?v=45">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
@@ -370,6 +370,19 @@
           <!-- 3 cartas de ativos geradas dinamicamente com artes de relíquias -->
         </div>
 
+        <!-- Painel de Inspeção do Louis Beznoir (Amplia a carta e explica com Selecionar ou Voltar) -->
+        <div id="boon-inspect-panel" class="boon-inspect-panel hidden">
+          <div class="boon-inspect-speaker-row">
+            <img src="assets/characters/luiz_beznol.png?v=4" class="dialogue-mini-portrait" alt="Louis">
+            <span class="speaker-tag">Louis Beznoir IV:</span>
+          </div>
+          <p id="boon-inspect-quote" class="boon-inspect-quote">"..."</p>
+          <div class="boon-inspect-actions">
+            <button id="btn-boon-cancel" type="button" class="btn-boon-cancel">VOLTAR</button>
+            <button id="btn-boon-select" type="button" class="btn-boon-select">SELECIONAR ATIVO</button>
+          </div>
+        </div>
+
         <div class="boon-footer-actions">
           <button id="btn-reroll-boon" class="boon-reroll-btn">
             <img src="assets/ui/icon_dice.svg" class="inline-ui-art" alt=""> Subornar Corretora: Trocar Ativos (-25 <img src="assets/ui/icon_dracma.svg" class="inline-ui-art" alt="">)
@@ -546,6 +559,6 @@
 
   </div>
 
-  <script type="module" src="src/game.js?v=44"></script>
+  <script type="module" src="src/game.js?v=45"></script>
 </body>
 </html>
