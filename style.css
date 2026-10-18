@@ -4402,11 +4402,11 @@ body {
   position: relative !important;
 }
 
-/* 1. Animação do Boss Centralizada */
+/* 1. Animação do Boss Centralizada (Sem plataforma, tamanho ampliado como no mockup) */
 .enemy-battle-station-vertical {
   width: 100% !important;
-  max-width: 180px !important;
-  margin: 0 auto !important;
+  max-width: 250px !important;
+  margin: 0 auto -52px auto !important; /* O frame do Boss sobrepõe as pernas como na referência */
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
@@ -4418,17 +4418,22 @@ body {
 
 .enemy-battle-station-vertical .enemy-fullbody-wrapper {
   margin-left: 0 !important;
-  margin-bottom: -28px !important;
+  margin-bottom: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-end !important;
+  width: 100% !important;
 }
 
 .enemy-battle-station-vertical .enemy-fullbody-sprite {
-  height: clamp(105px, 15vh, 135px) !important;
-  max-width: 130px !important;
+  height: clamp(155px, 24vh, 210px) !important;
+  max-width: clamp(170px, 52vw, 230px) !important;
   object-fit: contain !important;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.95)) !important;
 }
 
 .enemy-battle-station-vertical .pedestal-container {
-  width: clamp(135px, 38vw, 165px) !important;
+  display: none !important; /* Plataforma removida conforme solicitado */
 }
 
 /* 2 e 4. Wrappers de Moldura Ornata (Boss e Jogador) */
@@ -4696,25 +4701,26 @@ body {
 }
 
 .player-visual-hand-row .player-bust-frame {
-  width: clamp(86px, 24vw, 105px) !important;
+  width: clamp(95px, 27vw, 125px) !important;
   flex-shrink: 0 !important;
   display: flex !important;
   align-items: flex-end !important;
   justify-content: flex-start !important;
   margin-left: -2px !important;
-  margin-bottom: -3px !important;
+  margin-bottom: -4px !important;
 }
 
 .player-visual-hand-row .player-bust-sprite {
-  height: clamp(110px, 16vh, 140px) !important;
-  max-width: 105px !important;
+  height: clamp(125px, 18vh, 160px) !important;
+  max-width: clamp(95px, 27vw, 125px) !important;
   object-fit: contain !important;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.9)) !important;
 }
 
 .player-visual-hand-row .cards-hand-container {
   flex: 1 !important;
-  min-height: 88px !important;
-  max-height: 105px !important;
+  min-height: 84px !important;
+  max-height: 100px !important;
   display: flex !important;
   align-items: flex-end !important;
   justify-content: center !important;
@@ -4723,23 +4729,27 @@ body {
 }
 
 .cards-hand-container .playing-card-clean {
-  width: clamp(56px, 16vw, 68px) !important;
-  height: clamp(82px, 12vh, 98px) !important;
+  width: clamp(54px, 15vw, 66px) !important;
+  height: clamp(78px, 11vh, 94px) !important;
 }
 
-/* 6. Rodapé Alinhado */
+/* 6. Rodapé Alinhado (Sem corte na barra de navegação do celular) */
 .truco-subfooter-aligned {
   width: 100% !important;
   max-width: 380px !important;
-  margin: 2px auto 0 !important;
-  padding-bottom: max(2px, env(safe-area-inset-bottom, 2px)) !important;
+  margin: 1px auto 0 !important;
+  padding: 2px 6px max(6px, env(safe-area-inset-bottom, 6px)) !important;
   position: relative !important;
   z-index: 20 !important;
   flex-shrink: 0 !important;
 }
 
 .btn-truco-call-centered {
-  min-width: 130px !important;
-  height: 38px !important;
+  min-width: 125px !important;
+  height: 36px !important;
+}
+
+.btn-fold-hand {
+  height: 32px !important;
 }
 
