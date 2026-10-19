@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#0d0a14">
-  <link rel="stylesheet" href="style.css?v=59">
+  <link rel="stylesheet" href="style.css?v=60">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
@@ -36,7 +36,7 @@
           <button id="btn-start-game" class="interstitial-btn-battle title-start-btn">
             <span>INICIAR TAKEOVER</span>
           </button>
-          <button id="btn-title-prologue" class="title-prologue-btn">
+          <button id="btn-title-prologue" class="title-prologue-btn" onclick="window.openComicViewer &amp;&amp; window.openComicViewer()">
             <img src="assets/ui/icon_scroll.svg" class="inline-ui-art" alt=""> Ler Prólogo (HQ)
           </button>
         </div>
@@ -65,7 +65,7 @@
         <button id="btn-open-map" class="btn-comic-trigger" title="Roadmap do Submundo">
           <img src="assets/ui/icon_map.svg" class="hud-art-icon" alt=""> <span class="comic-trigger-label">MAPA</span>
         </button>
-        <button id="btn-open-comic" class="btn-comic-trigger" title="Ver Memórias / HQ da História">
+        <button id="btn-open-comic" class="btn-comic-trigger" title="Ver Memórias / HQ da História" onclick="window.openComicViewer &amp;&amp; window.openComicViewer()">
           <img src="assets/ui/icon_scroll.svg" class="hud-art-icon" alt=""> <span class="comic-trigger-label">HQ</span>
         </button>
         <div class="hud-item soul-gold">
@@ -638,6 +638,6 @@
 
   </div>
 
-  <script type="module" src="src/game.js?v=59"></script>
+  <script type="module" src="src/game.js?v=60"></script>
 </body>
 </html>

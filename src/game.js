@@ -4495,46 +4495,55 @@ window.addEventListener('DOMContentLoaded', () => {
     comicModal.classList.add('hidden');
   }
 
+  window.openComicViewer = openComicViewer;
+  window.closeComicViewer = closeComicViewer;
+
   const openBtn = document.getElementById('btn-open-comic');
   const closeBtn = document.getElementById('btn-close-comic');
 
   if (openBtn) {
-    let lastOpen = 0;
+    if (typeof game.bindSafeTap === 'function') {
+      game.bindSafeTap(openBtn, () => openComicViewer());
+    }
     const handleOpen = (e) => {
-      const now = Date.now();
-      if (now - lastOpen < 350) return;
-      lastOpen = now;
-      if (e && e.type === 'touchend') e.preventDefault();
+      if (e && e.type === 'touchend' && e.cancelable) {
+        e.preventDefault();
+      }
       openComicViewer();
     };
     openBtn.addEventListener('click', handleOpen);
     openBtn.addEventListener('touchend', handleOpen);
+    openBtn.addEventListener('pointerup', handleOpen);
   }
 
   if (btnTitlePrologue) {
-    let lastPrologueOpen = 0;
+    if (typeof game.bindSafeTap === 'function') {
+      game.bindSafeTap(btnTitlePrologue, () => openComicViewer());
+    }
     const handleTitlePrologue = (e) => {
-      const now = Date.now();
-      if (now - lastPrologueOpen < 350) return;
-      lastPrologueOpen = now;
-      if (e && e.type === 'touchend') e.preventDefault();
+      if (e && e.type === 'touchend' && e.cancelable) {
+        e.preventDefault();
+      }
       openComicViewer();
     };
     btnTitlePrologue.addEventListener('click', handleTitlePrologue);
     btnTitlePrologue.addEventListener('touchend', handleTitlePrologue);
+    btnTitlePrologue.addEventListener('pointerup', handleTitlePrologue);
   }
 
   if (closeBtn) {
-    let lastClose = 0;
+    if (typeof game.bindSafeTap === 'function') {
+      game.bindSafeTap(closeBtn, () => closeComicViewer());
+    }
     const handleClose = (e) => {
-      const now = Date.now();
-      if (now - lastClose < 350) return;
-      lastClose = now;
-      if (e && e.type === 'touchend') e.preventDefault();
+      if (e && e.type === 'touchend' && e.cancelable) {
+        e.preventDefault();
+      }
       closeComicViewer();
     };
     closeBtn.addEventListener('click', handleClose);
     closeBtn.addEventListener('touchend', handleClose);
+    closeBtn.addEventListener('pointerup', handleClose);
   }
 
   comicModal.addEventListener('click', (e) => {
