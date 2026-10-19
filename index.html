@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#0d0a14">
-  <link rel="stylesheet" href="style.css?v=55">
+  <link rel="stylesheet" href="style.css?v=56">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
@@ -129,11 +129,8 @@
           <!-- Balão Cômico de Grito do Monstro -->
           <div id="enemy-comic-callout" class="enemy-comic-callout hidden"></div>
 
-          <!-- Micro-Expressão / Tell de Blefe do Chefe -->
-          <div id="boss-tell-balloon" class="boss-tell-balloon hidden">
-            <span class="tell-sweat">💧</span>
-            <span class="tell-text">...?!</span>
-          </div>
+          <!-- Micro-Expressão / Tell de Blefe do Chefe (Desativado) -->
+          <div id="boss-tell-balloon" class="boss-tell-balloon hidden" style="display: none !important;"></div>
         </div>
         <!-- Plataforma Estilo Pokémon com Campo Gravitacional -->
         <div class="pedestal-container">
@@ -367,9 +364,13 @@
           </div>
           <h3 id="mao-de-onze-title">11 TENTOS NA MESA!</h3>
           <p id="mao-de-onze-quote">"Estamos a 1 tento da vitória! Avalie suas cartas: disputar a mão (vale 3 tentos) ou correr estrategicamente (cedendo 1 tento)?"</p>
+          <!-- Banner da Regra: Vira e Manilha Oficial -->
+          <div id="mao-de-onze-context" class="m11-context-banner"></div>
           <div class="mao-de-onze-preview" id="mao-de-onze-preview">
-            <!-- 3 mini cartas renderizadas via JS -->
+            <!-- 3 mini cartas com highlights de Manilhas renderizadas via JS -->
           </div>
+          <!-- Parecer de Risco da Holding -->
+          <div id="mao-de-onze-advice" class="m11-advice-strip"></div>
           <div class="truco-challenge-actions">
             <button id="btn-m11-accept" class="truco-resp-btn accept-btn">
               <img src="assets/ui/icon_sword.svg" class="inline-ui-art" alt=""> JOGAR (VALE 3 TENTOS)
@@ -637,6 +638,6 @@
 
   </div>
 
-  <script type="module" src="src/game.js?v=55"></script>
+  <script type="module" src="src/game.js?v=56"></script>
 </body>
 </html>

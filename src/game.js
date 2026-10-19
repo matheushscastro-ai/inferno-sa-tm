@@ -1293,6 +1293,7 @@ class GameState {
         desc: `Jogou: ${this.formatCardShortName(this.currentEnemyCard)}`
       };
       this.clashStatusText = `${this.currentVaza + 1}ª PARTIDA: Chefe iniciou e jogou ${this.formatCardShortName(this.currentEnemyCard)}!`;
+      setTimeout(() => this.triggerCardSlam('enemy'), 200);
     } else {
       // Louis joga primeiro! O Chefe ainda não jogou carta na mesa (slot vazio ?)
       this.enemyPlayedOpen = false;
@@ -1697,20 +1698,6 @@ class GameState {
 
     this.tablePlayedEnemy = { ...enemyCard, isFaceDown: false };
 
-    // Animação de batida/slam de carta na mesa de feltro
-    const pSlot = document.getElementById('table-slot-player');
-    if (pSlot) {
-      pSlot.classList.remove('card-slam-anim');
-      void pSlot.offsetWidth;
-      pSlot.classList.add('card-slam-anim');
-    }
-    const eSlot = document.getElementById('table-slot-enemy');
-    if (eSlot) {
-      eSlot.classList.remove('card-slam-anim');
-      void eSlot.offsetWidth;
-      eSlot.classList.add('card-slam-anim');
-    }
-
     // Se jogou a Carta Especial de Louis (Suborno Real Beznoir), ganha +15 Dracmas e dispara efeito visual/fala de Faria Limer!
     if (card.isSpecialProtagonist) {
       this.stats.manilhasPlayed++;
@@ -1905,6 +1892,12 @@ class GameState {
 
     // Renderiza imediatamente as cartas na mesa e os blocos 1/3, 2/3, 3/3
     this.updateUI();
+
+    // Dispara a batida física e o impacto das cartas na mesa (Card Slam)
+    this.triggerCardSlam('player');
+    setTimeout(() => {
+      this.triggerCardSlam('enemy');
+    }, 130);
 
     // Verifica se a Rodada já foi decidida (Melhor de 2 ou regras clássicas de canga do Truco Paulista)
     const earlyOrFinalWinner = this.checkEarlyOrFinalRodadaWinner();
@@ -3073,6 +3066,9 @@ class GameState {
     this.isMaoDeFerro = false;
 
     this.currentRoomIndex = 0;
+    this.roomNumber = 1;
+    this.enemyIndex = 0;
+    this.enemy = this.createEnemy(0);
     this.playerTentos = 0;
     this.enemyTentos = 0;
     this.player.gold = 100;
@@ -3115,6 +3111,32 @@ class GameState {
     }, 320);
   }
 
+  triggerCardSlam(slotType = 'player') {
+    const slot = document.getElementById(slotType === 'player' ? 'table-slot-player' : 'table-slot-enemy');
+    if (!slot) return;
+
+    const cardInside = slot.querySelector('.mini-playing-card');
+    const felt = document.querySelector('.truco-felt-surface');
+
+    slot.classList.remove('card-slam-anim', 'slam-impact');
+    if (cardInside) cardInside.classList.remove('card-slam-anim');
+    if (felt) felt.classList.remove('felt-bump');
+
+    void slot.offsetWidth; // Força reflow CSS
+
+    slot.classList.add('card-slam-anim', 'slam-impact');
+    if (cardInside) cardInside.classList.add('card-slam-anim');
+    if (felt) felt.classList.add('felt-bump');
+
+    sfx.playCard();
+    this.triggerHaptic([35, 15, 20]);
+
+    setTimeout(() => {
+      slot.classList.remove('slam-impact');
+      if (felt) felt.classList.remove('felt-bump');
+    }, 450);
+  }
+
   showTrucoCinematicBanner(level, isPlayer) {
     const banner = document.getElementById('truco-comic-banner');
     const textEl = document.getElementById('comic-shout-text');
@@ -3148,27 +3170,97 @@ class GameState {
   }
 
   triggerBossTell(type = 'bluff') {
-    const balloon = document.getElementById('boss-tell-balloon');
-    if (!balloon) return;
-    balloon.classList.remove('hidden');
-    clearTimeout(this.bossTellTimer);
-    this.bossTellTimer = setTimeout(() => {
-      balloon.classList.add('hidden');
-    }, 1400);
+    return; // Desativado a pedido do usuário
   }
 
   showMaoDeOnzeModal() {
     const modal = document.getElementById('mao-de-onze-modal');
     const preview = document.getElementById('mao-de-onze-preview');
+    const contextEl = document.getElementById('mao-de-onze-context');
+    const adviceEl = document.getElementById('mao-de-onze-advice');
     const btnAccept = document.getElementById('btn-m11-accept');
     const btnFold = document.getElementById('btn-m11-fold');
     if (!modal) return;
 
+    const viraSuit = this.viraCard && this.viraCard.suit ? this.viraCard.suit.name : 'Ouros';
+    const viraRank = this.viraCard ? this.viraCard.rank : '?';
+    const manilhaRank = this.manilhaRank || '?';
+
+    if (contextEl) {
+      contextEl.innerHTML = `
+        <div class="m11-rule-strip">
+          <span class="m11-rule-vira">VIRA: <strong>${viraRank} de ${viraSuit}</strong></span>
+          <span class="m11-rule-arrow">➔</span>
+          <span class="m11-rule-manilha">MANILHA OFICIAL: <strong>${manilhaRank}</strong></span>
+        </div>
+      `;
+    }
+
+    let manilhaCount = 0;
+    let hasSpecial = false;
+
     if (preview) {
       preview.innerHTML = '';
+      let cardsHTML = '';
+
       (this.hand || []).forEach(c => {
-        preview.innerHTML += this.buildMiniTableCardHTML(c);
+        if (!c) return;
+        const suit = c.suit || TRUCO_SUITS[0];
+        const isSpecial = Boolean(c.isSpecialProtagonist);
+        const isManilha = this.isCardManilha(c);
+
+        let highlightClass = 'is-m11-normal';
+        let badgeHTML = '';
+
+        if (isSpecial) {
+          hasSpecial = true;
+          manilhaCount++;
+          highlightClass = 'is-m11-special';
+          badgeHTML = `<div class="m11-card-badge badge-special">★ SUBORNO REAL</div><div class="m11-card-subtag">IMBATÍVEL</div>`;
+        } else if (isManilha) {
+          manilhaCount++;
+          highlightClass = 'is-m11-manilha';
+          badgeHTML = `<div class="m11-card-badge badge-manilha">★ MANILHA</div><div class="m11-card-subtag">${suit.manilhaTitle}</div>`;
+        } else {
+          highlightClass = 'is-m11-normal';
+          badgeHTML = `<div class="m11-card-badge badge-normal">COMUM (${c.rank})</div><div class="m11-card-subtag">Força ${this.getPlayingCardStrength(c, false)}</div>`;
+        }
+
+        const artHtml = c.art
+          ? `<img src="${c.art}" class="m11-card-art" alt="${c.rank}">`
+          : `<img src="${suit.svg}" class="m11-card-suit-center" alt="${suit.name}">`;
+
+        cardsHTML += `
+          <div class="m11-card-item ${highlightClass} ${suit.isRed ? 'suit-red' : 'suit-dark'}">
+            <div class="m11-card-corner top-left">
+              <span class="m11-corner-rank">${c.rank}</span>
+              <img src="${suit.svg}" class="m11-corner-suit" alt="${suit.name}">
+            </div>
+            ${artHtml}
+            <div class="m11-card-corner bottom-right">
+              <span class="m11-corner-rank">${c.rank}</span>
+              <img src="${suit.svg}" class="m11-corner-suit" alt="${suit.name}">
+            </div>
+            <div class="m11-badges-wrap">
+              ${badgeHTML}
+            </div>
+          </div>
+        `;
       });
+      preview.innerHTML = cardsHTML;
+    }
+
+    if (adviceEl) {
+      if (manilhaCount >= 2 || hasSpecial) {
+        adviceEl.className = 'm11-advice-strip advice-excellent';
+        adviceEl.innerHTML = `<strong>DUE DILIGENCE FAVORÁVEL:</strong> Mão com ${manilhaCount} Manilha(s)! Risco baixo para disputar os 3 tentos e fechar a partida!`;
+      } else if (manilhaCount === 1) {
+        adviceEl.className = 'm11-advice-strip advice-moderate';
+        adviceEl.innerHTML = `<strong>DUE DILIGENCE MODERADA:</strong> 1 Manilha na mão. Boa chance de vitória disputando a rodada!`;
+      } else {
+        adviceEl.className = 'm11-advice-strip advice-risky';
+        adviceEl.innerHTML = `<strong>ALERTA DE RISCO:</strong> Nenhuma Manilha na mão! Correr cede apenas 1 tento ao invés de perder 3!`;
+      }
     }
 
     if (btnAccept) {
@@ -3895,7 +3987,8 @@ class GameState {
     const enemyAttackImg = document.getElementById('enemy-sprite-attack');
     const enemyHurtImg = document.getElementById('enemy-sprite-hurt');
     const enemyFallback = document.getElementById('enemy-avatar-fallback');
-    if (enemyImg && this.enemy.image) {
+    if (enemyImg && this.enemy && this.enemy.image) {
+      enemyImg.src = this.enemy.image;
       if (enemyAttackImg) {
         enemyAttackImg.src = this.enemy.image;
         enemyAttackImg.style.display = 'none';
