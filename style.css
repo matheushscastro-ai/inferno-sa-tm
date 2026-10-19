@@ -3104,6 +3104,16 @@ body {
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
+.boss-symbol-circle::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  bottom: -10px;
+  left: -10px;
+  right: -10px;
+  cursor: pointer;
+}
+
 .boss-symbol-circle:hover,
 .boss-symbol-circle:active {
   transform: scale(1.15);
@@ -4786,6 +4796,17 @@ body {
 #enemy-ability-badge:hover,
 #enemy-ability-badge:active {
   transform: scale(1.15) !important;
+}
+
+#enemy-passive-badge::after,
+#enemy-ability-badge::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  bottom: -10px;
+  left: -10px;
+  right: -10px;
+  cursor: pointer;
 }
 
 /* 3. Tabuleiro Central (Mesa de Feltro de Cassino Real) */

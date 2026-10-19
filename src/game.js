@@ -3009,9 +3009,13 @@ class GameState {
     let startX = 0, startY = 0;
     let didMove = false;
     let isTouching = false;
+    let lastTapTime = 0;
+
+    el.style.touchAction = 'manipulation';
+    el.style.cursor = 'pointer';
 
     el.addEventListener('touchstart', (e) => {
-      if (e.touches.length > 0) {
+      if (e.touches && e.touches.length > 0) {
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
         didMove = false;
@@ -3020,10 +3024,10 @@ class GameState {
     }, { passive: true });
 
     el.addEventListener('touchmove', (e) => {
-      if (!isTouching || e.touches.length === 0) return;
+      if (!isTouching || !e.touches || e.touches.length === 0) return;
       const dx = Math.abs(e.touches[0].clientX - startX);
       const dy = Math.abs(e.touches[0].clientY - startY);
-      if (dx > 8 || dy > 8) {
+      if (dx > 16 || dy > 16) {
         didMove = true;
       }
     }, { passive: true });
@@ -3032,20 +3036,23 @@ class GameState {
       if (!isTouching) return;
       isTouching = false;
       if (!didMove) {
-        e.preventDefault();
+        lastTapTime = Date.now();
         callback(e);
       }
-    });
+      didMove = false;
+    }, { passive: true });
 
     el.addEventListener('touchcancel', () => {
       isTouching = false;
-      didMove = true;
+      didMove = false;
     });
 
     el.addEventListener('click', (e) => {
-      if (!didMove) {
-        callback(e);
+      const now = Date.now();
+      if (now - lastTapTime < 450) {
+        return;
       }
+      callback(e);
     });
   }
 
@@ -3054,16 +3061,19 @@ class GameState {
     const dialogue = document.getElementById('dialogue-text');
     const actionSlot = document.getElementById('dialogue-action-slot');
     if (actionSlot) actionSlot.classList.add('hidden');
-    dialogue.textContent = `"${text}"`;
-    bubble.classList.remove('hidden');
+    if (dialogue) dialogue.textContent = `"${text}"`;
+    if (bubble) bubble.classList.remove('hidden');
     clearTimeout(this.dialogueTimer);
     this.dialogueTimer = setTimeout(() => {
-      bubble.classList.add('hidden');
+      if (bubble) bubble.classList.add('hidden');
     }, 3200);
 
     const closeBtn = document.getElementById('dialogue-close-btn');
     if (closeBtn) {
-      closeBtn.onclick = () => bubble.classList.add('hidden');
+      closeBtn.onclick = () => bubble && bubble.classList.add('hidden');
+    }
+  }
+
   getFariaLimerQuote(term, desc) {
     const templates = [
       `"${term}? Outstanding! Como você não sabe o que é isso, meu consagrado?! ${desc}"`,
@@ -3543,10 +3553,11 @@ class GameState {
       passiveBtn.title = `Passiva: ${pName} (Toque para ouvir Louis)`;
       passiveBtn.classList.toggle('phase2-enrage', !!this.enemy.phase2Triggered);
 
-      this.bindSafeTap(passiveBtn, () => {
+      passiveBtn.onclick = (e) => {
+        if (e) e.stopPropagation();
         this.speakArrogant(pName, pDesc);
         sfx.cardDraw();
-      });
+      };
     }
 
     // 2. Habilidade Especial do Chefe (Símbolo Clicável)
@@ -3563,14 +3574,15 @@ class GameState {
         abilityBtn.classList.toggle('ability-used', isUsed);
         abilityBtn.style.display = 'inline-flex';
 
-        this.bindSafeTap(abilityBtn, () => {
+        abilityBtn.onclick = (e) => {
+          if (e) e.stopPropagation();
           if (isUsed) {
             this.speakArrogant(ability.name, 'O chefe já gastou esse golpe desonesto nesta mão! Ele não tem mais essa carta na manga!');
           } else {
             this.speakArrogant(ability.name, ability.desc);
           }
           sfx.cardDraw();
-        });
+        };
       } else {
         abilityBtn.style.display = 'none';
       }
