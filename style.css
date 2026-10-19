@@ -4063,26 +4063,10 @@ body {
   box-shadow: 0 0 15px rgba(192, 132, 252, 0.9), inset 0 0 14px rgba(245, 197, 66, 0.4);
 }
 
-/* Moldura Oficial Sobreposta nas Cartas do Baralho */
-.playing-card-frame-overlay {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: fill;
-  pointer-events: none;
-  z-index: 4;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.75));
-}
-
+/* Moldura Sobreposta nas Cartas Desativada (Cartas Limpas com Borda de Ouro) */
+.playing-card-frame-overlay,
 .mini-card-frame-overlay {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: fill;
-  pointer-events: none;
-  z-index: 3;
+  display: none !important;
 }
 
 .clean-card-badge {
@@ -4974,7 +4958,7 @@ body {
 }
 
 .player-visual-hand-row .player-bust-frame {
-  width: clamp(100px, 28vw, 130px) !important;
+  width: clamp(95px, 27vw, 125px) !important;
   flex-shrink: 0 !important;
   display: flex !important;
   align-items: flex-end !important;
@@ -4984,26 +4968,26 @@ body {
 }
 
 .player-visual-hand-row .player-bust-sprite {
-  height: clamp(120px, 16.5vh, 150px) !important;
-  max-width: clamp(100px, 28vw, 130px) !important;
+  height: clamp(125px, 18vh, 160px) !important;
+  max-width: clamp(95px, 27vw, 125px) !important;
   object-fit: contain !important;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.9)) !important;
 }
 
 .player-visual-hand-row .cards-hand-container {
   flex: 1 !important;
-  min-height: 90px !important;
-  max-height: 114px !important;
+  min-height: 84px !important;
+  max-height: 100px !important;
   display: flex !important;
   align-items: flex-end !important;
   justify-content: center !important;
-  padding: 0 2px 2px !important;
+  padding: 0 2px !important;
   gap: 4px !important;
 }
 
 .cards-hand-container .playing-card-clean {
-  width: clamp(62px, 18vw, 76px) !important;
-  height: clamp(86px, 12vh, 106px) !important;
+  width: clamp(54px, 15vw, 66px) !important;
+  height: clamp(78px, 11vh, 94px) !important;
 }
 
 /* 6. Rodapé Alinhado (Sem corte na barra de navegação do celular) */

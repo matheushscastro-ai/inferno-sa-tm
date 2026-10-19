@@ -3076,6 +3076,9 @@ class GameState {
 
   getFariaLimerQuote(term, desc) {
     const templates = [
+      `"${term}? Shitstorm total no mercado e você não sabe o que é isso, meu consagrado?! ${desc}"`,
+      `"${term}? Se vier uma shitstorm no payroll, você zera a posição ou aplica isso aqui: ${desc}"`,
+      `"${term}? Shitstorm generalizada no book de ofertas e você boiando nessa regra básica?! Presta atenção: ${desc}"`,
       `"${term}? Outstanding! Como você não sabe o que é isso, meu consagrado?! ${desc}"`,
       `"${term}? Flawless! Não te ensinaram o valuation disso no seu MBA?! ${desc}"`,
       `"${term}? By the way, quem opera no mercado sem entender essa tese é puro amadorismo! ${desc}"`,
@@ -3174,17 +3177,9 @@ class GameState {
       ? `<img src="${card.art}" class="mini-card-art" alt="${card.rank}">`
       : `<img src="${suit.svg}" class="mini-center-suit" alt="${suit.name}">`;
 
-    let frameSrc = 'assets/ui/card_frame_gold_cutout.png';
-    if (isSpecial) {
-      frameSrc = 'assets/ui/card_frame_purple_cutout.png';
-    } else if (isManilha) {
-      frameSrc = 'assets/ui/card_frame_crimson_cutout.png';
-    }
-
     return `
       <div class="mini-playing-card ${suit.isRed ? 'suit-red' : ''} ${isManilha ? 'is-manilha' : ''}">
         ${artHtml}
-        <img class="mini-card-frame-overlay" src="${frameSrc}" alt="Frame">
         <div class="mini-corner">
           <span class="mini-rank">${card.rank}</span>
           <img src="${suit.svg}" class="mini-suit-img" alt="${suit.name}">
@@ -3728,13 +3723,10 @@ class GameState {
 
       // Selo minimalista apenas se for MANILHA da rodada ou a Carta Especial do Protagonista
       let badgeHTML = '';
-      let frameSrc = 'assets/ui/card_frame_gold_cutout.png';
       if (isSpecial) {
         badgeHTML = `<div class="clean-card-badge badge-special">★ SUBORNO REAL</div>`;
-        frameSrc = 'assets/ui/card_frame_purple_cutout.png';
       } else if (isManilha) {
         badgeHTML = `<div class="clean-card-badge">${suit.manilhaTitle}</div>`;
-        frameSrc = 'assets/ui/card_frame_crimson_cutout.png';
       }
 
       cardEl.innerHTML = `
@@ -3743,7 +3735,6 @@ class GameState {
           <img src="${suit.svg}" class="corner-suit-svg" alt="${suit.name}">
         </div>
         ${centerArtHTML}
-        <img class="playing-card-frame-overlay" src="${frameSrc}" alt="Frame">
         <div class="playing-card-corner bottom-right">
           <span class="corner-rank">${card.rank}</span>
           <img src="${suit.svg}" class="corner-suit-svg" alt="${suit.name}">
