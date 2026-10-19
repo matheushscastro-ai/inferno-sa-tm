@@ -893,6 +893,23 @@ class GameState {
     this.isDragging = false;
     this.draggedCardIndex = null;
     this.dragHoverCardIndex = null;
+
+    // Métricas de Auditoria para o DRE / Extrato da Holding
+    this.stats = {
+      vazasWon: 0,
+      vazasLost: 0,
+      roundsWon: 0,
+      roundsLost: 0,
+      trucosCalled: 0,
+      trucosWon: 0,
+      manilhasPlayed: 0,
+      bluffsUnmasked: 0,
+      goldEarned: 100
+    };
+
+    // Mão de 11 e Mão de Ferro
+    this.isMaoDeOnze = false;
+    this.isMaoDeFerro = false;
   }
 
   resetBossAbilities() {
@@ -1187,6 +1204,27 @@ class GameState {
     this.drawPile = this.tableDeck;
     this.discardPile = [];
 
+    // Regra Clássica de Truco Paulista: MÃO DE 11 (ou MÃO DE FERRO se 11 x 11)
+    if (this.playerTentos === 11 && this.enemyTentos === 11) {
+      this.isMaoDeFerro = true;
+      this.isMaoDeOnze = false;
+      this.trucoLevel = 1; // Vale 3 tentos automaticamente
+      this.speak('Mão de Ferro! 11 a 11 na mesa! Operação no escuro — as cartas serão disputadas às cegas!');
+    } else if (this.playerTentos === 11) {
+      this.isMaoDeOnze = true;
+      this.isMaoDeFerro = false;
+      this.trucoLevel = 1; // Vale 3 tentos se aceitar disputar
+      setTimeout(() => this.showMaoDeOnzeModal(), 350);
+    } else if (this.enemyTentos === 11) {
+      this.isMaoDeOnze = true;
+      this.isMaoDeFerro = false;
+      this.trucoLevel = 1; // Vale 3 tentos se aceitar disputar
+      setTimeout(() => this.evaluateEnemyMaoDeOnze(), 350);
+    } else {
+      this.isMaoDeOnze = false;
+      this.isMaoDeFerro = false;
+    }
+
     // Quem começa a 1ª partida da Rodada é 50% aleatório (Louis ou Chefe)!
     this.currentTurnStarter = Math.random() < 0.5 ? 'player' : 'enemy';
 
@@ -1393,6 +1431,11 @@ class GameState {
       this.pendingEnemyTrucoLevel
     ) return;
 
+    if (this.isMaoDeOnze || this.isMaoDeFerro) {
+      this.speak('Regra tradicional do Truco Paulista: proibido pedir Truco na Mão de 11! Quem pede perde a mão!');
+      return;
+    }
+
     if (this.trucoLevel >= 4) {
       this.speak('A mesa já está valendo DOZE TENTOS (Partido Inteiro)! Jogue sua carta!');
       return;
@@ -1410,16 +1453,13 @@ class GameState {
     const proposedPts = currentTier.raisePoints;
     this.lastTrucoCaller = 'player';
     this.selectedCardIndex = null;
+    this.stats.trucosCalled++;
 
     sfx.swordSlash();
     sfx.snobAttack();
     this.playPlayerAttack();
 
-    const arena = document.getElementById('battle-arena');
-    if (arena) {
-      arena.classList.add('arena-shake');
-      setTimeout(() => arena.classList.remove('arena-shake'), 380);
-    }
+    this.showTrucoCinematicBanner(proposedLevel, true);
 
     const calloutEl = document.getElementById('player-comic-callout');
     if (calloutEl) {
@@ -1506,6 +1546,7 @@ class GameState {
     this.lastTrucoCaller = 'enemy';
     sfx.enemyCoffeeSplash();
     this.playEnemyAttack();
+    this.showTrucoCinematicBanner(proposedLevel, false);
 
     const modal = document.getElementById('truco-challenge-modal');
     const tagEl = document.getElementById('truco-challenge-tag');
@@ -1640,6 +1681,12 @@ class GameState {
       chosenCardIdx = bestWinningIdx >= 0 ? bestWinningIdx : lowestCardIdx;
       enemyCard = this.enemyTrucoHand.splice(chosenCardIdx, 1)[0] || enemyCard;
       this.currentEnemyCard = enemyCard;
+
+      // Se o chefe não consegue cobrir a carta e a aposta está alta, dispara tell de nervosismo/blefe
+      if (bestWinningIdx < 0 && (this.trucoLevel > 0 || playerPower >= 9)) {
+        this.triggerBossTell('bluff');
+        this.stats.bluffsUnmasked++;
+      }
     } else {
       // O Chefe já havia jogado aberto na mesa! Remove a carta dele da mão
       const idxInHand = this.enemyTrucoHand.findIndex(c => c.rank === enemyCard.rank && (!c.suit || !enemyCard.suit || c.suit.id === enemyCard.suit.id));
@@ -1650,15 +1697,35 @@ class GameState {
 
     this.tablePlayedEnemy = { ...enemyCard, isFaceDown: false };
 
+    // Animação de batida/slam de carta na mesa de feltro
+    const pSlot = document.getElementById('table-slot-player');
+    if (pSlot) {
+      pSlot.classList.remove('card-slam-anim');
+      void pSlot.offsetWidth;
+      pSlot.classList.add('card-slam-anim');
+    }
+    const eSlot = document.getElementById('table-slot-enemy');
+    if (eSlot) {
+      eSlot.classList.remove('card-slam-anim');
+      void eSlot.offsetWidth;
+      eSlot.classList.add('card-slam-anim');
+    }
+
     // Se jogou a Carta Especial de Louis (Suborno Real Beznoir), ganha +15 Dracmas e dispara efeito visual/fala de Faria Limer!
     if (card.isSpecialProtagonist) {
+      this.stats.manilhasPlayed++;
       this.player.gold += 15;
       this.spawnFloatingText(playerEl, '+15 Dracmas VIP', '#ffd700', 'assets/ui/icon_dracma.svg');
       this.triggerCardCombatVFX({ vfxType: 'lightning' });
+      this.triggerScreenShake();
+      this.triggerHaptic([40, 25, 55]);
       sfx.boonAcquired();
       this.speakArrogant('Suborno Real Beznoir', 'Of course! Todo mundo tem um preço nesta repartição pública! Essa vaza já foi liquidada pela Holding Beznoir!');
     } else if (this.isCardManilha(card)) {
+      this.stats.manilhasPlayed++;
       this.triggerCardCombatVFX({ vfxType: 'fire' });
+      this.triggerScreenShake();
+      this.triggerHaptic([35, 20, 50]);
     }
 
     // 1. Calcula Força da Carta de Louis vs. Carta do Chefe
@@ -1820,11 +1887,14 @@ class GameState {
     const eName = this.formatCardShortName(enemyCard);
 
     if (vazaOutcome === 'win') {
+      this.stats.vazasWon++;
+      this.triggerHaptic([30, 20, 50]);
       this.clashStatusText = `${this.currentVaza + 1}ª PARTIDA SUA! ${pName} venceu ${eName}!${specialReason}`;
       this.spawnFloatingText(enemyEl, `PERDEU PARTIDA!`, '#ffd700', 'assets/ui/icon_spark.svg');
       this.playPlayerAttack();
       this.speak(this.getRandomQuote(LUIZ_QUOTES.playAction));
     } else if (vazaOutcome === 'loss') {
+      this.stats.vazasLost++;
       this.clashStatusText = `CHEFE LEVOU A ${this.currentVaza + 1}ª PARTIDA! ${eName} bateu ${pName}!${specialReason}`;
       this.spawnFloatingText(playerEl, `Perdeu Partida`, '#ff6b81', 'assets/ui/icon_skull.svg');
       this.playEnemyAttack();
@@ -1969,6 +2039,8 @@ class GameState {
     const playerEl = document.getElementById('player-bust-frame');
 
     if (winner === 'player') {
+      this.stats.roundsWon++;
+      if (this.trucoLevel > 0) this.stats.trucosWon++;
       this.playerTentos = Math.min(this.maxTentos, this.playerTentos + pts);
       sfx.swordSlash();
       sfx.snobAttack();
@@ -1990,6 +2062,7 @@ class GameState {
         this.spawnFloatingText(playerEl, `+${pts} TENTO(S)! (${this.playerTentos}/12)`, '#2ecc71', 'assets/ui/icon_dracma.svg');
       }
     } else {
+      this.stats.roundsLost++;
       // Benefício do Estagiário: se a 1ª partida empatou e ele venceu a mão disputada (sem o jogador ter corrido), ganha +1 Tento
       if (!wasFold && this.enemy && this.enemy.passiveId === 'corpo_mole' && this.vazaResults[0] === 'tie') {
         pts += 1;
@@ -2444,6 +2517,7 @@ class GameState {
           if (h2) h2.textContent = '"Flawless acquisition! A Inferno S/A agora pertence à Holding Beznoir!"';
           if (p) p.textContent = 'Louis Beznoir IV liquidou Hades na mesa de Truco, assumiu o Trono Executivo do Tártaro e rebaixou o antigo Lorde do Submundo!';
           if (btnText) btnText.textContent = 'NOVA OPERAÇÃO';
+          this.renderDRESummary(true);
           gameOverModal.classList.remove('hidden');
         }
       }, 900);
@@ -2960,12 +3034,14 @@ class GameState {
       if (h2) h2.textContent = '"Isso é um dealbreaker total..."';
       if (p) p.textContent = `O Chefe fechou os 12 Tentos na mesa de ${this.enemy ? this.enemy.bgTitle : 'Câmara I'}.`;
       if (btnText) btnText.textContent = 'VOLTAR AO MENU INICIAL';
+      this.renderDRESummary(false);
       gameOverModal.classList.remove('hidden');
     }
   }
 
   restart() {
     this.hideTrucoChallengeModal();
+    this.hideMaoDeOnzeModal();
     const gameOverModal = document.getElementById('game-over-modal');
     if (gameOverModal) gameOverModal.classList.add('hidden');
     const roomChoiceModal = document.getElementById('room-choice-modal');
@@ -2981,6 +3057,20 @@ class GameState {
     if (titleModal) {
       titleModal.classList.remove('hidden');
     }
+
+    this.stats = {
+      vazasWon: 0,
+      vazasLost: 0,
+      roundsWon: 0,
+      roundsLost: 0,
+      trucosCalled: 0,
+      trucosWon: 0,
+      manilhasPlayed: 0,
+      bluffsUnmasked: 0,
+      goldEarned: 100
+    };
+    this.isMaoDeOnze = false;
+    this.isMaoDeFerro = false;
 
     this.currentRoomIndex = 0;
     this.playerTentos = 0;
@@ -3002,6 +3092,159 @@ class GameState {
     if (roomNameEl) roomNameEl.textContent = DUNGEON_ENEMIES[0].bgTitle;
     const bgLayer = document.getElementById('arena-bg-layer');
     if (bgLayer) bgLayer.style.backgroundImage = `url("${DUNGEON_ENEMIES[0].background}")`;
+  }
+
+  triggerHaptic(pattern = [25]) {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      try {
+        navigator.vibrate(pattern);
+      } catch (e) {
+        // Ignora silenciosamente se o dispositivo não der suporte
+      }
+    }
+  }
+
+  triggerScreenShake() {
+    const arena = document.getElementById('battle-arena') || document.getElementById('mobile-viewport');
+    if (!arena) return;
+    arena.classList.remove('screen-shake-anim');
+    void arena.offsetWidth; // Força reflow CSS
+    arena.classList.add('screen-shake-anim');
+    setTimeout(() => {
+      arena.classList.remove('screen-shake-anim');
+    }, 320);
+  }
+
+  showTrucoCinematicBanner(level, isPlayer) {
+    const banner = document.getElementById('truco-comic-banner');
+    const textEl = document.getElementById('comic-shout-text');
+    const subEl = document.getElementById('comic-shout-sub');
+    if (!banner || !textEl || !subEl) return;
+
+    const titles = {
+      1: isPlayer ? 'TRUCO!' : 'TRUCO DO CHEFE!',
+      2: isPlayer ? 'SEIS, MEU CONSAGRADO!' : 'SEIS DO CHEFE!',
+      3: isPlayer ? 'NOVE NELE!' : 'NOVE DO CHEFE!',
+      4: isPlayer ? 'DOZE! VALE O JOGO!' : 'DOZE DO CHEFE!'
+    };
+    const pts = {
+      1: 'VALE 3 TENTOS NA MESA!',
+      2: 'VALE 6 TENTOS NA MESA!',
+      3: 'VALE 9 TENTOS NA MESA!',
+      4: 'VALE 12 TENTOS (PARTIDA COMPLETA)!'
+    };
+
+    textEl.textContent = titles[level] || (isPlayer ? 'TRUCO!' : 'TRUCO!');
+    subEl.textContent = pts[level] || 'APOSTA ELEVADA!';
+
+    banner.classList.remove('hidden');
+    this.triggerScreenShake();
+    this.triggerHaptic([60, 30, 80]);
+
+    clearTimeout(this.trucoBannerTimer);
+    this.trucoBannerTimer = setTimeout(() => {
+      banner.classList.add('hidden');
+    }, 900);
+  }
+
+  triggerBossTell(type = 'bluff') {
+    const balloon = document.getElementById('boss-tell-balloon');
+    if (!balloon) return;
+    balloon.classList.remove('hidden');
+    clearTimeout(this.bossTellTimer);
+    this.bossTellTimer = setTimeout(() => {
+      balloon.classList.add('hidden');
+    }, 1400);
+  }
+
+  showMaoDeOnzeModal() {
+    const modal = document.getElementById('mao-de-onze-modal');
+    const preview = document.getElementById('mao-de-onze-preview');
+    const btnAccept = document.getElementById('btn-m11-accept');
+    const btnFold = document.getElementById('btn-m11-fold');
+    if (!modal) return;
+
+    if (preview) {
+      preview.innerHTML = '';
+      (this.hand || []).forEach(c => {
+        preview.innerHTML += this.buildMiniTableCardHTML(c);
+      });
+    }
+
+    if (btnAccept) {
+      btnAccept.onclick = () => {
+        this.hideMaoDeOnzeModal();
+        sfx.swordSlash();
+        this.triggerHaptic([40, 30, 60]);
+        this.speak('Decisão de governança: Aceitamos o risco! Vamos disputar os 3 tentos da vitória!');
+      };
+    }
+
+    if (btnFold) {
+      btnFold.onclick = () => {
+        this.hideMaoDeOnzeModal();
+        this.foldHandMaoDeOnze();
+      };
+    }
+
+    modal.classList.remove('hidden');
+  }
+
+  hideMaoDeOnzeModal() {
+    const modal = document.getElementById('mao-de-onze-modal');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  foldHandMaoDeOnze() {
+    this.hideMaoDeOnzeModal();
+    this.speak('Gestão de risco prudente! Descartamos essa mão antes do pregão e cedemos 1 tento!');
+    this.awardHandTentos('enemy', 1, true);
+  }
+
+  evaluateEnemyMaoDeOnze() {
+    const hasManilha = this.enemyTrucoHand.some(c => this.isCardManilha(c));
+    const maxPwr = Math.max(...this.enemyTrucoHand.map(c => this.getPlayingCardStrength(c, true)));
+
+    // Chefe aceita se tiver manilha ou carta de peso alto (>= 11, ex: 3, 2)
+    if (hasManilha || maxPwr >= 11 || Math.random() < 0.45) {
+      this.speakArrogant(
+        'Mão de 11 do Chefe',
+        'O Chefe revisou a carteira dele e bancou o risco! A mão vale 3 tentos! Mostre quem manda no pregão!'
+      );
+    } else {
+      this.speakArrogant(
+        'Mão de 11 do Chefe',
+        'O Chefe arregou na Mão de 11 com medo da nossa auditoria! Faturamos +1 Tento de graça no balcão!'
+      );
+      this.awardHandTentos('player', 1, true);
+    }
+  }
+
+  renderDRESummary(isVictory) {
+    const dreVazas = document.getElementById('dre-vazas');
+    const dreGold = document.getElementById('dre-gold');
+    const dreTrucos = document.getElementById('dre-trucos');
+    const dreManilhas = document.getElementById('dre-manilhas');
+    const dreParecer = document.getElementById('dre-parecer');
+
+    const totalVazas = (this.stats.vazasWon || 0) + (this.stats.vazasLost || 0);
+    const winRate = totalVazas > 0 ? Math.round((this.stats.vazasWon / totalVazas) * 100) : 100;
+    const trucoRate = this.stats.trucosCalled > 0 
+      ? Math.round((this.stats.trucosWon / this.stats.trucosCalled) * 100)
+      : 100;
+
+    if (dreVazas) dreVazas.textContent = `${this.stats.vazasWon} vitórias (${winRate}% de win rate)`;
+    if (dreGold) dreGold.textContent = `${this.player.gold} Dracmas (Saldo Final)`;
+    if (dreTrucos) dreTrucos.textContent = `${trucoRate}% de sucesso (${this.stats.trucosWon}/${this.stats.trucosCalled || 1})`;
+    if (dreManilhas) dreManilhas.textContent = `${this.stats.manilhasPlayed} jogadas na mesa`;
+
+    if (dreParecer) {
+      if (isVictory) {
+        dreParecer.textContent = '"Holding Beznoir consolidada com EBITDA astronômico! Auditoria concluída com takeover hostil do Olimpo e rebaixamento de Hades!"';
+      } else {
+        dreParecer.textContent = '"Insolvência operacional de tentos na mesa. Recomendamos reestruturação do balanço, corte de despesas e nova auditoria no Limbo."';
+      }
+    }
   }
 
   bindSafeTap(el, callback) {
@@ -3483,7 +3726,13 @@ class GameState {
     const trucoCoinImg = document.getElementById('btn-truco-coin-img');
 
     if (trucoBtn) {
-      if (this.trucoLevel >= 4) {
+      if (this.isMaoDeOnze || this.isMaoDeFerro) {
+        trucoBtn.disabled = true;
+        trucoBtn.className = 'btn-truco-call-centered truco-waiting btn-disabled-m11';
+        if (trucoBtnText) trucoBtnText.textContent = this.isMaoDeFerro ? 'MÃO DE FERRO' : 'MÃO DE 11';
+        if (trucoBtnSub) trucoBtnSub.textContent = 'VALE 3 TENTOS';
+        if (trucoCoinImg) trucoCoinImg.src = 'assets/ui/coins_truco_3.svg';
+      } else if (this.trucoLevel >= 4) {
         trucoBtn.disabled = true;
         trucoBtn.className = 'btn-truco-call-centered truco-waiting';
         if (trucoBtnText) trucoBtnText.textContent = 'MÁXIMO (12)';
@@ -3757,6 +4006,7 @@ class GameState {
       hasMoved = false;
       this.isDragging = true;
       this.draggedCardIndex = index;
+      this.triggerHaptic([15]);
       cardEl.classList.add('active-touch');
       try {
         cardEl.setPointerCapture(e.pointerId);

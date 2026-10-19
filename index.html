@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#0d0a14">
-  <link rel="stylesheet" href="style.css?v=54">
+  <link rel="stylesheet" href="style.css?v=55">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
@@ -103,6 +103,14 @@
       <div id="dialogue-action-slot" class="dialogue-action-slot hidden"></div>
     </div>
 
+    <!-- Banner Cinematográfico de Truco / Grito de Aposta (HQ Style) -->
+    <div id="truco-comic-banner" class="truco-comic-banner hidden">
+      <div class="comic-shout-wrap">
+        <div class="comic-shout-text" id="comic-shout-text">TRUCO!</div>
+        <div class="comic-shout-sub" id="comic-shout-sub">VALE 3 TENTOS!</div>
+      </div>
+    </div>
+
     <!-- Arena de Batalha (Layout Mockup) -->
     <main id="battle-arena">
       <!-- Background do submundo -->
@@ -120,6 +128,12 @@
           
           <!-- Balão Cômico de Grito do Monstro -->
           <div id="enemy-comic-callout" class="enemy-comic-callout hidden"></div>
+
+          <!-- Micro-Expressão / Tell de Blefe do Chefe -->
+          <div id="boss-tell-balloon" class="boss-tell-balloon hidden">
+            <span class="tell-sweat">💧</span>
+            <span class="tell-text">...?!</span>
+          </div>
         </div>
         <!-- Plataforma Estilo Pokémon com Campo Gravitacional -->
         <div class="pedestal-container">
@@ -342,6 +356,30 @@
           </div>
         </div>
       </div>
+
+      <!-- Modal da Mão de 11 (Due Diligence e Análise de Risco) -->
+      <div id="mao-de-onze-modal" class="truco-challenge-overlay hidden">
+        <div class="truco-challenge-box mao-de-onze-box">
+          <div class="truco-challenge-kicker">
+            <img src="assets/ui/icon_spark.svg" class="inline-ui-art" alt="">
+            <span id="mao-de-onze-tag">MÃO DE 11: DUE DILIGENCE</span>
+            <img src="assets/ui/icon_spark.svg" class="inline-ui-art" alt="">
+          </div>
+          <h3 id="mao-de-onze-title">11 TENTOS NA MESA!</h3>
+          <p id="mao-de-onze-quote">"Estamos a 1 tento da vitória! Avalie suas cartas: disputar a mão (vale 3 tentos) ou correr estrategicamente (cedendo 1 tento)?"</p>
+          <div class="mao-de-onze-preview" id="mao-de-onze-preview">
+            <!-- 3 mini cartas renderizadas via JS -->
+          </div>
+          <div class="truco-challenge-actions">
+            <button id="btn-m11-accept" class="truco-resp-btn accept-btn">
+              <img src="assets/ui/icon_sword.svg" class="inline-ui-art" alt=""> JOGAR (VALE 3 TENTOS)
+            </button>
+            <button id="btn-m11-fold" class="truco-resp-btn fold-btn">
+              <img src="assets/ui/icon_shield.svg" class="inline-ui-art" alt=""> CORRER (CEDER 1 TENTO)
+            </button>
+          </div>
+        </div>
+      </div>
     </main>
 
 
@@ -425,6 +463,34 @@
         </div>
         <h2>"Isso é um dealbreaker total..."</h2>
         <p>Louis entrou em colapso nas chamas do Círculo I.</p>
+
+        <!-- Extrato Consolidado da Holding (DRE Satírico) -->
+        <div id="run-summary-dre" class="run-summary-dre">
+          <div class="dre-title">EXTRATO CONSOLIDADO DA HOLDING (DRE)</div>
+          <div class="dre-grid">
+            <div class="dre-item">
+              <span class="dre-label">Almas Resgatadas (Vazas):</span>
+              <span class="dre-val" id="dre-vazas">0</span>
+            </div>
+            <div class="dre-item">
+              <span class="dre-label">EBITDA da Carteira:</span>
+              <span class="dre-val" id="dre-gold">100 Dracmas</span>
+            </div>
+            <div class="dre-item">
+              <span class="dre-label">Taxa de Sucesso no Truco:</span>
+              <span class="dre-val" id="dre-trucos">0%</span>
+            </div>
+            <div class="dre-item">
+              <span class="dre-label">Manilhas / Zaps Batidos:</span>
+              <span class="dre-val" id="dre-manilhas">0</span>
+            </div>
+            <div class="dre-item dre-full">
+              <span class="dre-label">Parecer da Auditoria CVM:</span>
+              <span class="dre-val dre-parecer" id="dre-parecer">"..."</span>
+            </div>
+          </div>
+        </div>
+
         <button id="btn-restart" class="interstitial-btn-battle restart-btn">
           <span id="btn-restart-text">TENTAR NOVAMENTE</span>
         </button>
@@ -571,6 +637,6 @@
 
   </div>
 
-  <script type="module" src="src/game.js?v=54"></script>
+  <script type="module" src="src/game.js?v=55"></script>
 </body>
 </html>
