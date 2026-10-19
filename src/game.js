@@ -2547,7 +2547,7 @@ class GameState {
         cardEl.classList.add('boon-card-focused');
 
         if (inspectPanel && inspectQuote) {
-          inspectQuote.innerHTML = `"${relic.name}? Como você não sabe o que é?! ${relic.desc}"`;
+          inspectQuote.textContent = this.getFariaLimerQuote(relic.name, relic.desc);
           inspectPanel.classList.remove('hidden');
         }
         sfx.cardDraw();
