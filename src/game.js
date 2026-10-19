@@ -3589,6 +3589,30 @@ class GameState {
     if (!bar) return;
     bar.innerHTML = '';
 
+    // 0. Passiva Inata do Protagonista: "Sorte de Nascença" (+40% de probabilidade da carta especial)
+    const btnLouisPassive = document.createElement('button');
+    btnLouisPassive.type = 'button';
+    btnLouisPassive.className = 'archetype-ability-btn louis-passive-chip';
+    btnLouisPassive.title = 'Passiva Inata: Sorte de Nascença (+40% de probabilidade estatística de vir a carta Suborno Real na mão)';
+    btnLouisPassive.innerHTML = `
+      <img src="assets/characters/luiz_beznol.png?v=4" class="archetype-ability-icon" alt="Sorte de Nascença">
+      <span class="archetype-ability-badge louis-passive-badge">+40%</span>
+    `;
+    this.bindSafeTap(btnLouisPassive, () => {
+      this.speakArrogant(
+        'Sorte de Nascença',
+        'Berço de ouro! Minha carta especial Suborno Real Beznoir tem probabilidade estatística aumentada em +40% de vir na mão a cada rodada!'
+      );
+      sfx.cardDraw();
+    });
+    bar.appendChild(btnLouisPassive);
+
+    // Divisor entre a Passiva Inata de Louis e os Poderes do Arquétipo
+    const divInnate = document.createElement('span');
+    divInnate.className = 'abilities-bar-divider';
+    divInnate.title = 'Poderes do Arquétipo';
+    bar.appendChild(divInnate);
+
     const arch = this.archetype; // 'quant', 'private_equity', 'hedge_fund'
 
     if (arch === 'quant') {
