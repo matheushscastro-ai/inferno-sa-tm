@@ -4460,16 +4460,24 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     comicImg.style.opacity = '0';
-    setTimeout(() => {
-      comicImg.src = slide.image;
+    comicImg.onload = () => {
       comicImg.style.opacity = '1';
-    }, 150);
+    };
+    comicImg.src = slide.image;
+    if (comicImg.complete) {
+      comicImg.style.opacity = '1';
+    }
 
     comicTitle.textContent = slide.title;
     comicText.textContent = slide.caption;
 
+    const comicStageEl = document.querySelector('#comic-modal .comic-stage');
+    if (comicStageEl) {
+      comicStageEl.scrollTop = 0;
+    }
+
     prevBtn.disabled = currentComicIndex === 0;
-    nextBtn.textContent = currentComicIndex === unlocked.length - 1 ? 'Concluir ✓' : 'Próximo ▶';
+    nextBtn.textContent = currentComicIndex === unlocked.length - 1 ? 'Concluir' : 'Próximo >';
 
     renderComicDots();
   }
@@ -4477,6 +4485,10 @@ window.addEventListener('DOMContentLoaded', () => {
   function openComicViewer() {
     comicModal.classList.remove('hidden');
     showComicSlide(0);
+    const comicStageEl = document.querySelector('#comic-modal .comic-stage');
+    if (comicStageEl) {
+      comicStageEl.scrollTop = 0;
+    }
   }
 
   function closeComicViewer() {
@@ -4487,11 +4499,12 @@ window.addEventListener('DOMContentLoaded', () => {
   const closeBtn = document.getElementById('btn-close-comic');
 
   if (openBtn) {
+    let lastOpen = 0;
     const handleOpen = (e) => {
-      if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
+      const now = Date.now();
+      if (now - lastOpen < 350) return;
+      lastOpen = now;
+      if (e && e.type === 'touchend') e.preventDefault();
       openComicViewer();
     };
     openBtn.addEventListener('click', handleOpen);
@@ -4499,7 +4512,11 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   if (btnTitlePrologue) {
+    let lastPrologueOpen = 0;
     const handleTitlePrologue = (e) => {
+      const now = Date.now();
+      if (now - lastPrologueOpen < 350) return;
+      lastPrologueOpen = now;
       if (e && e.type === 'touchend') e.preventDefault();
       openComicViewer();
     };
@@ -4508,16 +4525,29 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   if (closeBtn) {
+    let lastClose = 0;
     const handleClose = (e) => {
-      if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
+      const now = Date.now();
+      if (now - lastClose < 350) return;
+      lastClose = now;
+      if (e && e.type === 'touchend') e.preventDefault();
       closeComicViewer();
     };
     closeBtn.addEventListener('click', handleClose);
     closeBtn.addEventListener('touchend', handleClose);
   }
+
+  comicModal.addEventListener('click', (e) => {
+    if (e.target === comicModal) {
+      closeComicViewer();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !comicModal.classList.contains('hidden')) {
+      closeComicViewer();
+    }
+  });
 
   prevBtn.addEventListener('click', () => {
     if (currentComicIndex > 0) showComicSlide(currentComicIndex - 1);
