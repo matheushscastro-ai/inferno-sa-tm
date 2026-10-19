@@ -1170,8 +1170,13 @@ class GameState {
       this.hand.push(this.tableDeck.pop());
     }
 
-    // Inclui a Carta Especial do Protagonista (★ Suborno Real Beznoir)
-    const includeProtagonistSpecial = (this.turnNumber === 1) || this.hasRelic('fusao_perpetua') || (Math.random() < 0.45);
+    // Passiva do Protagonista: "Sorte de Nascença"
+    // Probabilidade estatística de um baralho de truco (1 carta em 40 cartas = 2.5% por carta, 3 cartas = 7.5%)
+    // Com a passiva Sorte de Nascença (+40% de probabilidade): (3 / 40) * 1.40 = ~10.5%!
+    const baseChance = cardsToDraw / 40;
+    const boostedChance = baseChance * 1.40;
+    const relicExtra = this.hasRelic('fusao_perpetua') ? 0.08 : 0;
+    const includeProtagonistSpecial = Math.random() < (boostedChance + relicExtra);
     if (includeProtagonistSpecial && this.hand.length > 0) {
       this.hand[0] = this.createProtagonistSpecialCard();
     }
@@ -1645,11 +1650,13 @@ class GameState {
 
     this.tablePlayedEnemy = { ...enemyCard, isFaceDown: false };
 
-    // Se jogou a Carta Especial de Louis, ganha +12 Dracmas de dividendo!
+    // Se jogou a Carta Especial de Louis (Suborno Real Beznoir), ganha +15 Dracmas e dispara efeito visual/fala de Faria Limer!
     if (card.isSpecialProtagonist) {
-      this.player.gold += 12;
-      this.spawnFloatingText(playerEl, '+12 Dracmas VIP', '#ffd700', 'assets/ui/icon_dracma.svg');
+      this.player.gold += 15;
+      this.spawnFloatingText(playerEl, '+15 Dracmas VIP', '#ffd700', 'assets/ui/icon_dracma.svg');
       this.triggerCardCombatVFX({ vfxType: 'lightning' });
+      sfx.boonAcquired();
+      this.speakArrogant('Suborno Real Beznoir', 'Of course! Todo mundo tem um preço nesta repartição pública! Essa vaza já foi liquidada pela Holding Beznoir!');
     } else if (this.isCardManilha(card)) {
       this.triggerCardCombatVFX({ vfxType: 'fire' });
     }
@@ -3057,7 +3064,21 @@ class GameState {
     const closeBtn = document.getElementById('dialogue-close-btn');
     if (closeBtn) {
       closeBtn.onclick = () => bubble.classList.add('hidden');
-    }
+  getFariaLimerQuote(term, desc) {
+    const templates = [
+      `"${term}? Outstanding! Como você não sabe o que é isso, meu consagrado?! ${desc}"`,
+      `"${term}? Flawless! Não te ensinaram o valuation disso no seu MBA?! ${desc}"`,
+      `"${term}? By the way, quem opera no mercado sem entender essa tese é puro amadorismo! ${desc}"`,
+      `"${term}? Of course! Básico do corporate governance do Olimpo! Presta atenção: ${desc}"`,
+      `"${term}? Absolutely out of the curve! Como alguém com CPF ativo não conhece essa mecânica?! ${desc}"`,
+      `"${term}? Dealbreaker total não saber isso! Meu private banker usa todo santo dia: ${desc}"`,
+      `"${term}? Excuse me?! Isso é cartilha básica da Faria Lima até o Tártaro! ${desc}"`,
+      `"${term}? Low profile, mas de altíssima rentabilidade! Deixa eu desenhar o pitch pra você: ${desc}"`,
+      `"${term}? Surreal ter que dar essa consultoria de graça na mesa! É o seguinte: ${desc}"`,
+      `"${term}? Mindset fraco esse seu! Deixa eu fazer o onboarding rápido: ${desc}"`,
+      `"${term}? C-Level não perde tempo com dúvida júnior, mas lá vai: ${desc}"`
+    ];
+    return templates[Math.floor(Math.random() * templates.length)];
   }
 
   speakArrogant(term, desc, actionCallback = null, actionLabel = 'EXECUTAR ORDEM') {
@@ -3066,7 +3087,7 @@ class GameState {
     const actionSlot = document.getElementById('dialogue-action-slot');
     if (!bubble || !dialogue) return;
 
-    dialogue.textContent = `"${term}? Como você não sabe o que é?! ${desc}"`;
+    dialogue.textContent = this.getFariaLimerQuote(term, desc);
     bubble.classList.remove('hidden');
 
     if (actionSlot) {
@@ -3137,14 +3158,23 @@ class GameState {
       return `<img src="assets/cards/truco_card_back.svg" alt="Carta Coberta" class="deck-back-img">`;
     }
     const suit = card.suit || TRUCO_SUITS[0];
-    const isManilha = this.isCardManilha(card) || card.isSpecialProtagonist;
+    const isSpecial = Boolean(card.isSpecialProtagonist);
+    const isManilha = this.isCardManilha(card) || isSpecial;
     const artHtml = card.art
       ? `<img src="${card.art}" class="mini-card-art" alt="${card.rank}">`
       : `<img src="${suit.svg}" class="mini-center-suit" alt="${suit.name}">`;
 
+    let frameSrc = 'assets/ui/card_frame_gold_cutout.png';
+    if (isSpecial) {
+      frameSrc = 'assets/ui/card_frame_purple_cutout.png';
+    } else if (isManilha) {
+      frameSrc = 'assets/ui/card_frame_crimson_cutout.png';
+    }
+
     return `
       <div class="mini-playing-card ${suit.isRed ? 'suit-red' : ''} ${isManilha ? 'is-manilha' : ''}">
         ${artHtml}
+        <img class="mini-card-frame-overlay" src="${frameSrc}" alt="Frame">
         <div class="mini-corner">
           <span class="mini-rank">${card.rank}</span>
           <img src="${suit.svg}" class="mini-suit-img" alt="${suit.name}">
@@ -3337,7 +3367,8 @@ class GameState {
 
       if (isSpecial) {
         banner.classList.add('special-selected');
-        banner.innerHTML = `<strong>★ SUBORNO REAL BEZNOIR:</strong> Força Suprema (só perde pro ZAP ♣ da Manilha). Concede +12 Dracmas! <em>(Toque novamente para jogar)</em>`;
+        banner.innerHTML = `<strong>★ SUBORNO REAL BEZNOIR:</strong> Força Quase Suprema (23.5) & Rende +15 Dracmas! <em>(Toque novamente para jogar)</em>`;
+        this.speakArrogant('Suborno Real Beznoir', 'Uma ordem de pagamento irrecusável: força 23.5 contra a mesa e me rende +15 Dracmas no ato!');
       } else if (isManilha) {
         banner.classList.add('manilha-selected');
         banner.innerHTML = `<strong>${suit.manilhaTitle} (${card.rank} de ${suit.name}):</strong> MANILHA DA RODADA! Força ${pwr}. <em>(Toque novamente para jogar)</em>`;
@@ -3592,6 +3623,18 @@ class GameState {
 
     this.renderBossTopHUD();
 
+    const playerPassiveEl = document.getElementById('player-passive-tag');
+    if (playerPassiveEl && !playerPassiveEl.dataset.bound) {
+      playerPassiveEl.dataset.bound = 'true';
+      this.bindSafeTap(playerPassiveEl, () => {
+        this.speakArrogant(
+          'Sorte de Nascença',
+          'Berço de ouro! Minha carta especial Suborno Real Beznoir tem probabilidade estatística aumentada em +40% de vir na mão!'
+        );
+        sfx.cardDraw();
+      });
+    }
+
     const enemyImg = document.getElementById('enemy-sprite-idle') || document.getElementById('enemy-avatar-img');
     const enemyAttackImg = document.getElementById('enemy-sprite-attack');
     const enemyHurtImg = document.getElementById('enemy-sprite-hurt');
@@ -3673,10 +3716,13 @@ class GameState {
 
       // Selo minimalista apenas se for MANILHA da rodada ou a Carta Especial do Protagonista
       let badgeHTML = '';
+      let frameSrc = 'assets/ui/card_frame_gold_cutout.png';
       if (isSpecial) {
-        badgeHTML = `<div class="clean-card-badge badge-special">★ ESPECIAL</div>`;
+        badgeHTML = `<div class="clean-card-badge badge-special">★ SUBORNO REAL</div>`;
+        frameSrc = 'assets/ui/card_frame_purple_cutout.png';
       } else if (isManilha) {
         badgeHTML = `<div class="clean-card-badge">${suit.manilhaTitle}</div>`;
+        frameSrc = 'assets/ui/card_frame_crimson_cutout.png';
       }
 
       cardEl.innerHTML = `
@@ -3685,6 +3731,7 @@ class GameState {
           <img src="${suit.svg}" class="corner-suit-svg" alt="${suit.name}">
         </div>
         ${centerArtHTML}
+        <img class="playing-card-frame-overlay" src="${frameSrc}" alt="Frame">
         <div class="playing-card-corner bottom-right">
           <span class="corner-rank">${card.rank}</span>
           <img src="${suit.svg}" class="corner-suit-svg" alt="${suit.name}">
