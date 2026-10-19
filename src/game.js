@@ -1715,6 +1715,76 @@ class GameState {
       this.triggerHaptic([35, 20, 50]);
     }
 
+    if (this.currentTurnStarter === 'player') {
+      // 1. Louis jogou primeiro: sua carta vai à mesa imediatamente com card slam
+      this.tablePlayedEnemy = null;
+      this.clashStatusText = `${this.currentVaza + 1}ª PARTIDA: Você jogou ${this.formatCardShortName(card)}. ${this.enemy.luizName} está avaliando...`;
+      this.updateUI();
+      this.triggerCardSlam('player');
+
+      // 2. Intervalo aleatório entre 0 e 2 segundos (ex: 500ms a 1800ms) para resposta natural do Chefe
+      const thinkInterval = Math.floor(Math.random() * 1300) + 500;
+
+      setTimeout(() => {
+        // O Chefe escolhe a melhor carta
+        const playerPower = this.getPlayingCardStrength(card, false);
+        let chosenCardIdx = 0;
+        let bestWinningIdx = -1;
+        let minWinningDiff = 999;
+        let lowestCardIdx = 0;
+        let minPower = 999;
+
+        this.enemyTrucoHand.forEach((eCard, idx) => {
+          const ePwr = this.getPlayingCardStrength(eCard, true);
+          if (ePwr < minPower) {
+            minPower = ePwr;
+            lowestCardIdx = idx;
+          }
+          if (ePwr >= playerPower) {
+            const diff = ePwr - playerPower;
+            if (diff < minWinningDiff) {
+              minWinningDiff = diff;
+              bestWinningIdx = idx;
+            }
+          }
+        });
+
+        chosenCardIdx = bestWinningIdx >= 0 ? bestWinningIdx : lowestCardIdx;
+        const enemyCard = this.enemyTrucoHand.splice(chosenCardIdx, 1)[0] || this.currentEnemyCard;
+        this.currentEnemyCard = enemyCard;
+        this.tablePlayedEnemy = { ...enemyCard, isFaceDown: false };
+
+        this.updateUI();
+        this.triggerCardSlam('enemy');
+
+        // Resolve o confronto da vaza
+        this.resolveVazaCombat(card, enemyCard, playerEl, enemyEl);
+      }, thinkInterval);
+
+    } else {
+      // Chefe já havia jogado aberto na mesa!
+      let enemyCard = this.currentEnemyCard;
+      const idxInHand = this.enemyTrucoHand.findIndex(c => c.rank === enemyCard.rank && (!c.suit || !enemyCard.suit || c.suit.id === enemyCard.suit.id));
+      if (idxInHand >= 0) {
+        this.enemyTrucoHand.splice(idxInHand, 1);
+      }
+      this.tablePlayedEnemy = { ...enemyCard, isFaceDown: false };
+
+      this.updateUI();
+      this.triggerCardSlam('player');
+
+      // Intervalo de suspense natural para a mesa avaliar quem levou a vaza (entre 400ms e 800ms)
+      const clashDelay = Math.floor(Math.random() * 400) + 400;
+      setTimeout(() => {
+        this.resolveVazaCombat(card, enemyCard, playerEl, enemyEl);
+      }, clashDelay);
+    }
+  }
+
+  resolveVazaCombat(card, enemyCard, playerEl, enemyEl) {
+    if (!playerEl) playerEl = document.getElementById('player-bust-frame');
+    if (!enemyEl) enemyEl = document.getElementById('enemy-sprite');
+
     // 1. Calcula Força da Carta de Louis vs. Carta do Chefe
     let playerPower = this.getPlayingCardStrength(card, false);
     let enemyPower = this.getPlayingCardStrength(enemyCard, true);
@@ -1832,7 +1902,7 @@ class GameState {
       } else {
         if (playerPower > enemyPower) vazaOutcome = 'win';
         else if (playerPower < enemyPower) vazaOutcome = 'loss';
-        else vazaOutcome = 'win'; // Hedge sempre vence empate
+        else vazaOutcome = 'win';
       }
       this.triggerCardCombatVFX({ vfxType: 'lightning' });
     } else {
@@ -1841,7 +1911,6 @@ class GameState {
       } else if (playerPower < enemyPower) {
         vazaOutcome = 'loss';
       } else {
-        // Minos: "Decisão Monocrática" (Vence desempate no tribunal)
         if (this.enemy && this.enemy.specialAbility && this.enemy.specialAbility.id === 'decisao_monocratica' && !this.enemy.specialAbilityUsed) {
           this.enemy.specialAbilityUsed = true;
           vazaOutcome = 'loss';
@@ -1893,29 +1962,20 @@ class GameState {
     // Renderiza imediatamente as cartas na mesa e os blocos 1/3, 2/3, 3/3
     this.updateUI();
 
-    // Dispara a batida física e o impacto das cartas na mesa (Card Slam)
-    this.triggerCardSlam('player');
-    setTimeout(() => {
-      this.triggerCardSlam('enemy');
-    }, 130);
-
     // Verifica se a Rodada já foi decidida (Melhor de 2 ou regras clássicas de canga do Truco Paulista)
     const earlyOrFinalWinner = this.checkEarlyOrFinalRodadaWinner();
 
     if (earlyOrFinalWinner) {
-      // Rodada decidida imediatamente!
       setTimeout(() => {
         this.resolveTrucoHand(earlyOrFinalWinner);
       }, 1250);
     } else if (this.currentVaza < 2) {
-      // Se ainda não decidiu e restam partidas, avança mantendo as cartas na mão
       this.currentVaza++;
       setTimeout(() => {
         this.isResolvingVaza = false;
         this.prepareVaza();
       }, 1250);
     } else {
-      // Fallback de segurança se chegou ao fim da 3ª partida
       const rodadaWinner = this.calculateRodadaWinner();
       setTimeout(() => {
         this.resolveTrucoHand(rodadaWinner);
@@ -3684,6 +3744,37 @@ class GameState {
         }
       });
       bar.appendChild(btnEven);
+    }
+
+    // Renderiza também todos os Ativos Passivos / Efeitos colecionados pós-fase na barra de poderes!
+    const collectedRelics = (this.relics || []).filter(
+      rId => !['algoritmo_hermes', 'alavancagem_ares', 'blindagem_patrimonial'].includes(rId)
+    );
+
+    if (collectedRelics.length > 0) {
+      const divider = document.createElement('span');
+      divider.className = 'abilities-bar-divider';
+      divider.title = 'Ativos da Holding';
+      bar.appendChild(divider);
+
+      collectedRelics.forEach(relicId => {
+        const r = RELIC_DATABASE[relicId];
+        if (!r) return;
+
+        const relicBtn = document.createElement('button');
+        relicBtn.type = 'button';
+        relicBtn.className = 'archetype-ability-btn relic-power-chip';
+        relicBtn.title = `${r.name}: ${r.desc} (Toque para ouvir Louis)`;
+        relicBtn.innerHTML = `
+          <img src="${r.art}" class="archetype-ability-icon" alt="${r.name}" onerror="this.src='assets/ui/icon_spark.svg'">
+          <span class="archetype-ability-badge relic-badge-tag">VIP</span>
+        `;
+        this.bindSafeTap(relicBtn, () => {
+          this.speakArrogant(r.name, r.desc);
+          sfx.cardDraw();
+        });
+        bar.appendChild(relicBtn);
+      });
     }
   }
 
